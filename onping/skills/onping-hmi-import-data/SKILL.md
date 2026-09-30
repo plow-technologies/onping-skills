@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing HMI Data Import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It replaces the data bindings (location and parameter ids) on an existing HMI. There is no undo; export the current bindings first with `onping-hmi-export-data` and re-import them to revert. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Import **data-binding mappings** into an existing HMI — the write-back inverse of
 `onping-hmi-export-data`. `POST /hmi/import-data/{uuid}` takes a Dhall
 `[DataImport]` body and applies those bindings to the HMI identified by `{uuid}`,

@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator reports
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `--execute` runs the generation rules and adds candidates and a report; `--delete-all` clears every execution report. Clearing reports cannot be undone; remove added candidates with `onping-mqtt-integrator-delete --target uncreated`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Reads the history of rule executions for one Lumberjack's integrator, and
 triggers a run.
 

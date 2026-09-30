@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing import-singlewell-manual
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It overwrites the description, type, and value of every singlewell-manual parameter in the sheet and creates a parameter for each blank-PID row. Undo an overwrite by re-importing a sheet exported first with `onping-export-singlewell-manual`; created parameters cannot be removed with these skills. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Uploads an edited/appended parameter spreadsheet for one singlewell-manual
 location to OnPing via `POST /v2/singlewellmanual/import/params` (a multipart
 form: `f1` = the XLSX, `f2` = the location refId int). This is the write

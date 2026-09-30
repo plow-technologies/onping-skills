@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing Line Graph Widget — Import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It overwrites a line-graph widget in place, or with `--new` creates a new widget first. There is no undo for an overwrite, so export first with `onping-line-graph-export` and re-import that file to revert; a `--new` widget cannot be deleted, because OnPing has no line-graph delete route. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Import a full line-graph widget layout into an existing widget id — the
 write-back inverse of `onping-line-graph-export`, and the way to restore, edit,
 or clone a chart. Accepts three input formats: `.dhall` (passthrough), `.json`,

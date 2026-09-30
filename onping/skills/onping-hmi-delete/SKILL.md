@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing HMI Delete
 
+> **⚠️ WARNING: this skill changes live data.**
+> It deletes an HMI dashboard (a soft delete: OnPing flags it `dashDeleted=true`). There is no undelete command; export the HMI first with `onping-hmi-export` so you can restore it with `onping-hmi-import`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Delete an HMI dashboard by UUID. `DELETE /hmi/delete/{uuid}` removes an HMI.
 
 > **Soft delete.** OnPing sets `dashDeleted = true` on the dashboard rather than

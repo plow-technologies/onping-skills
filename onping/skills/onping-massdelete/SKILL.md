@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing massdelete
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It deletes historian samples (PID and timestamp pairs) from OnPing. These changes cannot be undone. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Deletes `(PID, timestamp)` historian samples via
 `POST /massdelete/execute`. Input is a CSV in the OnPing event-report shape;
 every non-blank data cell must be the literal string `1.0` (the delete

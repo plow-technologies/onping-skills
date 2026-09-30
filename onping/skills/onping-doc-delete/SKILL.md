@@ -6,6 +6,9 @@ allowed-tools: Bash(gpg *), Bash(uv run *)
 
 # OnPing Doc Delete
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It deletes documents from the live customer-facing documentation site. These changes cannot be undone; back each document up first with `onping-doc-get --json`. It previews and changes nothing until you pass `--yes`, and a `--where` delete also needs a matching `--confirm-count`.
+
 Remove a page from the OnPing documentation site at
 `https://onping.plowtech.net/onping-doc`.
 

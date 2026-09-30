@@ -6,9 +6,10 @@ allowed-tools: Bash(uv run *)
 
 # Lumberjack Restore — Run
 
-Trigger a restore operation on a lumberjack device. This downloads a backup from S3, stops running services, and restores the saved state files.
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It stops running services on a Lumberjack device and overwrites its saved state files in `/home/lumberjack/Private/` with the chosen backup. These changes cannot be undone. It acts immediately: there is no preview and no confirmation, and it re-sends the restore request up to three times if the device answers with a 3xx or 4xx status.
 
-**Warning:** This is a destructive operation. It kills running services on the device and overwrites files in `/home/lumberjack/Private/`.
+Trigger a restore operation on a lumberjack device. This downloads a backup from S3, stops running services, and restores the saved state files.
 
 ## Related Skills
 

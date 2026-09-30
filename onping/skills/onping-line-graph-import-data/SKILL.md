@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing Line Graph Widget — Import Data-Only
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It rewrites the PID bindings on an existing line-graph widget. There is no undo; export the widget first with `onping-line-graph-export` and re-import it with `onping-line-graph-import` to revert. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Remap the pid bindings on a line-graph widget without touching layout. Wraps
 `POST /content/widgets/line-graph/import-data-only/{id}` with a Dhall `[Field]`
 body — a list of `{from : {onpingKey, description}, to : Optional {type, value}}`

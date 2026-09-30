@@ -5,6 +5,9 @@ description: 5-phase runbook for migrating old-style control parameters to Infer
 
 # CPID Migration
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> This runbook disables, imports, and deletes classic and Inferno control parameters and installs or removes Lumberjack packages; deleting classic CPs in the teardown step cannot be undone. Keep the exported Dhall backups each phase produces, since they are the only rollback. The runbook runs no code itself: each write goes through another skill, and `classic-cp-dhall import` acts immediately while the others preview until you pass `--yes`.
+
 Migrate old-style control parameters to the Inferno CP system on OnPing Lumberjacks. Follow the five phases in order — each produces a deliverable that feeds the next.
 
 ## Phases

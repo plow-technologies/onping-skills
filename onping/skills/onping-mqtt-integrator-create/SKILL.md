@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator create
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It creates real OnPing locations and mqtt-json driver parameters from the integrator's candidates. This cannot be undone with these skills: removing them means deleting the driver location and OnPing objects by hand. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Turns the integrator's uncreated candidates into real OnPing locations and
 mqtt-json driver parameters for one Lumberjack. This is the only skill in the
 family that creates anything outside the integrator.

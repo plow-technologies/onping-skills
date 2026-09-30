@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing PID Write
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It writes a new value to a live OnPing parameter, which may be a device setpoint. Undo by writing the previous value back (the preview prints it), but anything a device or control logic did in response cannot be undone. It previews by default and changes nothing until you pass `--yes`.
+
 Write a value to a PID. **MUTATING** — nothing happens without `--yes`.
 
 This is the catalog's first skill that writes a **live value to physical equipment**. Every other

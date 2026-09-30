@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # Inferno Control Parameter Import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It creates Inferno control parameters (entries with no `cpId`) or overwrites existing ones matched by `cpId`. There is no undo; save the current definitions with `cp-list` (normalized by `cp-import-json`) first so an overwrite can be re-imported, and note that a created CP can only be removed through `cpInferno/delete`, which no skill here wraps. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Import **Inferno** control parameters into OnPing from a JSON file — the write path that `cp-list` (read) and `cp-import-json` (shape/validate) were missing. Mirrors the OnPing v3 web UI's import action on `/v3/inferno/control-parameters?ljSerial=<n>`: a single `POST /cpInferno/import` with a JSON array of CP objects as the request body (`Content-Type: text/plain;charset=UTF-8`).
 
 > **Inferno, not classic.** This skill operates on the **Inferno** control-parameter engine (`cpInferno/*`) — the same engine as `cp-list` (`cpInferno/list`), `cp-script-fetch`, and `cp-import-json`. It is **not** the classic CP system (`/cp/*`) used by `classic-cp-import` / `classic-cp-export`.

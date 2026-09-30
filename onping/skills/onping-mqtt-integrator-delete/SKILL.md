@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator delete
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It deletes candidates, created-object records, or raw unprocessed messages from a Lumberjack's integrator. Cleared unprocessed messages cannot be undone, deleted candidates come back on the next rule run, and deleted records can be restored only with `onping-mqtt-integrator-artifacts-import`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Removes things from the integrator's own three stores for one Lumberjack.
 
 ## Layer note

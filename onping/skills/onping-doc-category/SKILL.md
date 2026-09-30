@@ -6,6 +6,9 @@ allowed-tools: Bash(gpg *), Bash(uv run *)
 
 # OnPing Doc Category
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `--create`, `--update`, and `--delete` change the sidebar categories of the live customer-facing documentation site. Deletes cannot be undone and leave documents pointing at a missing category; undo a create with `--delete` and an update by re-running with the old values. It previews and changes nothing until you pass `--yes`, and a `--where` change also needs a matching `--confirm-count`.
+
 Manage the sidebar tabs on the OnPing documentation site at
 `https://onping.plowtech.net/onping-doc`.
 

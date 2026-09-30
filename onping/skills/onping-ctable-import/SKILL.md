@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing ctable-import
 
+> **⚠️ WARNING: this skill changes live data.**
+> It replaces the whole custom-table widget document at the target id, or creates it if none exists. Undo by re-importing a backup taken with `onping-ctable-export`, or a prior version recovered with `onping-ctable-audit-export`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Writes a custom-table widget back into OnPing at an exact ObjectId. This is the
 restore half of the round trip whose read half is `onping-ctable-export`.
 

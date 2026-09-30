@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # ML Model Docs
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `update` overwrites the description, version label, and model-card fields of an Inferno ML model version. There is no undo; record the current values first with `ml-model-docs show` and write them back to revert. It acts immediately: there is no preview and no confirmation.
+
 Update the documentation layer of an OnPing Inferno ML model version without re-uploading the model artifact.
 
 ## Documentation Scope

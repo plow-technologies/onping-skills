@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator rules-import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It replaces every generation rule on a Lumberjack's integrator and renumbers all rule ids; `--execute` also runs the new rules. There is no undo; export the current rules first with `onping-mqtt-integrator-rules-export` and re-import that sheet to restore them. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Uploads an edited generation-rule spreadsheet for one Lumberjack's integrator.
 This is the write counterpart to `onping-mqtt-integrator-rules-export`.
 

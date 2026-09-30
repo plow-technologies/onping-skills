@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing HMI Import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It overwrites the HMI whose `dashId` is in the file, or creates a new HMI with `--new`. There is no undo for an overwrite; export the target first with `onping-hmi-export` and re-import that file to revert, and remove a `--new` copy with `onping-hmi-delete`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Import a full HMI dashboard into OnPing from a Dhall file produced by
 `onping-hmi-export` — the write-back inverse of that export, and the way to
 restore, migrate, or clone an HMI.

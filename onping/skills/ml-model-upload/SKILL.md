@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # ML Model Upload
 
+> **⚠️ WARNING: this skill changes live data.**
+> `ml_model_create.py` creates an Inferno ML parent model and `ml_model_version_upload.py` uploads a new model version. Undo by deleting the created model or version with `ml-model-manage model-delete` or `version-delete`. Both act immediately: there is no preview and no confirmation.
+
 This skill remains as a compatibility wrapper for the older create/list/upload workflow.
 
 Prefer the new skills:

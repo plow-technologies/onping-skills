@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator config
 
+> **⚠️ WARNING: this skill changes live data.**
+> It rewrites a Lumberjack's integrator MQTT settings (broker, topic, auto-execute, queue cap). Undo by re-running with the previous values, which the before/after diff prints. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Reads and edits the MQTT connection settings at the top of the integrator UI for
 one Lumberjack: which broker and topic to subscribe to, whether generation rules
 fire automatically on every message, and whether the unprocessed queue is capped.

@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # Classic Control Parameter Dhall
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> The `import` subcommand uploads a Dhall file to `/cp/import`, which creates classic control parameters or overwrites existing ones that share an `outputPID`; `disable-all` and `export` only write local files. There is no undo; export the current CPs first with `classic-cp-dhall export` so you can re-import them. `import` acts immediately: there is no preview and no confirmation.
+
 Import, export, and modify classic (legacy, non-Inferno) control parameters on OnPing using the Dhall format. These endpoints operate on the **old** CP engine (`/cp/import`, `/cp/export`), not the Inferno CP system.
 
 ## Related Skills

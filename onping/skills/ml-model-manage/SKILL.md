@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # ML Model Manage
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `model-create`, `model-update`, `model-delete`, `version-upload`, and `version-delete` create, change, or delete Inferno ML models and model versions. Deletes cannot be undone (export a version first with `version-export`; re-uploading it creates a new version id); remove a created model or version with `model-delete` or `version-delete`. Every write command acts immediately: there is no preview and no confirmation.
+
 Manage OnPing Inferno ML parent models and local `.pt` model-version artifacts.
 
 ## Use This Skill For

@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # ML Parameter Update
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `update` and `restore-export` overwrite an inference parameter's script hash, input and output PID bindings, and resolution. There is no undo; export the current state first with `ml-parameter-export` so you can put it back with `restore-export`. Both preview by default and change nothing until you pass `--apply`.
+
 List, fetch, and update OnPing inference parameters (`InferenceParamX`). Uses strict read-modify-write semantics against `PUT /inferno/ml/inference/update`.
 
 ## Use This Skill For

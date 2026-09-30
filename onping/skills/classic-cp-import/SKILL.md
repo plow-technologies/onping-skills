@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # Classic Control Parameter Import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It uploads a Dhall file to `/cp/import`, which creates classic control parameters or overwrites any existing CP with the same `outputPID`, possibly on another Lumberjack. There is no undo; back up the current CPs first with `classic-cp-export` and re-import that file to roll back. It previews by default and changes nothing until you pass `--yes`; `--dry-run` does not override `--yes`.
+
 Import classic (legacy, **non-Inferno**) control parameters into OnPing from a Dhall file — the write-back inverse of `classic-cp-export`. Mirrors the OnPing web UI's import action on `/v3/control-parameter`: a single `POST /cp/import` with the Dhall CP file as the request body (`Content-Type: text/plain;charset=UTF-8`).
 
 > **Classic, not Inferno.** This skill operates on the **classic** control-parameter engine (`/cp/*`) — the same engine as `classic-cp-export`, `classic-cp-list`, and `classic-cp-delete`. It is **not** the Inferno CP system (`cpInferno/*`) used by `cp-list` / `cp-import-json`.

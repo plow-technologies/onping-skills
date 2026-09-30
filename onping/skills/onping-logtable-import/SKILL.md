@@ -7,6 +7,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing logtable-import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It uploads a template to an existing log-table source and changes the columns that source records. There is no undo; export the current table first with `onping-logtable-export`, but that round-trip is lossy (column labels come back normalized), so the original may not be fully restorable. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Uploads an authored log-table XLSX (multi-row-header flavor) to OnPing via
 `POST /logtable/#LJSerial/source/import/template/multiple-rows-header`. The
 target log-table **source must already exist** on the Lumberjack — this skill

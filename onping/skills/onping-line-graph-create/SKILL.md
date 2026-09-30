@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing Line Graph Widget — Create
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It creates a new, empty line-graph widget on OnPing. This cannot be undone: OnPing has no line-graph delete route, so the widget stays even if you never use it. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Mint a fresh, empty line-graph widget and print its new `LineGraphWidgetId`.
 This is the mint half of the `-import --new` two-step (there is no client-side
 id generation because widget ids are server-assigned Mongo `o…` ids).

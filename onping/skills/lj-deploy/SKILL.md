@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # Lumberjack Deploy
 
+> **⚠️ WARNING: this skill changes live data.**
+> `update` and `delete` replace the complete package set on a Lumberjack edge device; any installed package left out of the set is uninstalled. Undo by running `lj-deploy update` with the previous store paths, so record them first with `lj-deploy installed`. Only `update` and `delete` write, and they preview by default and change nothing until you pass `--yes`.
+
 List available packages, query installed packages, install or update packages, and monitor installation status on Lumberjack edge devices.
 
 ## Related Skills

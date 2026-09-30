@@ -6,6 +6,9 @@ allowed-tools: Bash(gpg *), Bash(uv run *)
 
 # OnPing Doc Write
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It replaces the body of a document on the live customer-facing documentation site. The docs service has no undo; back the document up first with `onping-doc-get --id <id> --json`. It previews and changes nothing until you pass `--yes`.
+
 Publish markdown to a page on the OnPing documentation site at
 `https://onping.plowtech.net/onping-doc`.
 

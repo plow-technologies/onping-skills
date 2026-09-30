@@ -6,6 +6,9 @@ allowed-tools: Bash(gpg *), Bash(uv run *)
 
 # OnPing Doc Create
 
+> **⚠️ WARNING: this skill changes live data.**
+> It creates a new document on the live customer-facing documentation site. Undo by deleting it with `onping-doc-delete`. It previews and changes nothing until you pass `--yes`.
+
 Create a new page on the OnPing documentation site at
 `https://onping.plowtech.net/onping-doc`.
 

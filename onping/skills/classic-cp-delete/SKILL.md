@@ -6,11 +6,12 @@ allowed-tools: Bash(uv run *)
 
 # Classic Control Parameter Delete
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It permanently deletes classic control parameters by CPID via `/cp/delete`. These changes cannot be undone; back up first with `classic-cp-export` (or `classic-cp-dhall export`). It previews by default and changes nothing until you pass `--yes`; `--dry-run` does not override `--yes`.
+
 Delete classic (legacy, **non-Inferno**) control parameters on OnPing by CPID. This mirrors the **delete** action in the OnPing web UI's `/v3/control-parameter?cpid=<CPID>` page — a single `POST /cp/delete` with the bare CPID as the JSON body, one request per CPID.
 
 > **Classic, not Inferno.** This skill operates on the **classic** control-parameter engine (`/cp/*`) — the same engine that `classic-cp-dhall` imports and exports. It is **not** the Inferno CP system (`cpInferno/*`) that `cp-list`, `cp-import-json`, and `cp-script-fetch` use. Do **not** use this skill to delete an Inferno control parameter.
-
-> **Deletion is irreversible.** There is no undo for a removed classic CP. The skill will not touch OnPing unless you pass `--yes`; the default and `--dry-run` only preview. Before deleting during a migration, take a backup with `classic-cp-dhall export`.
 
 ## Related Skills
 

@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator unprocessed
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> `--clear` deletes every stored raw MQTT topic and message pair for a Lumberjack. These changes cannot be undone; there is no import route, so save them first with `--export`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Shows the front of the integrator pipeline for one Lumberjack: what MQTT data has
 arrived, and what the rules have made of it but not yet created.
 

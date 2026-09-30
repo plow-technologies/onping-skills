@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator artifacts-import
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It adds or overwrites entries in the integrator's record of created objects for one Lumberjack, which changes what the create pipeline will skip. Overwritten entries cannot be fully restored, because re-importing an exported sheet degrades the record; take a lossless backup first with `onping-mqtt-integrator-artifacts-export --json`. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Writes to the integrator's record of objects it created, for one Lumberjack.
 
 ## The name collision, up front

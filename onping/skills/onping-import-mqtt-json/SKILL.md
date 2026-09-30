@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing import-mqtt-json
 
+> **⚠️ WARNING: this skill changes live data, and some changes cannot be undone.**
+> It overwrites the settings of every mqtt-json parameter in the sheet (description, topic, selectors, time format, writeability) and creates a parameter for each blank-PID row. Undo an overwrite by re-importing a sheet exported first with `onping-export-mqtt-json`; created parameters cannot be removed with these skills. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Uploads an edited parameter spreadsheet for one mqtt-json location to OnPing via
 `POST /mqtt/json/param/import` (a multipart form: `File` = the XLSX, `Location` =
 the location refId int). This is the write counterpart to

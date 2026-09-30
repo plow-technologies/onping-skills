@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing mqtt-integrator blacklist
 
+> **⚠️ WARNING: this skill changes live data.**
+> It adds or removes locations and PIDs on a Lumberjack's integrator blacklist. Undo with the opposite flag (`--remove-*` for an add, `--add-*` for a remove). It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Manages the per-Lumberjack list of locations and PIDs the integrator must never
 create.
 

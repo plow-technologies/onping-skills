@@ -6,6 +6,9 @@ allowed-tools: Bash(uv run *)
 
 # OnPing update-elynx
 
+> **⚠️ WARNING: this skill changes live data.**
+> It changes the poll time of a live elynx driver location on OnPing by posting the whole config record back; lumberjack and identity fields are never changed. Undo by re-running with the previous poll time, which the preview prints. It previews by default and changes nothing until you pass `--yes`; `--dry-run` also previews and wins over `--yes`.
+
 Safely updates a single elynx driver location's configuration on OnPing by **read-modify-write**: it fetches the current full config from `/elynx/integration/location/fetch`, changes only the requested allowlisted field(s), and POSTs the whole record back to `/elynx/integration/location/update`. Backed by the shared `_driver_update_routes` module.
 
 Set poll time (seconds) with `--poll-time`. Poll field: `elynxLocationData.elynxLocationDataPollFrequency`.

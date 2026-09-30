@@ -1,5 +1,15 @@
 # OnPing agent skills
 
+> **⚠️ WARNING: many of these skills change live OnPing data, and some of those
+> changes cannot be undone.** Skills that create, update, import, write, delete,
+> clear, deploy, or restore act on the OnPing instance and the devices your
+> account can reach. Deletions, overwrites, queue clears, and Lumberjack
+> restores are permanent, and a few skills act immediately with no preview.
+> Each skill that changes data says so at the top of its `SKILL.md`, with what
+> it changes, whether it can be undone, and how it is gated. Read that before
+> you run it, or before you let an agent run it. Use these skills at your own
+> risk; see [LICENSE](LICENSE).
+
 Agent skills for [OnPing](https://onping.plowtech.net): sites, locations, and
 parameters; control parameters and virtual parameters; HMI dashboards, line
 graphs, custom tables, and log tables; drivers; Lumberjack devices and
@@ -59,4 +69,5 @@ This repository is generated. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-Copyright (c) 2026 Pak Energy LLC. All Rights Reserved. See [LICENSE](LICENSE).
+Copyright (c) 2026 Pak Energy LLC. All Rights Reserved. Provided as is, without
+warranty; use at your own risk. See [LICENSE](LICENSE).
