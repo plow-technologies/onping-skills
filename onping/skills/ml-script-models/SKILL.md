@@ -53,6 +53,7 @@ inspecting a parameter never reveals the link.
 - `ml-parameter-export` — a portable parameter snapshot, including `itype`
 - `ml-model-manage` / `ml-model-docs` — the model side
 - `inferno-lookup` — Inferno language reference for the scripts involved
+- `inferno-script-export` / `inferno-script-import` — export an ML script's body and `models`, and import an edit as a new version
 
 ## Commands
 

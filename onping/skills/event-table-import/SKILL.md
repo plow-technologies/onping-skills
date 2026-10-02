@@ -13,6 +13,8 @@ Prepare Dhall event table configuration artifacts for OnPing dashboard import. E
 - **parameter-import** -- Create the output parameters that event table columns reference
 - **onping-parameters** -- Verify PIDs exist before building the event table config
 - **cp-list** -- Confirm ml-parameters are deployed and writing to output PIDs
+- **onping-event-table-export** -- Export a live table as Dhall, to compare with or start from
+- **onping-event-table-get** / **onping-event-table-fetch** -- Check an imported table's bindings, and confirm it renders
 
 ## Template Location
 
@@ -65,7 +67,7 @@ The template defines two column constructor functions:
 eventTableUUID          -- Unique identifier for this event table (generate a new UUID per well)
 eventTableDashboardId   -- OnPing dashboard ID where the table will appear
 eventTableMaxEvents     -- Maximum rows displayed (FixedMaxEvents +24 = last 24 cycles)
-eventTableEventColumn   -- Which column index triggers new event rows (+2 = column 0 by convention)
+eventTableEventColumn   -- The eventColumnIndex of the trigger column (+0: the reward column)
 eventTableSortOrder     -- Desc = newest first
 ```
 
@@ -88,12 +90,30 @@ eventTableSortOrder     -- Desc = newest first
 
 7. **Save** the adapted Dhall file to the well directory.
 
+> **The trigger is chosen by index, not by position.** OnPing makes the column
+> whose `eventColumnIndex` equals `eventTableEventColumn` the trigger. The
+> template's event column is `mkEventColumn +0`, so `eventTableEventColumn` is
+> `+0`. Versions of this template before OnPing skills `0.3.0` set it to `+2`,
+> which made column 2 (lifting time) the trigger.
+
 ## Import to OnPing
 
-Event table import is a **manual** step performed through the OnPing web interface. This skill only prepares the Dhall artifact.
+This skill only prepares the Dhall artifact; it does not call OnPing. The import
+is usually done through the OnPing web interface.
+
+OnPing also has a scriptable route, `POST /event/table/import`, but no skill
+wraps it yet. It takes `multipart/form-data` with Yesod's auto-named fields:
+`f1` is the Dhall file, `f2` is the target event-table UUID, and `f3` is the
+dashboard id. The route overwrites the file's `eventTableUUID` and
+`eventTableDashboardId` with `f2` and `f3`, and replaces the table named in `f2`
+without a collision check. Any authenticated user can call it, and it validates
+no PIDs (`onping/Handler/EventTable/Service.hs (postEventTableImportR)`).
+
+To check an imported table, use `onping-event-table-get --bindings` and
+`onping-event-table-fetch`.
 
 ## Error Handling
 
-- If PIDs are incorrect, the event table will show stale or zero values. Verify all PIDs match the output parameters created via `parameter-import`.
+- If any PID or VPID in the table does not exist, the table renders nothing: OnPing fails the whole fetch with HTTP 500 `failed to lookup TagInfo for key: …`, naming only the first dead key. Verify all PIDs match the output parameters created via `parameter-import`, then confirm the table renders with `onping-event-table-fetch`.
 - If the dashboard ID is wrong, the event table will not appear on the expected dashboard.
-- If the UUID collides with an existing event table, OnPing may reject the import or overwrite the existing table.
+- `POST /event/table/import` does not check the UUID: it writes into the table named in `f2`, so reusing a UUID overwrites that table.

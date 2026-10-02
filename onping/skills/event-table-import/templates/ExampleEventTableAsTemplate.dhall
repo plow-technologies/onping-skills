@@ -53,7 +53,7 @@ in  { eventTableUUID.unEventTableUUID =
         | DynamicMaxEvents : { type : Text, value : Integer }
         >.FixedMaxEvents
           +24
-    , eventTableEventColumn = +2
+    , eventTableEventColumn = +0
     , eventTableParams =
       [ mkEventColumn
           +0

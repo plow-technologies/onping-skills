@@ -33,6 +33,7 @@ List, fetch, and update OnPing inference parameters (`InferenceParamX`). Uses st
 - `ml-model-manage` for parent model / version upload
 - `ml-model-docs` for version metadata edits
 - `cp-import-json` for the analogous control-parameter import flow
+- `inferno-script-import` saves an edited script as a new version with a new hash; parameters are not repointed, so swap the hash here afterwards
 
 ## Commands
 

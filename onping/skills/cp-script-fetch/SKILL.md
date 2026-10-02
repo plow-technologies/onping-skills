@@ -14,6 +14,7 @@ Fetch the Inferno script payload for a control parameter script ID.
 - **lj-profile** — Look up the Lumberjack ID for a location ID
 - **inferno-lookup** — Reference Inferno language documentation
 - **onping-login** — Authenticate and get an access token
+- **inferno-script-export** — Export a script as portable, importable JSON (`/script/export/{hash}`) instead of this editor view
 - **ml-script-models** — For an ML inference script's **model selections**. This
   route returns the full `VCMeta`, whose `author.scriptTypes[]` carries the
   `MLInferenceScript` model map, but extracting and enriching it belongs there.
