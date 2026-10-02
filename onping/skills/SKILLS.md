@@ -128,6 +128,37 @@ Import **Inferno** control parameters from a JSON array file via `POST /cpInfern
   - `--json` — Emit JSON instead of text
 - **Output:** Preview of affected cpIds by ljSerial (default), or the server's JSON result with `--yes` (exit non-zero on failure)
 
+#### inferno-script-export
+
+Export one Inferno script (VP, CP, or ML inference) as a single `ExportedScript` JSON object via `GET /script/export/{hash}`. **Read-only.** The file is exactly what `inferno-script-import` accepts. This differs from `vp-script-fetch` / `cp-script-fetch`, which return the `/script/id` editor view.
+
+- **Script:** `inferno-script-export/scripts/export_inferno_script.py`
+- **Input:** `ACCESS_TOKEN SCRIPT_HASH`
+- **Options:**
+  - `--output PATH` — Write to a file instead of stdout
+  - `--force` — Overwrite an existing `--output`
+  - `--json` — JSON status object (with `--output`)
+- **Output:** `{hash, name, args, body, type, author, group, visibility, timestamp, models}`
+
+#### inferno-script-import
+
+Import one Inferno script from an `ExportedScript` file, via `POST /script/import` (`--kind vp`) or `POST /script/ml/import` (`--kind ml`). **Mutating.**
+
+- **Update or create:** If the file's `hash` is the latest version of a script on this server, the import saves a **new version**, which keeps the server's group, visibility and description. Otherwise, or with `--as-new`, it **creates** a new script.
+- **Rejections:** A stale hash is rejected (422 `inferno.import.version`). So is a script of the other route's type (422 `inferno.import.scriptType`).
+- **No CP route:** No route updates CP scripts.
+- **No repointing:** An update does not repoint the parameters that use the old hash.
+- **Preview first:** No request is sent without `--yes`.
+
+- **Script:** `inferno-script-import/scripts/import_inferno_script.py`
+- **Input:** `ACCESS_TOKEN --kind {vp,ml}`, ExportedScript JSON via `--input PATH` or stdin
+- **Options:**
+  - `--as-new` — Send `hash: null` (always create)
+  - `--yes` — Perform the import (required for any network call)
+  - `--dry-run` — Explicit preview (wins over `--yes`)
+  - `--json` — Emit JSON instead of text
+- **Output:** `CREATED`/`UPDATED` with the new hash (exit 0); 422 diagnostics (exit 3); other failures (exit 1)
+
 #### classic-cp-dhall
 
 Import, export, and modify classic (legacy, non-Inferno) control parameters in Dhall format. Use during CPID migration to disable old CPs before importing Inferno replacements.
@@ -331,6 +362,51 @@ Rewrite pid bindings on a line-graph widget via `POST /content/widgets/line-grap
 - **Input:** `ACCESS_TOKEN --id WIDGET_ID`, Dhall via `--input PATH` or stdin
 - **Options:** `--yes`, `--dry-run` (wins over `--yes`), `--json`
 - **Output:** Preview from→to mapping table (default), or a status line with `--yes`
+
+### Event Table Widgets
+
+Read-only skills for OnPing **event tables** (the per-event row tables on dashboards, such as per-cycle reward and arrival tables) via the `/event/table/*` routes, backed by the shared `_event_table_routes` module (route table, bearer-auth HTTP helpers with the family's auth-redirect / HTML-fallthrough hardening, and the `OnpingKey` parser). All accept an access token from `onping-login`. To build a new table from a template, see `event-table-import` under Deployment Artifacts.
+
+**Finding a table:** a dashboard holds only a pointer to the table, and the widget's title lives in the dashboard JSON. `onping-event-table-list` walks the dashboard (sub-panels included) to get from a title to a UUID, which the other three skills take.
+
+**Auditing a PID:** `onping-event-table-list --dashboard <o-key> --references-pid N` names every table and column on a dashboard that reads PID N. `onping-event-table-fetch` then shows whether a table still renders: a dead key fails the whole table with HTTP 500 naming the first dead key.
+
+**⚠️ No per-table permission.** Any authenticated user can read, update, or delete any event table by UUID, and no route validates PIDs. These skills only read.
+
+#### onping-event-table-list
+
+List event tables from dashboard JSON, with an optional reverse lookup from a PID to the tables that read it. Checks a `--dashboard` key against `GET /data/dashboard/values` first, because `GET /data/dashboard` silently returns the default dashboard for a key it cannot parse.
+
+- **Script:** `onping-event-table-list/scripts/list_event_tables.py`
+- **Input:** `ACCESS_TOKEN` plus `--dashboard KEY` (repeatable) or `--all`
+- **Options:** `--title TEXT` (repeatable), `--references-pid N`, `--json`
+- **Output:** one record per table — title, UUID, dashboard, panel; with `--references-pid`, `REFERENCED` with the binding or `UNCHECKED` with the error (exit 1)
+
+#### onping-event-table-get
+
+Read one event table's configuration as JSON via `POST /event/table/config`.
+
+- **Script:** `onping-event-table-get/scripts/get_event_table.py`
+- **Input:** `ACCESS_TOKEN UUID`
+- **Options:** `--bindings`, `--pid N` (`REFERENCED` / `NOT REFERENCED`, both exit 0), `--output PATH`, `--pretty`
+- **Output:** JSON `EventTableConfiguration`, or the bindings view or PID answer
+
+#### onping-event-table-export
+
+Export one event table as Dhall via `GET /event/table/export/<file>.dhall?eventTableUUID=<uuid>`.
+
+- **Script:** `onping-event-table-export/scripts/export_event_table.py`
+- **Input:** `ACCESS_TOKEN UUID --output PATH`
+- **Output:** Dhall `EventTableConfiguration`, written only on success
+
+#### onping-event-table-fetch
+
+Render an event table's rows at a given time via `POST /event/table/fetch`, and name the dead key when one stops the table rendering.
+
+- **Script:** `onping-event-table-fetch/scripts/fetch_event_table.py`
+- **Input:** `ACCESS_TOKEN UUID`
+- **Options:** `--at TIME`, `--pretty`
+- **Output:** JSON rows; on a dead key, `TABLE DOES NOT RENDER` with the key and next steps (exit 1)
 
 ### Custom Table Widgets
 

@@ -13,6 +13,7 @@ Fetch the actual Inferno script code for a virtual parameter by its script ID.
 - **vp-scripts** — List all VP scripts to find script IDs
 - **vp-show** — Show VP configuration and metadata for context
 - **inferno-lookup** — Reference documentation for understanding the Inferno script syntax
+- **inferno-script-export** / **inferno-script-import** — Export a script as portable JSON, edit it, and import it back as a new version
 
 ## Typical Workflow
 

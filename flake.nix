@@ -60,6 +60,72 @@
           name = "onping-skills";
         };
 
+      # Content-exact copy-tree sync.
+      #
+      # The upstream copy-tree sync is `rsync -aL --delete` with no --checksum.
+      # rsync's quick check skips a file whose size and mtime match, and every
+      # Nix store file has mtime 1970-01-01, so an edit that keeps a file's size
+      # never reaches the installed copy. Add -c to the copy-tree sync in
+      # skills-install, skills-install-local, and the dev shell.
+      #
+      # NOT covered: homeManagerModules.default. It wraps the upstream Home
+      # Manager module, which builds its own sync script; README.md and
+      # SKILLS.md tell Home Manager users to run `nix run .#skills-install`.
+      #
+      # Fail closed: if upstream stops emitting the pattern (after
+      # `nix flake update agent-skills-nix`), stop the build instead of
+      # silently installing without content comparison.
+      checksumSync = rec {
+        from = "rsync -aL --delete";
+        to = "rsync -aLc --delete";
+        missing = "checksumSync: upstream copy-tree rsync pattern '${from}' not found"
+          + " — agent-skills-nix changed; re-check flake.nix";
+        # For script text (agentLib.mkSyncScript).
+        text = s:
+          if nixpkgs.lib.hasInfix from s
+          then builtins.replaceStrings [ from ] [ to ] s
+          else throw missing;
+        # For a finished script derivation (agentLib.mkLocalInstallScript).
+        drv = pkgs: script: name: pkgs.runCommand "${name}-checksum" { } ''
+          mkdir -p "$out/bin"
+          cp ${script}/bin/${name} "$out/bin/${name}"
+          chmod u+w "$out/bin/${name}"
+          if ! grep -qF -- '${from}' "$out/bin/${name}"; then
+            echo ${nixpkgs.lib.escapeShellArg missing} >&2
+            exit 1
+          fi
+          substituteInPlace "$out/bin/${name}" --replace-fail '${from}' '${to}'
+        '';
+      };
+
+      # The two patched sync entry points, shared by apps, the dev shell, and
+      # checks, so all three use the same derivations.
+      syncScriptsFor = system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          bundle = bundleFor system;
+        in
+        {
+          install = pkgs.writeShellApplication {
+            name = "skills-install";
+            runtimeInputs = [ pkgs.rsync pkgs.coreutils ];
+            text = checksumSync.text (agentLib.mkSyncScript {
+              inherit pkgs bundle;
+              targets = homeTargets;
+              system = pkgs.stdenv.hostPlatform.system;
+              allowOverrides = true;
+            });
+          };
+          # Also the dev-shell hook: agentLib.mkShellHook would run its own
+          # unpatched copy of this script.
+          installLocal = checksumSync.drv pkgs
+            (agentLib.mkLocalInstallScript {
+              inherit pkgs bundle;
+              targets = localTargets;
+            })
+            "skills-install-local";
+        };
+
       # Smoke-test sentinel, derived rather than hardcoded.
       #
       # The check must hold in two flakes built from this logic: this one, whose
@@ -101,21 +167,10 @@
       apps = forAllSystems (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          bundle = bundleFor system;
+          sync = syncScriptsFor system;
 
           listJson = pkgs.writeText "agent-skills-catalog.json"
             (builtins.toJSON (agentLib.catalogJson catalog));
-
-          installScript = pkgs.writeShellApplication {
-            name = "skills-install";
-            runtimeInputs = [ pkgs.rsync pkgs.coreutils ];
-            text = agentLib.mkSyncScript {
-              inherit pkgs bundle;
-              targets = homeTargets;
-              system = pkgs.stdenv.hostPlatform.system;
-              allowOverrides = true;
-            };
-          };
 
           listScript = pkgs.writeShellApplication {
             name = "skills-list";
@@ -124,20 +179,15 @@
               ${pkgs.jq}/bin/jq . ${listJson}
             '';
           };
-
-          installLocalScript = agentLib.mkLocalInstallScript {
-            inherit pkgs bundle;
-            targets = localTargets;
-          };
         in
         {
           skills-install = {
             type = "app";
-            program = "${installScript}/bin/skills-install";
+            program = "${sync.install}/bin/skills-install";
           };
           skills-install-local = {
             type = "app";
-            program = "${installLocalScript}/bin/skills-install-local";
+            program = "${sync.installLocal}/bin/skills-install-local";
           };
           skills-list = {
             type = "app";
@@ -148,14 +198,13 @@
       devShells = forAllSystems (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          bundle = bundleFor system;
         in
         {
+          # What agentLib.mkShellHook produces, but with the patched script.
           default = pkgs.mkShellNoCC {
-            shellHook = agentLib.mkShellHook {
-              inherit pkgs bundle;
-              targets = localTargets;
-            };
+            shellHook = ''
+              ${(syncScriptsFor system).installLocal}/bin/skills-install-local
+            '';
           };
         });
 
@@ -178,6 +227,25 @@
             mkdir -p "$out"
             touch "$out/ok"
           '';
+
+          # Every copy-tree rsync in the patched entry points compares content.
+          skills-sync-checksum =
+            let sync = syncScriptsFor system;
+            in pkgs.runCommand "skills-sync-checksum" { } ''
+              set -e
+              for f in ${sync.install}/bin/skills-install ${sync.installLocal}/bin/skills-install-local; do
+                if grep -n 'rsync -aL ' "$f"; then
+                  echo "skills-sync-checksum FAIL: copy-tree rsync without -c in $f" >&2
+                  exit 1
+                fi
+                if ! grep -q 'rsync -aLc --delete' "$f"; then
+                  echo "skills-sync-checksum FAIL: no checksum copy-tree rsync in $f" >&2
+                  exit 1
+                fi
+              done
+              mkdir -p "$out"
+              touch "$out/ok"
+            '';
         } // pkgs.lib.optionalAttrs (onpingAllowlist != null) {
           # Evaluating the allowlist runs its fail-closed asserts: every OnPing
           # skill classified, no unknown or duplicate IDs, helper closure. The
