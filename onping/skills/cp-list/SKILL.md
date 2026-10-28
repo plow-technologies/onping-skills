@@ -52,6 +52,24 @@ uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKE
 - One Lumberjack ID: raw JSON array returned by `cpInferno/list`
 - Multiple Lumberjack IDs: JSON object keyed by Lumberjack ID, each value the raw JSON array for that ID
 
+stdout is always the server JSON, unchanged (`cp-import-json` and `cpid-migration` read it as-is). Each array element is tagged; since onping 2026.10.14.0 (#16220) there are four tags:
+
+| `tag` | `contents` | Meaning |
+|---|---|---|
+| `ReadableControlParameterInferno` | `{"cpId": {...}, "cpData": {...}}` | A CP you can read. |
+| `OrphanedControlParameterInferno` | `[{"cpId": {...}, "cpData": {...}}, [<missing PID>, ...]]` (an **array**, not an object) | An output PID was deleted. The CP still holds its other outputs. Shown to users who can access the Lumberjack and read its inputs; it can be repointed through `/cpInferno/update` or deleted through `/cpInferno/delete` (no skill here wraps either). Before #16220 it was listed as prohibited. |
+| `ProhibitedReadControlParameterInferno` | the CPID `{"engineHost": ..., "perEngineId": ...}` | You may not read this CP. Since #16220 a failed permission lookup is reported this way too. |
+| `FailedToReadControlParameterInfernoPermissions` | the CPID | The permission lookup failed (still in the type; `/cpInferno/list` reports such failures as prohibited since #16220). |
+
+When any element is not `ReadableControlParameterInferno`, the script prints a notice on **stderr** (stdout is unchanged and the exit code stays 0): the count per tag; each orphan's cpId, name and missing output PIDs; each prohibited or failed CPID; and any unknown tag by name. For example:
+
+```
+cp-list: Lumberjack 1001: 2 element(s), 1 not readable as a normal CP (ReadableControlParameterInferno=1, OrphanedControlParameterInferno=1):
+  [1] orphaned: 1001-00000000-0000-4000-8000-00000000c002 "Example Orphaned Passthrough" missing output PIDs [500015]
+```
+
+Use `2>/dev/null` to silence it, or keep stderr separate when redirecting stdout to a file.
+
 > **Same-Lumberjack Constraint:** All inputs and outputs of a control parameter must belong to the same Lumberjack. Use **lj-profile** to find the Lumberjack ID for a given location ID.
 
 > **Output Exclusivity:** Only one control parameter can write to a given output parameter ID. Each target parameter ID in `ScalarOutput` or `RecordOutput` is exclusive to that control parameter. To assign an output to a different CP, the existing assignment must be removed first.
@@ -62,3 +80,4 @@ uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKE
 - Lumberjack IDs must be integers
 - Network errors and non-200 HTTP responses are reported to stderr
 - Invalid JSON responses are reported with the raw response body
+- Orphaned, prohibited, failed and unknown-tag elements are reported on stderr and are not errors (exit 0)

@@ -7,9 +7,15 @@
       url = "github:Kyure-A/agent-skills-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Used only by checks.skills-sync-checksum, to evaluate a real Home Manager
+    # configuration that imports homeManagerModules.default.
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, agent-skills-nix }:
+  outputs = { self, nixpkgs, agent-skills-nix, home-manager }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
@@ -65,12 +71,10 @@
       # The upstream copy-tree sync is `rsync -aL --delete` with no --checksum.
       # rsync's quick check skips a file whose size and mtime match, and every
       # Nix store file has mtime 1970-01-01, so an edit that keeps a file's size
-      # never reaches the installed copy. Add -c to the copy-tree sync in
-      # skills-install, skills-install-local, and the dev shell.
-      #
-      # NOT covered: homeManagerModules.default. It wraps the upstream Home
-      # Manager module, which builds its own sync script; README.md and
-      # SKILLS.md tell Home Manager users to run `nix run .#skills-install`.
+      # never reaches the installed copy. Add -c to the copy-tree sync in all
+      # four entry points: skills-install, skills-install-local, the dev shell,
+      # and Home Manager activation (homeManagerModules.default, whose
+      # override of the upstream activation entry lives in nix/home.nix).
       #
       # Fail closed: if upstream stops emitting the pattern (after
       # `nix flake update agent-skills-nix`), stop the build instead of
@@ -228,12 +232,56 @@
             touch "$out/ok"
           '';
 
-          # Every copy-tree rsync in the patched entry points compares content.
+          # Every copy-tree rsync in the four entry points compares content.
+          #
+          # Home Manager is checked on a real configuration, twice: once with
+          # homeManagerModules.default, and once with the override off, which
+          # is the upstream entry. The two must differ only by the
+          # checksumSync patch, so the re-derived script in nix/home.nix
+          # cannot drift from upstream in targets, excludes, bundle, or order.
           skills-sync-checksum =
-            let sync = syncScriptsFor system;
-            in pkgs.runCommand "skills-sync-checksum" { } ''
+            let
+              sync = syncScriptsFor system;
+
+              hmEntry = module:
+                (home-manager.lib.homeManagerConfiguration {
+                  inherit pkgs;
+                  modules = [
+                    module
+                    {
+                      home.username = "skills-check";
+                      home.homeDirectory =
+                        if pkgs.stdenv.hostPlatform.isDarwin
+                        then "/Users/skills-check" else "/home/skills-check";
+                      home.stateVersion = "24.11";
+                      # Only the activation text is read, so the nixpkgs pin
+                      # need not match Home Manager's release.
+                      home.enableNixpkgsReleaseCheck = false;
+                    }
+                  ];
+                }).config.home.activation.agent-skills;
+
+              patched = hmEntry self.homeManagerModules.default;
+              upstream = hmEntry (import ./nix/home.nix {
+                agentSkillsModule = agent-skills-nix.homeManagerModules.default;
+                inherit agentLib checksumSync;
+                patchChecksum = false;
+              });
+
+              hmFail = what: throw
+                "skills-sync-checksum FAIL: home.activation.agent-skills ${what}";
+
+              hmActivation =
+                if patched.data != checksumSync.text upstream.data then
+                  hmFail "differs from the upstream entry in more than the checksumSync patch"
+                else if patched.after != upstream.after || patched.before != upstream.before then
+                  hmFail "runs at a different point in the activation order than the upstream entry"
+                else
+                  pkgs.writeText "home-activation-agent-skills" patched.data;
+            in
+            pkgs.runCommand "skills-sync-checksum" { } ''
               set -e
-              for f in ${sync.install}/bin/skills-install ${sync.installLocal}/bin/skills-install-local; do
+              for f in ${sync.install}/bin/skills-install ${sync.installLocal}/bin/skills-install-local ${hmActivation}; do
                 if grep -n 'rsync -aL ' "$f"; then
                   echo "skills-sync-checksum FAIL: copy-tree rsync without -c in $f" >&2
                   exit 1
@@ -256,7 +304,7 @@
 
       homeManagerModules.default = import ./nix/home.nix {
         agentSkillsModule = agent-skills-nix.homeManagerModules.default;
-        inherit agentLib;
+        inherit agentLib checksumSync;
       };
 
       lib = {

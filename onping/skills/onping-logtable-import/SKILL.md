@@ -1,7 +1,7 @@
 ---
 name: onping-logtable-import
 description: >-
-  Upload a multiple-rows-header log-table XLSX to POST /logtable/#LJSerial/source/import/template/multiple-rows-header (multipart form; f1=file + f2=TableId UUID). MUTATES OnPing with --yes. Requires an existing log-table source. Rejects non-integer sources (`source: TODO` placeholders included) locally to pre-empt the server's `Invalid PID or VPID format for` 400. SKILL.md documents the 4-row `event`/`name:`/`tag:`/`source:` template shape and the `f1`/`f2` positional-field gotcha.
+  Upload a multiple-rows-header log-table XLSX to POST /logtable/#LJSerial/source/import/template/multiple-rows-header (multipart form; f1=file + f2=TableId UUID). MUTATES OnPing with --yes. Requires an existing log-table source. Accepts `source: <n>` (PID) and `source: <n> VPID`; rejects anything else (`source: TODO` placeholders included) locally to pre-empt the server's `Invalid PID or VPID format for` error. To create a source use onping-logtable-create; to edit one column use onping-logtable-column-add / -column-delete / -column-set. SKILL.md documents the 4-row `event`/`name:`/`tag:`/`source:` template shape and the `f1`/`f2` positional-field gotcha.
 allowed-tools: Bash(uv run *)
 ---
 
@@ -25,9 +25,13 @@ POST download).
   or the event-table import (`POST /logtable/#LJSerial/source/import/event-table`).
   Different sheet shapes, different endpoints.
 - **Doesn't create sources.** The target log-table source must already exist.
-  Use the OnPing UI (or a future `onping-logtable-source-create` skill wrapping
-  `POST /logtable/#LJSerial/source/create`) to mint one first. The skill needs
-  its `logTableSourceId` (a UUID) as input.
+  Create one with `onping-logtable-create`, which wraps
+  `POST /logtable/#LJSerial/source/create` and adds the version-1 schema, or
+  with the OnPing UI. The skill needs
+  its `logTableSourceId` (a UUID) as input; find it with `onping-logtable-list`.
+- **Doesn't edit single columns.** To add, remove, or repoint one column
+  without re-uploading the whole sheet, use `onping-logtable-column-add`,
+  `onping-logtable-column-delete`, or `onping-logtable-column-set`.
 
 ## The `f1` / `f2` field-name gotcha
 
@@ -62,7 +66,9 @@ the same trap the mqtt-json and singlewell-manual imports fell into.
   import handler's failure modes are simple: bad UUID, permission denied, or a
   malformed XLSX — so the pre-flight is limited to sheet-shape checks. If the
   caller's group doesn't own the source's group, the handler returns
-  `400 Permission Denied` and the skill surfaces that with a hint.
+  `Permission Denied` as an application error — HTTP **500**, as the LJ table handlers
+  answer it (earlier text here said 400; the skill accepts either) — and the
+  skill surfaces that with a hint.
 
 ## Usage
 
@@ -98,22 +104,26 @@ populates column 1, the `event` marker).
 | 1   | `event`                                          | *(blank)*                                     |
 | 2   | `name: <label for the trigger column>`           | `name: <label for this result column>`        |
 | 3   | `tag: dateTime`                                  | `tag: result`                                 |
-| 4   | `source: <integer PID>`                          | `source: <integer PID>`                       |
+| 4   | `source: <PID>`                                  | `source: <PID>` or `source: <n> VPID`         |
 
 - **Column 1 is the event trigger.** The tag on row 3 is `tag: dateTime`; its
   `source:` PID is the parameter whose write fires a new row.
 - **Every other column is a result value** snapshotted into the row when the
   trigger fires. Row 3 is `tag: result`; row 4 is the PID that supplies the
   value.
-- **Non-integer sources (including `TODO`-style placeholders) are hard-blocked
+- **A source is `<n>` (a PID) or `<n> VPID` (a virtual parameter)** — exactly
+  the forms the server's `parsePointerFromText` accepts: digits, then
+  optionally one space and `VPID`; no sign, no extra spaces. The trigger
+  (column 1) must be a PID: a log table's event source is never a VPID.
+- **Anything else (including `TODO`-style placeholders) is hard-blocked
   by the pre-flight.** Observed live on a test Lumberjack on 2026-07-10: the server
-  rejects any non-integer source with `Invalid PID or VPID format for: <value>.
+  rejects such a source with `Invalid PID or VPID format for: <value>.
   input does not start with a digit. At row=4, col=<N>`. The skill reproduces
   this check locally rather than paying for a multipart round-trip only to see
   the 400. Callers that need to hold a "column exists but PID isn't provisioned
   yet" position must either omit the column (regenerating when the PID lands)
   or point it at a temporary integer PID.
-- **Duplicate PIDs across columns** are a warning only — the server accepts
+- **Duplicate PIDs (or VPIDs) across columns** are a warning only — the server accepts
   them, but they're almost always a bug in the authoring script.
 
 Column count is not bounded by the skill; the Example Energy Lane 1 reference sheet has
@@ -141,7 +151,7 @@ selected schema version.
   (`LogTableSource`).
 - Permission check: `Service.hs` — `logTableSourceGroup(routingIndex,
   tableId') ∈ Permissions.Access.getOwnedGroupIdsList`. Denial responds
-  `400 Permission Denied`.
+  `Permission Denied` with HTTP 500.
 - Response envelope: `OnpingResponse a` at `onping/OnpingResponse.hs`
   (on success, JSON-encodes `a` directly; on error, `{"error": text}`).
 

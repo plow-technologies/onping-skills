@@ -1,0 +1,3117 @@
+[
+  {
+    "Right": {
+      "alarmActive": false,
+      "alarmMixId": {
+        "contents": "o000024f10000000000a9be24",
+        "tag": "AlarmMixIdRegular"
+      },
+      "alarmName": "Alarm 1",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": -19,
+          "description": "description 1",
+          "lastUpdate": 0,
+          "localParameterId": {
+            "slave-id": "slave-id 2",
+            "source": "SourceHazardPro"
+          },
+          "locationId": 11,
+          "parameterId": {
+            "keyType": "VPID",
+            "keyValue": 10874
+          },
+          "result": {
+            "tag": "OnPingInt",
+            "value": 27
+          },
+          "siteId": 29,
+          "unit": {
+            "unit": "Pounds"
+          },
+          "writeability": "TagWriteable"
+        },
+        "tagLocation": {
+          "company": -17,
+          "delete": 30,
+          "name": "name 3",
+          "refId": 24,
+          "site": -28,
+          "slaveId": -21,
+          "url": ""
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 8,
+            "entryConfigUserId": "o0000563b0000000000986999",
+            "entryConfigUserName": "User 01"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 22,
+            "entryConfigUserId": "o00000f340000000000aed312",
+            "entryConfigUserName": "User 02"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -11,
+            "entryConfigUserId": "o00003891000000000086be94",
+            "entryConfigUserName": "User 03"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -28,
+            "entryConfigUserId": "o0000500f000000000022324c",
+            "entryConfigUserName": "User 04"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o00003422000000000051f956",
+            "entryConfigUserName": "User 05"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 24,
+            "entryConfigUserId": "o0000005c0000000000b08877",
+            "entryConfigUserName": "User 06"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -29,
+            "entryConfigUserId": "o00003d2e0000000000ef6957",
+            "entryConfigUserName": "User 07"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 18,
+            "entryConfigUserId": "o000025720000000000294f74",
+            "entryConfigUserName": "User 08"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -4,
+            "entryConfigUserId": "o0000240b0000000000c8a5a9",
+            "entryConfigUserName": "User 09"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 1,
+            "entryConfigUserId": "o000045b90000000000420353",
+            "entryConfigUserName": "User 10"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 24,
+            "entryConfigUserId": "o00003131000000000048cdff",
+            "entryConfigUserName": "User 11"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -5,
+            "entryConfigUserId": "o00005ca40000000000c7561a",
+            "entryConfigUserName": "User 12"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -13,
+            "entryConfigUserId": "o000021fa0000000000ad2b3f",
+            "entryConfigUserName": "User 13"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -26,
+            "entryConfigUserId": "o000072310000000000c02e15",
+            "entryConfigUserName": "User 14"
+          }
+        ],
+        "orderGID": "o00001113000000000036fd20",
+        "orderId": "o00006bdc0000000000f882d0",
+        "orderName": "Order 1",
+        "orderOID": "o000072d1000000000055482e",
+        "orderPerm": [
+          {
+            "Write": []
+          },
+          {
+            "All": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Write": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Read": []
+          }
+        ]
+      },
+      "callOrderId": "o000022f70000000000625718",
+      "clearTime": -29,
+      "customName": false,
+      "enableClearCalls": false,
+      "foldSampleCount": null,
+      "foldStep": -12,
+      "groupId": "o000040070000000000549351",
+      "maskInfo": null,
+      "onpingKey": 30,
+      "ownerId": "o00005b69000000000014c27f",
+      "recallTime": -21,
+      "tripTime": 20,
+      "userPermissions": [
+        {
+          "All": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Write": []
+        }
+      ]
+    }
+  },
+  {
+    "Right": {
+      "alarmActive": false,
+      "alarmMixId": {
+        "contents": "o000012990000000000e97b5d",
+        "tag": "AlarmMixIdVP"
+      },
+      "alarmName": "Alarm 2",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": 18,
+          "description": "description 4",
+          "lastUpdate": 14,
+          "localParameterId": {
+            "slave-id": 17398,
+            "source": "SourceOpcUa",
+            "tag-id": "tag-id 5"
+          },
+          "locationId": -27,
+          "parameterId": 2,
+          "result": {
+            "tag": "OnPingLocal"
+          },
+          "siteId": 6,
+          "unit": {
+            "unit": "Kilograms"
+          },
+          "writeability": "TagWriteable"
+        },
+        "tagLocation": {
+          "company": 19,
+          "delete": 11,
+          "name": "",
+          "refId": 22,
+          "site": -12,
+          "slaveId": 25,
+          "url": "url 6"
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 1,
+            "entryConfigUserId": "o000006c7000000000083ad88",
+            "entryConfigUserName": "User 15"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -30,
+            "entryConfigUserId": "o000003bc0000000000ff2b53",
+            "entryConfigUserName": "User 16"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -30,
+            "entryConfigUserId": "o000028650000000000f56fe3",
+            "entryConfigUserName": "User 17"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -21,
+            "entryConfigUserId": "o000043cf0000000000843517",
+            "entryConfigUserName": "User 18"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 15,
+            "entryConfigUserId": "o000062fa00000000008a826d",
+            "entryConfigUserName": "User 19"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 22,
+            "entryConfigUserId": "o000067e700000000009da40b",
+            "entryConfigUserName": "User 20"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 6,
+            "entryConfigUserId": "o000022b700000000000b469c",
+            "entryConfigUserName": "User 21"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -22,
+            "entryConfigUserId": "o00001c7d0000000000f6eb4b",
+            "entryConfigUserName": "User 22"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 29,
+            "entryConfigUserId": "o00003e210000000000737474",
+            "entryConfigUserName": "User 23"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -11,
+            "entryConfigUserId": "o00004f3700000000006f2966",
+            "entryConfigUserName": "User 24"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -25,
+            "entryConfigUserId": "o000067130000000000594f8b",
+            "entryConfigUserName": "User 25"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 16,
+            "entryConfigUserId": "o0000202300000000000b564a",
+            "entryConfigUserName": "User 26"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 16,
+            "entryConfigUserId": "o000058e900000000004497bc",
+            "entryConfigUserName": "User 27"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 21,
+            "entryConfigUserId": "o00004d820000000000865dbf",
+            "entryConfigUserName": "User 28"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 19,
+            "entryConfigUserId": "o00001e1c000000000029e1bf",
+            "entryConfigUserName": "User 29"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 9,
+            "entryConfigUserId": "o00001fa10000000000181d18",
+            "entryConfigUserName": "User 30"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -10,
+            "entryConfigUserId": "o00004e3600000000004c1ed3",
+            "entryConfigUserName": "User 31"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -6,
+            "entryConfigUserId": "o00005126000000000082c978",
+            "entryConfigUserName": "User 32"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 13,
+            "entryConfigUserId": "o000012140000000000bc9ede",
+            "entryConfigUserName": "User 33"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -5,
+            "entryConfigUserId": "o000043470000000000ff3ddc",
+            "entryConfigUserName": "User 34"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 1,
+            "entryConfigUserId": "o00003df900000000007d5dd2",
+            "entryConfigUserName": "User 35"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 9,
+            "entryConfigUserId": "o00000fe900000000002a26fa",
+            "entryConfigUserName": "User 36"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -3,
+            "entryConfigUserId": "o000049c50000000000041a6e",
+            "entryConfigUserName": "User 37"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -10,
+            "entryConfigUserId": "o00002b0200000000001e14e9",
+            "entryConfigUserName": "User 38"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 2,
+            "entryConfigUserId": "o00007ee0000000000001c46b",
+            "entryConfigUserName": "User 39"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 17,
+            "entryConfigUserId": "o00004df300000000005ede94",
+            "entryConfigUserName": "User 40"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -3,
+            "entryConfigUserId": "o000014e20000000000cec143",
+            "entryConfigUserName": "User 41"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o0000149c000000000078fb12",
+            "entryConfigUserName": "User 42"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -10,
+            "entryConfigUserId": "o000006a40000000000bef958",
+            "entryConfigUserName": "User 43"
+          }
+        ],
+        "orderGID": "o00002b08000000000051d208",
+        "orderId": "o000008de0000000000599e08",
+        "orderName": "Order 2",
+        "orderOID": "o000072fe00000000000d34d8",
+        "orderPerm": [
+          {
+            "Write": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "All": []
+          },
+          {
+            "None": []
+          },
+          {
+            "Write": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Write": []
+          }
+        ]
+      },
+      "callOrderId": "o000037cd0000000000234592",
+      "clearTime": 7,
+      "customName": true,
+      "enableClearCalls": false,
+      "foldSampleCount": -19,
+      "foldStep": -22,
+      "groupId": "o00000e4b00000000003da882",
+      "maskInfo": {
+        "alarmMaskCFG": {
+          "maskGID": "o00006af20000000000990482",
+          "maskName": "maskName 7",
+          "maskOID": "o00004a8c00000000007b2c38",
+          "maskPerm": [
+            {
+              "Edit": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "None": []
+            },
+            {
+              "None": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Write": []
+            }
+          ],
+          "maskScript": {
+            "inputDefaults": [
+              29,
+              -21.0625,
+              -5.882352941176471
+            ],
+            "inputFolds": [
+              "inputFolds 8",
+              "/M\"",
+              "inputFolds 9",
+              "inputFolds 10",
+              "inputFolds 11",
+              "inputFolds 12",
+              "inputFolds 13",
+              "inputFolds 14",
+              "inputFolds 15",
+              "inputFolds 16",
+              "inputFolds 17",
+              "inputFolds 18",
+              "k",
+              "inputFolds 19"
+            ],
+            "inputHistories": [
+              [
+                0.75,
+                26,
+                -2.1666666666666665,
+                -23.133333333333333,
+                -0.4,
+                0.02449123907797357,
+                12.083333333333334,
+                -3.0357142857142856,
+                -0.4,
+                12.833333333333334
+              ],
+              [
+                -7,
+                0.4062591033431642,
+                2.5,
+                -0.5,
+                28,
+                2,
+                -17,
+                -11,
+                0.75,
+                -11.966666666666667,
+                23,
+                0,
+                -9.333333333333334,
+                25,
+                -30,
+                -11,
+                28.4375,
+                0.6666666666666666,
+                -0.4,
+                -12.571428571428571,
+                26.275862068965516
+              ],
+              [
+                0.2885116384288652,
+                -11,
+                0.325234648752487,
+                -13.692307692307692,
+                -18.5,
+                -28.666666666666668,
+                -26.571428571428573,
+                -24.8,
+                14,
+                18,
+                0.5139997576035483,
+                -27.454545454545453,
+                8.38888888888889,
+                -18.25,
+                16.25
+              ],
+              [],
+              [
+                -26.5,
+                1.6666666666666667,
+                0.30997179072900427,
+                -2,
+                27,
+                -0.6,
+                5,
+                9,
+                19.083333333333332,
+                -7,
+                0.872748215973304,
+                24.076923076923077,
+                -5.5625,
+                -13.454545454545455,
+                -0.4,
+                0.35564240819438897,
+                -2.5,
+                0.7591439383798168,
+                0.7402195804419035,
+                -25,
+                17.25,
+                -4,
+                -12,
+                1,
+                -18,
+                3,
+                27
+              ],
+              [
+                4,
+                0.6872818719002147,
+                -22.5,
+                30,
+                -0.3333333333333333,
+                -1.3333333333333333,
+                -4,
+                20,
+                7,
+                6.642857142857143,
+                0.7214521777213283,
+                0.75,
+                18,
+                -21.892857142857142,
+                29.7,
+                0.43909694035106406,
+                -2,
+                22,
+                1,
+                -1.6666666666666667,
+                -24,
+                24,
+                -0.25,
+                -8,
+                -1.6666666666666667
+              ],
+              [
+                6.416666666666667,
+                3,
+                -0.5,
+                0.9473385186795724,
+                22,
+                -0.6,
+                3,
+                -17.0625,
+                0.9039872292325462,
+                13,
+                29.214285714285715,
+                1,
+                30,
+                -1.5,
+                0.4871113874367299,
+                0.3570627541753689,
+                3,
+                -15,
+                13,
+                -11,
+                12,
+                0.0020415516322990213
+              ],
+              [
+                -27.551724137931036,
+                22.875,
+                -18,
+                -3,
+                0.6666666666666666,
+                -11.125,
+                10.928571428571429,
+                20,
+                -19,
+                -28.5,
+                -17.84,
+                4.470588235294118,
+                -16.96551724137931,
+                0.637784098864077,
+                0.8072737809239423,
+                -10.5,
+                0.5,
+                0.7211009235076685,
+                0.16588036063495282,
+                0.4985710806480762
+              ],
+              [
+                5.666666666666667,
+                -8.875,
+                13,
+                -24,
+                0.8492659551821299,
+                -29.791666666666668,
+                13.73076923076923,
+                0.3322040285094755,
+                1,
+                7,
+                19.107142857142858,
+                0,
+                0.6583355093155997,
+                -30,
+                -7.266666666666667,
+                1.894736842105263,
+                3
+              ],
+              [
+                3.3793103448275863,
+                22,
+                0.5,
+                -16,
+                -19,
+                -0.6666666666666666,
+                13,
+                -29,
+                9,
+                19,
+                0.40393235936223015,
+                27.533333333333335,
+                0.5900953228865017,
+                14,
+                -5,
+                -8,
+                6,
+                25.68,
+                27.363636363636363,
+                -0.6,
+                -0.4
+              ],
+              [
+                -2,
+                0.4370175478399507,
+                -0.25,
+                6,
+                -1.5,
+                0.22051385790944655,
+                20,
+                0.6666666666666666,
+                -7,
+                -21.363636363636363,
+                -13.9,
+                25,
+                18,
+                1.5,
+                -17,
+                0.3333333333333333,
+                -0.6666666666666666,
+                4,
+                1,
+                -13.5,
+                0.40616347660537633,
+                -13.523809523809524,
+                0.9142799752913283,
+                -9,
+                -29,
+                -22
+              ],
+              [
+                0.24795650458750496,
+                2,
+                -0.6,
+                0,
+                3,
+                17.952380952380953,
+                10.333333333333334,
+                -6.333333333333333,
+                0.6,
+                0.28166395438596137,
+                -27,
+                0.7786077628978734,
+                7.173913043478261,
+                0.2870999003899918,
+                -10.25,
+                2,
+                15.9,
+                0.549735969053298,
+                0.75,
+                0.47414109303388796,
+                0.9958875074599227,
+                -17.071428571428573,
+                0.5061121922307512,
+                21.57894736842105,
+                -13.166666666666666,
+                1.6666666666666667
+              ],
+              [
+                -1.5,
+                0.6130858410360399,
+                -14.666666666666666,
+                3,
+                0.21112443830896122,
+                -28.6,
+                2,
+                0.25121873198195666,
+                -8.8125,
+                0.75,
+                9.333333333333334,
+                0.5749834105591219,
+                -12.333333333333334,
+                26.785714285714285,
+                18.75,
+                25,
+                -0.5,
+                23,
+                0.5183235101637129,
+                -27.25,
+                0.1801826250283619,
+                26.384615384615383,
+                13.555555555555555,
+                1.3333333333333333,
+                0.9553992975302462
+              ],
+              [
+                1.45,
+                21.833333333333332,
+                0.6217300712575559,
+                7,
+                6.678571428571429
+              ]
+            ],
+            "inputNames": [
+              "inputNames 20",
+              "inputNames 21",
+              "inputNames 22",
+              "inputNames 23",
+              "inputNames 24"
+            ],
+            "inputValues": [
+              -12.304347826086957,
+              0.1969554007385098,
+              -14,
+              0.6866315522119899
+            ],
+            "workingCode": "workingCode 25"
+          },
+          "maskType": {
+            "contents": [
+              "contents 26",
+              -14
+            ],
+            "tag": "SquareWave"
+          }
+        },
+        "builtIn": "DivByTen",
+        "maskTypeId": "o000061ec0000000000ec34ef"
+      },
+      "onpingKey": 5,
+      "ownerId": null,
+      "recallTime": 22,
+      "tripTime": -22,
+      "userPermissions": [
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        }
+      ]
+    }
+  },
+  {
+    "Right": {
+      "alarmActive": true,
+      "alarmMixId": {
+        "contents": "o00005a560000000000e01def",
+        "tag": "AlarmMixIdVP"
+      },
+      "alarmName": "Alarm 3",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": 15,
+          "description": "description 27",
+          "lastUpdate": 7,
+          "localParameterId": {
+            "slave-id": -20,
+            "source": "SourceMongoDB"
+          },
+          "locationId": 7,
+          "parameterId": {
+            "keyType": "VPID",
+            "keyValue": 25949
+          },
+          "result": {
+            "tag": "OnPingDownHoleCard",
+            "value": {
+              "storableCardPointFluidLoad": null,
+              "storableCardPointGrossStroke": 12.8,
+              "storableCardPointMaxLoad": null,
+              "storableCardPointMinLoad": null,
+              "storableCardPointNetStroke": -1,
+              "storableCardPointPumpFillage": 0.792455740535168,
+              "storableCardPointStrokeLength": 24.6,
+              "storableCardPointStrokePeriod": -0.5,
+              "storableCardPoints": [
+                {
+                  "pointLoad": 0.35028695737393645,
+                  "pointPosition": 19.363636363636363
+                }
+              ]
+            }
+          },
+          "siteId": -30,
+          "unit": {
+            "unit": "Kilograms"
+          },
+          "writeability": "TagReadOnly"
+        },
+        "tagLocation": {
+          "company": 28,
+          "delete": 0,
+          "name": "name 28",
+          "refId": 24,
+          "site": 12,
+          "slaveId": 17,
+          "url": ""
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 2,
+            "entryConfigUserId": "o0000002600000000000cfc92",
+            "entryConfigUserName": "User 44"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 1,
+            "entryConfigUserId": "o000045440000000000b29332",
+            "entryConfigUserName": "User 45"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -21,
+            "entryConfigUserId": "o0000389a0000000000c2de9b",
+            "entryConfigUserName": "User 46"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 29,
+            "entryConfigUserId": "o000049060000000000e1ff32",
+            "entryConfigUserName": "User 47"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -4,
+            "entryConfigUserId": "o00006f0c000000000052e143",
+            "entryConfigUserName": "User 48"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 9,
+            "entryConfigUserId": "o000024f40000000000eeb6d7",
+            "entryConfigUserName": "User 49"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 21,
+            "entryConfigUserId": "o000040160000000000811d96",
+            "entryConfigUserName": "User 50"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -23,
+            "entryConfigUserId": "o00005e3e00000000009e3075",
+            "entryConfigUserName": "User 51"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o00007db100000000004a0157",
+            "entryConfigUserName": "User 52"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -30,
+            "entryConfigUserId": "o000061cc000000000030453d",
+            "entryConfigUserName": "User 53"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 18,
+            "entryConfigUserId": "o000001020000000000bd0791",
+            "entryConfigUserName": "User 54"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 19,
+            "entryConfigUserId": "o00001c5200000000000c56ef",
+            "entryConfigUserName": "User 55"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 2,
+            "entryConfigUserId": "o0000330b0000000000c5ee99",
+            "entryConfigUserName": "User 56"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -2,
+            "entryConfigUserId": "o000009350000000000f04844",
+            "entryConfigUserName": "User 57"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 11,
+            "entryConfigUserId": "o000000f60000000000105feb",
+            "entryConfigUserName": "User 58"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -14,
+            "entryConfigUserId": "o0000040a0000000000a429d6",
+            "entryConfigUserName": "User 59"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 26,
+            "entryConfigUserId": "o000017cb00000000000df31c",
+            "entryConfigUserName": "User 60"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 19,
+            "entryConfigUserId": "o00007c440000000000b67ceb",
+            "entryConfigUserName": "User 61"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 18,
+            "entryConfigUserId": "o000041430000000000e0d804",
+            "entryConfigUserName": "User 62"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 20,
+            "entryConfigUserId": "o000004050000000000420e95",
+            "entryConfigUserName": "User 63"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 28,
+            "entryConfigUserId": "o00000fb9000000000065036b",
+            "entryConfigUserName": "User 64"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -28,
+            "entryConfigUserId": "o00007f330000000000d2a791",
+            "entryConfigUserName": "User 65"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o000066aa0000000000ad890d",
+            "entryConfigUserName": "User 66"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 16,
+            "entryConfigUserId": "o00002f7300000000007ea9d1",
+            "entryConfigUserName": "User 67"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 13,
+            "entryConfigUserId": "o00001171000000000091cc2b",
+            "entryConfigUserName": "User 68"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -13,
+            "entryConfigUserId": "o0000592800000000002350ce",
+            "entryConfigUserName": "User 69"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -4,
+            "entryConfigUserId": "o00007639000000000013cd47",
+            "entryConfigUserName": "User 70"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 27,
+            "entryConfigUserId": "o00002bbe0000000000f2a890",
+            "entryConfigUserName": "User 71"
+          }
+        ],
+        "orderGID": "o000072b60000000000ecbc89",
+        "orderId": null,
+        "orderName": "Order 3",
+        "orderOID": "o0000711c00000000000f8278",
+        "orderPerm": [
+          {
+            "None": []
+          },
+          {
+            "None": []
+          },
+          {
+            "None": []
+          },
+          {
+            "None": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "None": []
+          },
+          {
+            "All": []
+          },
+          {
+            "None": []
+          },
+          {
+            "All": []
+          },
+          {
+            "All": []
+          },
+          {
+            "Write": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Write": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "None": []
+          }
+        ]
+      },
+      "callOrderId": "o00000ab10000000000a631dd",
+      "clearTime": -8,
+      "customName": false,
+      "enableClearCalls": false,
+      "foldSampleCount": 19,
+      "foldStep": -10,
+      "groupId": "o000056c60000000000561604",
+      "maskInfo": {
+        "alarmMaskCFG": {
+          "maskGID": "o0000612f0000000000c3f98e",
+          "maskName": "maskName 29",
+          "maskOID": null,
+          "maskPerm": [
+            {
+              "None": []
+            },
+            {
+              "None": []
+            },
+            {
+              "None": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Delete": []
+            }
+          ],
+          "maskScript": {
+            "inputDefaults": [
+              6.571428571428571,
+              0.27289155061056325,
+              1.3333333333333333,
+              -4,
+              -1,
+              0.5746989616233716,
+              11,
+              19,
+              5,
+              -6,
+              5.37037037037037,
+              9.428571428571429,
+              -13.428571428571429,
+              0.014977819857116659,
+              -0.3333333333333333,
+              2.5,
+              17,
+              0.9131715745262923,
+              0.2120946192593356,
+              -7,
+              -29.6,
+              0.028610513754188438,
+              7.833333333333333,
+              0.7288936094839146,
+              0.48666755570530384,
+              -2
+            ],
+            "inputFolds": [
+              "inputFolds 30",
+              "inputFolds 31",
+              "inputFolds 32",
+              "inputFolds 33",
+              "inputFolds 34",
+              "inputFolds 35",
+              "inputFolds 36",
+              "inputFolds 37",
+              "inputFolds 38",
+              "inputFolds 39",
+              "&",
+              "inputFolds 40"
+            ],
+            "inputHistories": [
+              [
+                -5.857142857142857,
+                5,
+                -0.4,
+                -0.5,
+                0.861693750921196,
+                10.777777777777779,
+                -18.857142857142858,
+                0.1209639582587515,
+                -26.571428571428573,
+                3.5833333333333335,
+                -0.3333333333333333,
+                0.20116278647872243,
+                7,
+                -17.272727272727273
+              ],
+              [
+                -22.666666666666668,
+                27,
+                -23.413793103448278,
+                0,
+                18,
+                -0.3333333333333333,
+                0.35262787270835905,
+                -25,
+                -8.25,
+                0.34615384615384615,
+                11.714285714285714,
+                0,
+                -10.166666666666666,
+                -16.434782608695652,
+                18.352941176470587,
+                -12.65,
+                0.6666666666666666,
+                0.1199737623190873,
+                10.733333333333333,
+                -1.6666666666666667,
+                0.7457219088758592,
+                18,
+                0.904918954655497,
+                -12.8125,
+                0,
+                -15,
+                17.875,
+                -11,
+                3,
+                15.5
+              ],
+              [],
+              [
+                -26.583333333333332,
+                30,
+                -14.9,
+                -24.5,
+                -0.6,
+                16.666666666666668,
+                -0.6,
+                -4.769230769230769
+              ],
+              [
+                -0.6,
+                10,
+                7,
+                -4,
+                -27.31578947368421,
+                18.14814814814815,
+                0.3285415100852882,
+                -25.307692307692307,
+                0.7413697922292565,
+                0.018497820545844923,
+                -29.571428571428573,
+                0,
+                -0.3333333333333333,
+                0.3999492577340965,
+                19
+              ]
+            ],
+            "inputNames": [
+              "inputNames 41",
+              "inputNames 42",
+              "inputNames 43",
+              "inputNames 44",
+              "inputNames 45",
+              "inputNames 46",
+              "inputNames 47",
+              "inputNames 48",
+              "inputNames 49",
+              "inputNames 50",
+              "oI",
+              "inputNames 51",
+              "inputNames 52",
+              "inputNames 53"
+            ],
+            "inputValues": [
+              -1.6666666666666667
+            ],
+            "workingCode": "workingCode 54"
+          },
+          "maskType": "Bit13"
+        },
+        "builtIn": "Bit13",
+        "maskTypeId": "o000002f30000000000712292"
+      },
+      "onpingKey": 17,
+      "ownerId": "o0000593d00000000005a288f",
+      "recallTime": -13,
+      "tripTime": -26,
+      "userPermissions": [
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "All": []
+        },
+        {
+          "None": []
+        }
+      ]
+    }
+  },
+  {
+    "Right": {
+      "alarmActive": true,
+      "alarmMixId": {
+        "contents": "o000007fb000000000028e4e7",
+        "tag": "AlarmMixIdRegular"
+      },
+      "alarmName": "Alarm 4",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": -20,
+          "description": "description 55",
+          "lastUpdate": 10,
+          "localParameterId": {
+            "source": "SourceToku",
+            "tag-id": "tag-id 56"
+          },
+          "locationId": 14,
+          "parameterId": 27,
+          "result": {
+            "tag": "OnPingInt",
+            "value": 23
+          },
+          "siteId": 16,
+          "unit": {
+            "id": 2,
+            "unit": "OtherUnit"
+          },
+          "writeability": "TagReadOnly"
+        },
+        "tagLocation": {
+          "company": 4,
+          "delete": 18,
+          "name": "",
+          "refId": 5,
+          "site": 12,
+          "slaveId": 8,
+          "url": "url 57"
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 10,
+            "entryConfigUserId": "o0000210c00000000000a57f6",
+            "entryConfigUserName": "User 72"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -17,
+            "entryConfigUserId": "o000005940000000000f3647d",
+            "entryConfigUserName": "User 73"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 7,
+            "entryConfigUserId": "o000052f60000000000528306",
+            "entryConfigUserName": "User 74"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 21,
+            "entryConfigUserId": "o00002056000000000092dd55",
+            "entryConfigUserName": "User 75"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -14,
+            "entryConfigUserId": "o0000568100000000002c4df5",
+            "entryConfigUserName": "User 76"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 24,
+            "entryConfigUserId": "o00004907000000000083e95c",
+            "entryConfigUserName": "User 77"
+          }
+        ],
+        "orderGID": "o000028eb0000000000157a02",
+        "orderId": "o0000005f0000000000874e43",
+        "orderName": "Order 4",
+        "orderOID": "o000016bd00000000007ac203",
+        "orderPerm": [
+          {
+            "None": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "None": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Write": []
+          }
+        ]
+      },
+      "callOrderId": "o000065a200000000006cfb7c",
+      "clearTime": 9,
+      "customName": false,
+      "enableClearCalls": true,
+      "foldSampleCount": -24,
+      "foldStep": -10,
+      "groupId": "o000055ee0000000000ec496e",
+      "maskInfo": {
+        "alarmMaskCFG": {
+          "maskGID": "o0000242000000000005de197",
+          "maskName": "maskName 58",
+          "maskOID": "o00004b6e000000000000edfa",
+          "maskPerm": [
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "None": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "All": []
+            },
+            {
+              "All": []
+            },
+            {
+              "None": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Delete": []
+            }
+          ],
+          "maskScript": {
+            "inputDefaults": [
+              -0.6666666666666666,
+              -2,
+              0.08750121832244817,
+              -10,
+              -3.6,
+              16,
+              16,
+              0.1034829780808102,
+              0.2179175264301103,
+              -24.14814814814815,
+              -25.185185185185187,
+              -7.214285714285714,
+              -0.3333333333333333
+            ],
+            "inputFolds": [
+              "inputFolds 59",
+              "inputFolds 60",
+              "inputFolds 61",
+              "inputFolds 62",
+              "inputFolds 63",
+              "inputFolds 64",
+              "inputFolds 65",
+              "inputFolds 66",
+              "",
+              "inputFolds 67",
+              "inputFolds 68",
+              "inputFolds 69",
+              "inputFolds 70",
+              "inputFolds 71",
+              "inputFolds 72",
+              "",
+              "inputFolds 73",
+              "inputFolds 74",
+              "inputFolds 75",
+              "inputFolds 76"
+            ],
+            "inputHistories": [
+              [
+                -3,
+                18,
+                -0.75,
+                -0.4,
+                0.4338668759031705,
+                -9,
+                0.02453518616534145,
+                0.5828029831276218,
+                0.9276866841671851,
+                -0.25,
+                7,
+                1.6666666666666667,
+                -15.333333333333334,
+                18,
+                -28,
+                -19.346153846153847,
+                -0.8,
+                -14.6,
+                0.6,
+                19,
+                -14,
+                0.4230769230769231,
+                -17,
+                -9.666666666666666,
+                21
+              ],
+              [],
+              [
+                -23,
+                -12.571428571428571,
+                18.9,
+                0.6,
+                -17,
+                3.1481481481481484,
+                0.25,
+                -14.925925925925926,
+                0.25,
+                -4,
+                0.12267979108195814,
+                0.08568013747012959,
+                23.466666666666665,
+                -22.1875,
+                -2.5,
+                1.6956521739130435,
+                0.11001629140453528,
+                0.24889987311772,
+                0.8083345089208908,
+                -18.846153846153847,
+                1,
+                4.5,
+                -20,
+                -22.384615384615383,
+                -22.933333333333334
+              ],
+              [
+                3,
+                -6.75,
+                -30,
+                -1.5,
+                3.2758620689655173,
+                -14.863636363636363,
+                -14.466666666666667,
+                -1,
+                12.074074074074074,
+                1,
+                0.692833030983361,
+                -0.6666666666666666,
+                4,
+                0.5548665032222979,
+                28,
+                12,
+                -14,
+                12.055555555555555,
+                -26,
+                -19.071428571428573,
+                3,
+                2,
+                -29,
+                -2.6666666666666665,
+                8,
+                -3.411764705882353
+              ],
+              [
+                -18.428571428571427,
+                9.307692307692308,
+                3,
+                -22.2,
+                8,
+                -8.071428571428571
+              ],
+              [
+                -1,
+                3,
+                -0.75,
+                0.005180931932552202,
+                3,
+                0.6136820363451883,
+                0.2216567797314999,
+                20.571428571428573,
+                -2,
+                -3.5,
+                0,
+                -0.3333333333333333,
+                2,
+                0.8152003892337383,
+                13.555555555555555,
+                -24,
+                -5.5,
+                15,
+                -20.571428571428573,
+                17,
+                -11,
+                -2.5
+              ],
+              [
+                -18,
+                -29.666666666666668,
+                22.5625,
+                5
+              ],
+              [
+                -2.6666666666666665,
+                -14,
+                12.666666666666666,
+                4.15,
+                0.16436211122458855,
+                1,
+                13.692307692307692,
+                0.2018372859695131,
+                -23,
+                17.157894736842106,
+                0,
+                -1,
+                0.75,
+                -0.5,
+                0.9756416761574527,
+                -19.941176470588236,
+                0.3157894736842105,
+                23.846153846153847,
+                5,
+                -14.333333333333334,
+                -1.6666666666666667,
+                14.333333333333334,
+                -1.5,
+                0.19816729651630072
+              ],
+              [
+                14.75,
+                0.4,
+                11.44,
+                0.5222799652804169,
+                2.5,
+                14.7,
+                -27.6,
+                7,
+                -28,
+                9,
+                0,
+                3,
+                19,
+                7,
+                5,
+                -1.84
+              ],
+              [
+                0.10714285714285714
+              ],
+              [
+                0.4,
+                -19.166666666666668,
+                28.875,
+                -18.25,
+                27,
+                20.76923076923077,
+                26.5,
+                -1.3333333333333333,
+                -2,
+                0.3847806209583947,
+                19.434782608695652,
+                0.3715738515035081,
+                0.6666666666666666,
+                0.9395266257101834,
+                1,
+                0.8992885499455913,
+                0.7333333333333333,
+                16,
+                0.06820500353153924,
+                1.6666666666666667,
+                10.733333333333333,
+                24
+              ],
+              [
+                -0.4,
+                0.2530187740822176,
+                -29,
+                0.03594151544876312,
+                -4,
+                0.6,
+                29
+              ],
+              [
+                1.3333333333333333,
+                1.3333333333333333
+              ],
+              [
+                -21.90909090909091,
+                1,
+                0.3082238970889095,
+                -23.482758620689655,
+                3.25,
+                -7.428571428571429,
+                0.5648678567933944,
+                5,
+                -4,
+                12.8,
+                8.166666666666666,
+                0.7298742203455468
+              ],
+              [
+                -1.3793103448275863,
+                19.954545454545453,
+                -29,
+                -8.95,
+                -5.285714285714286,
+                -4.666666666666667,
+                -28.818181818181817,
+                0.3099791756522864,
+                -25.875,
+                0.5982113910173334,
+                19.75,
+                -0.1875,
+                0.6056196272848965,
+                18.6,
+                26,
+                0.46471459100539547,
+                -22,
+                -2.5,
+                6,
+                9.857142857142858,
+                16
+              ],
+              [
+                0.4285402887244212,
+                -25.75
+              ],
+              [
+                1.6666666666666667,
+                29.0625,
+                -13.142857142857142,
+                -9.296296296296296,
+                2.5,
+                -7.384615384615385,
+                30,
+                0,
+                -17.333333333333332,
+                15.517241379310345
+              ],
+              [
+                -18.61111111111111,
+                5,
+                8.476190476190476,
+                -14.689655172413794,
+                14,
+                -0.75,
+                14.636363636363637,
+                14,
+                0.6,
+                20.32
+              ],
+              [
+                -4,
+                15.333333333333334,
+                29,
+                7,
+                0.3296865029850877,
+                28,
+                -2,
+                28
+              ],
+              [
+                -2.5,
+                -1.3333333333333333,
+                -1.0714285714285714,
+                0.75,
+                -27,
+                18,
+                -0.4,
+                0.11867354083502946,
+                -1.6666666666666667,
+                -12,
+                0.47935196990242657,
+                0.9648102237082419,
+                -23.363636363636363,
+                27.82608695652174,
+                0.2730741332590312,
+                0.00358658308188331,
+                0.6958958793870491,
+                -0.6,
+                -29.916666666666668,
+                12.608695652173912
+              ],
+              [
+                -0.3333333333333333,
+                0,
+                -23.352941176470587,
+                0.3333333333333333,
+                -30,
+                0.4812309080837506,
+                15,
+                -10.176470588235293,
+                -10,
+                -26.5,
+                23,
+                -2.5,
+                -1.5,
+                2.84,
+                16.4375,
+                -15.368421052631579,
+                -10.333333333333334,
+                30
+              ],
+              [
+                -0.05263157894736842,
+                -2,
+                1,
+                3,
+                -15,
+                -21.4,
+                -12,
+                -16,
+                -8,
+                -3,
+                -17,
+                -14,
+                -15.25,
+                -14
+              ]
+            ],
+            "inputNames": [
+              "inputNames 77",
+              "inputNames 78",
+              "inputNames 79",
+              "inputNames 80",
+              "inputNames 81",
+              "inputNames 82",
+              "inputNames 83",
+              "inputNames 84",
+              "inputNames 85",
+              "inputNames 86",
+              "inputNames 87",
+              "",
+              "inputNames 88",
+              "inputNames 89",
+              "inputNames 90",
+              "inputNames 91",
+              "inputNames 92",
+              "inputNames 93",
+              "inputNames 94",
+              "inputNames 95",
+              "inputNames 96",
+              "inputNames 97",
+              "",
+              "inputNames 98",
+              "inputNames 99",
+              "inputNames 100",
+              "inputNames 101",
+              "inputNames 102",
+              "inputNames 103",
+              "inputNames 104"
+            ],
+            "inputValues": [
+              20.375,
+              29.2,
+              19,
+              -22,
+              11.857142857142858,
+              0.8418151270998874,
+              0.6313956777854889,
+              -11.857142857142858,
+              0.3720672829675774,
+              0.913093394724572,
+              -19
+            ],
+            "workingCode": "workingCode 105"
+          },
+          "maskType": {
+            "contents": [
+              "contents 106",
+              8
+            ],
+            "tag": "SquareWave"
+          }
+        },
+        "builtIn": "InvBit10",
+        "maskTypeId": "o000004fa00000000007dc5a8"
+      },
+      "onpingKey": 22,
+      "ownerId": null,
+      "recallTime": 20,
+      "tripTime": 10,
+      "userPermissions": [
+        {
+          "Write": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        }
+      ]
+    }
+  },
+  {
+    "Right": {
+      "alarmActive": true,
+      "alarmMixId": {
+        "contents": "o00005d9e00000000000b0f0b",
+        "tag": "AlarmMixIdVP"
+      },
+      "alarmName": "Alarm 5",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": -10,
+          "description": "description 107",
+          "lastUpdate": 13,
+          "localParameterId": {
+            "slave-id": {
+              "mqttJsonSourceTopic": "mqttJsonSourceTopic 108",
+              "valueSelector": "valueSelector 109"
+            },
+            "source": "SourceMqttJson"
+          },
+          "locationId": -15,
+          "parameterId": 12,
+          "result": {
+            "tag": "OnPingBool",
+            "value": false
+          },
+          "siteId": -2,
+          "unit": {
+            "unit": "Kilograms"
+          },
+          "writeability": "TagWriteable"
+        },
+        "tagLocation": {
+          "company": 21,
+          "delete": -18,
+          "name": "name 110",
+          "refId": -10,
+          "site": 8,
+          "slaveId": -17,
+          "url": " <"
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -30,
+            "entryConfigUserId": "o000025d90000000000e4bab3",
+            "entryConfigUserName": "User 78"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 30,
+            "entryConfigUserId": "o00006c760000000000680eeb",
+            "entryConfigUserName": "User 79"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 4,
+            "entryConfigUserId": "o00005ef8000000000095fb60",
+            "entryConfigUserName": "User 80"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -2,
+            "entryConfigUserId": "o00000501000000000049cded",
+            "entryConfigUserName": "User 81"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -15,
+            "entryConfigUserId": "o000075090000000000c57802",
+            "entryConfigUserName": "User 82"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 12,
+            "entryConfigUserId": "o0000127a0000000000200a3f",
+            "entryConfigUserName": "User 83"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 3,
+            "entryConfigUserId": "o00007eb000000000001154d7",
+            "entryConfigUserName": "User 84"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 9,
+            "entryConfigUserId": "o000006bb0000000000143fe7",
+            "entryConfigUserName": "User 85"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 20,
+            "entryConfigUserId": "o000050d60000000000d268ea",
+            "entryConfigUserName": "User 86"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": -8,
+            "entryConfigUserId": "o0000191c0000000000b894c1",
+            "entryConfigUserName": "User 87"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -9,
+            "entryConfigUserId": "o000068730000000000e8e82e",
+            "entryConfigUserName": "User 88"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -22,
+            "entryConfigUserId": "o00001a3a00000000006fde3e",
+            "entryConfigUserName": "User 89"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -8,
+            "entryConfigUserId": "o00003d27000000000040692c",
+            "entryConfigUserName": "User 90"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 2,
+            "entryConfigUserId": "o000070b7000000000017ef09",
+            "entryConfigUserName": "User 91"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": -26,
+            "entryConfigUserId": "o000063610000000000419ab0",
+            "entryConfigUserName": "User 92"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o00007fb900000000006008cf",
+            "entryConfigUserName": "User 93"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 12,
+            "entryConfigUserId": "o00007af50000000000b77c5c",
+            "entryConfigUserName": "User 94"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 28,
+            "entryConfigUserId": "o0000645f0000000000a3644a",
+            "entryConfigUserName": "User 95"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 20,
+            "entryConfigUserId": "o00007cdb0000000000b56ceb",
+            "entryConfigUserName": "User 96"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 7,
+            "entryConfigUserId": "o000007d20000000000131d61",
+            "entryConfigUserName": "User 97"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 0,
+            "entryConfigUserId": "o00001d890000000000ea2cf4",
+            "entryConfigUserName": "User 98"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 30,
+            "entryConfigUserId": "o000027a70000000000788726",
+            "entryConfigUserName": "User 99"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 7,
+            "entryConfigUserId": "o000039810000000000f1d89a",
+            "entryConfigUserName": "User 100"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 22,
+            "entryConfigUserId": "o00003e3e0000000000e86275",
+            "entryConfigUserName": "User 101"
+          },
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 5,
+            "entryConfigUserId": "o0000787e0000000000dfde24",
+            "entryConfigUserName": "User 102"
+          }
+        ],
+        "orderGID": "o000066610000000000070c4c",
+        "orderId": "o00003dbb0000000000424f58",
+        "orderName": "Order 5",
+        "orderOID": "o000021fd0000000000965675",
+        "orderPerm": [
+          {
+            "Read": []
+          },
+          {
+            "None": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Read": []
+          }
+        ]
+      },
+      "callOrderId": "o0000399a0000000000a26a7e",
+      "clearTime": 22,
+      "customName": false,
+      "enableClearCalls": true,
+      "foldSampleCount": 4,
+      "foldStep": null,
+      "groupId": "o00003fe00000000000dab630",
+      "maskInfo": {
+        "alarmMaskCFG": {
+          "maskGID": "o000060d10000000000cf0e0c",
+          "maskName": "maskName 111",
+          "maskOID": null,
+          "maskPerm": [
+            {
+              "Edit": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Write": []
+            }
+          ],
+          "maskScript": {
+            "inputDefaults": [
+              20,
+              19.77777777777778,
+              28.210526315789473,
+              0,
+              -6.888888888888889,
+              4,
+              14,
+              10.75,
+              -3.142857142857143,
+              4,
+              -8,
+              22,
+              13,
+              -22.5,
+              -28,
+              0.5481279064554954,
+              20.45,
+              18.46153846153846,
+              -0.5,
+              11.533333333333333,
+              22,
+              24.666666666666668,
+              -18,
+              23,
+              -8.36,
+              3.8181818181818183,
+              -7,
+              0.15159695902971482
+            ],
+            "inputFolds": [
+              "inputFolds 112",
+              "inputFolds 113",
+              "inputFolds 114",
+              "inputFolds 115",
+              "inputFolds 116"
+            ],
+            "inputHistories": [
+              [
+                7.333333333333333,
+                0.47725059427343086,
+                -6,
+                19.77777777777778,
+                -2.7058823529411766,
+                1.3333333333333333,
+                -0.3333333333333333,
+                26,
+                -27,
+                16.473684210526315,
+                0.10374805011942378,
+                -20.476190476190474,
+                28,
+                0.6074040102267176,
+                23,
+                13.5,
+                0.4,
+                0.25,
+                0.22557371596463627,
+                -16.75862068965517,
+                -3,
+                -0.6,
+                24.571428571428573,
+                0.43284967386489737,
+                -13.25,
+                -0.6
+              ],
+              [
+                0.9208746083211267,
+                -3,
+                -12.363636363636363,
+                -25,
+                -7.7368421052631575,
+                -0.5,
+                -21,
+                27.333333333333332,
+                -12.136363636363637,
+                12.333333333333334,
+                -27,
+                -10,
+                0.03908674633373732,
+                -19,
+                -25
+              ],
+              [
+                -6.823529411764706,
+                -0.25,
+                -21.80952380952381,
+                -18.928571428571427,
+                -4,
+                30,
+                20,
+                0.9210781314314014,
+                -15,
+                17,
+                0.3333333333333333,
+                0.8329521192082308,
+                6.214285714285714,
+                0.47932447789866295
+              ],
+              [
+                0.5749119055110458,
+                -8,
+                -30,
+                0.25,
+                -26.166666666666668,
+                -22.296296296296298,
+                0.6666666666666666,
+                -0.6,
+                10,
+                -21,
+                -6.333333333333333,
+                -26,
+                -4,
+                -25.928571428571427,
+                9.61111111111111,
+                -4,
+                28.823529411764707
+              ],
+              [
+                -21,
+                0.7338362464312996,
+                2,
+                -10.678571428571429,
+                -13,
+                8,
+                0.21516706959609821,
+                -11,
+                1.3333333333333333,
+                16,
+                21.235294117647058,
+                20.818181818181817
+              ],
+              [
+                29,
+                -1.6666666666666667,
+                -10.142857142857142,
+                -8.37037037037037,
+                0.21082351917254516,
+                0.1568522515705848,
+                -18.666666666666668,
+                8.222222222222221,
+                -26.142857142857142,
+                26.916666666666668,
+                -4,
+                28.80952380952381,
+                1,
+                3,
+                1,
+                23,
+                0.3887036712260217
+              ],
+              [
+                -11.5,
+                29,
+                29,
+                6,
+                -9.555555555555555,
+                -5.5,
+                -6,
+                6.6,
+                0.8621744761286504,
+                0.47780826968723733,
+                0.11351350907991509,
+                -2,
+                0.6,
+                -1,
+                5
+              ],
+              [
+                23.142857142857142,
+                0.643658151749401,
+                25,
+                11.923076923076923,
+                -1.5,
+                -0.5,
+                5.041666666666667,
+                -20,
+                -28.714285714285715,
+                0.3769610796181715,
+                1.5,
+                0,
+                -7.769230769230769,
+                5,
+                -27,
+                -1,
+                -9.666666666666666,
+                9.142857142857142,
+                0.6320453805185223,
+                -12.5,
+                -6.8,
+                -0.3333333333333333,
+                20.666666666666668,
+                -15.5,
+                -0.75,
+                0.46158569641090386,
+                4.8
+              ],
+              [
+                0.2399351386381814,
+                27.210526315789473,
+                -26,
+                -25.615384615384617,
+                18.46153846153846,
+                26.416666666666668,
+                -24.46153846153846,
+                -22,
+                13.666666666666666,
+                0.20231150488274152,
+                2,
+                -0.4,
+                -14.785714285714286,
+                -3,
+                15.368421052631579,
+                0.6468254589004339,
+                -0.5,
+                0.2710987327274682,
+                -1,
+                0.5,
+                -0.4,
+                21.181818181818183,
+                18.25,
+                0.024100848725125967,
+                8.473684210526315,
+                2.5,
+                -8.846153846153847,
+                -0.5,
+                -16.428571428571427
+              ]
+            ],
+            "inputNames": [
+              "inputNames 117",
+              "inputNames 118",
+              "inputNames 119"
+            ],
+            "inputValues": [
+              0.1843498306645177,
+              -7,
+              26,
+              6,
+              25.3,
+              0.6818181818181818,
+              21.45,
+              0.13394957570720822,
+              -25.142857142857142,
+              0.9093135977519384,
+              -10,
+              -6,
+              3.238095238095238,
+              -1.5,
+              0.4,
+              0,
+              0.6495861771134086,
+              -20,
+              28.5
+            ],
+            "workingCode": "workingCode 120"
+          },
+          "maskType": "InvBit15"
+        },
+        "builtIn": "InvBit2",
+        "maskTypeId": "o000054ae00000000000324a1"
+      },
+      "onpingKey": 15,
+      "ownerId": "o00003f7300000000002bccd0",
+      "recallTime": 8,
+      "tripTime": -3,
+      "userPermissions": [
+        {
+          "Write": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "None": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Edit": []
+        }
+      ]
+    }
+  }
+]

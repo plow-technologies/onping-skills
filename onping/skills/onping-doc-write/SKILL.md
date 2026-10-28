@@ -1,6 +1,6 @@
 ---
 name: onping-doc-write
-description: Publish markdown to a page on the OnPing customer-facing documentation site (Payload CMS) via updateDocWithMarkdown, under a controlled-language standard and the three canonical OnPing personas. MUTATING — requires --yes. Also carries --trash for marking a discarded document the API cannot delete.
+description: Publish markdown to a page on the OnPing customer-facing documentation site (Payload CMS) via updateDocWithMarkdown, under a controlled-language standard and the three canonical OnPing personas. MUTATING — requires --yes.
 allowed-tools: Bash(gpg *), Bash(uv run *)
 ---
 
@@ -30,11 +30,10 @@ uv run ~/.claude/skills/onping-doc-write/scripts/write_doc.py \
 | Option | Description |
 | --- | --- |
 | `--id N` | **Required.** Target document id |
-| `--markdown PATH` | Required unless `--trash`. Read from disk, never from argv |
+| `--markdown PATH` | **Required.** Read from disk, never from argv |
 | `--audience VAL` | A persona or a job title. Required unless the markdown declares one |
 | `--title` / `--description` / `--slug` | Also update these fields |
 | `--section-rationale` | One sentence justifying a sixth top-level section |
-| `--trash` | Mark a discarded document instead of publishing content |
 | `--yes` | Actually publish |
 
 ## Three hard gates, and one advisory report
@@ -298,42 +297,17 @@ literal text.
 
 Every screenshot carries alt text stating what the reader is looking at.
 
-## `--trash` — marking a document the API cannot delete
+## A slug never contains a slash
 
-**Nothing can delete a document on this server.** The MCP plugin acts as the API
-key's related user, who holds role `admin`, and `Docs.ts` permits an admin to delete
-only when `data.deletedAt` is truthy. No field defines `deletedAt` and `trash: true`
-is never enabled, so the branch is unreachable and **the delete control is hidden in
-the admin UI for every admin.** Only an `owner`-role account can delete. This is a
-known server-side bug.
+**CAUTION: never put `/` in `--slug`.** A slash makes the nested-docs plugin treat
+the first segment as a parent document, and the **next** write to that document
+fails with `The following field is invalid: Breadcrumbs 1 > Doc`. Field-verified
+2026-08-26: `trash/zz-table-probe` broke the following update, and
+`trash-zz-table-probe` did not. Use a hyphen.
 
-A trash *category* is unreachable too, because `updateDocWithMarkdown` sets only
-`title`, `slug`, `description`, and `content` — **not `category`**.
-
-So `--trash` **marks** a document instead of moving it:
-
-```bash
-uv run ~/.claude/skills/onping-doc-write/scripts/write_doc.py --id 19 --trash --yes
-```
-
-| Field | Marker |
-| --- | --- |
-| `slug` | prefixed `trash-` |
-| `title` | prefixed `TRASH` |
-| `content` | a body explaining what it is and why it is still there |
-
-Both markers show in the admin UI's default columns, and `onping-doc-list --trash`
-lists them. The operation is idempotent — a second run does not double-prefix.
-
-**CAUTION: the slug marker uses a hyphen, never a slash.** A slug containing `/`
-makes the nested-docs plugin treat the first segment as a parent document, and the
-**next** write to that document fails with
-`The following field is invalid: Breadcrumbs 1 > Doc`. Field-verified 2026-08-26:
-`trash/zz-table-probe` broke the following update, and `trash-zz-table-probe` does
-not.
-
-This marker is a **stopgap for a broken delete**, not a feature of the documentation
-site. It disappears once an owner deletes the document or the access rule is fixed.
+To remove a document, use `onping-doc-delete`, which moves it to the trash. This
+skill no longer carries the `--trash` marker mode it used before the server offered
+a delete.
 
 ## Relationship to the intake skills
 
@@ -349,7 +323,8 @@ intake session.
 
 ## Related
 
-- `onping-doc-list` — find the target id; `--trash` lists marked documents.
+- `onping-doc-list` — find the target id.
+- `onping-doc-delete` — move a document to the trash.
 - `onping-doc-get` — back up a document with `--json` before overwriting it.
 - `onping-doc-create` — create the page first; a new page has no body.
 - `_docs_routes` — the shared transport, and every trap on this service.

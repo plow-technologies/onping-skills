@@ -35,8 +35,6 @@ by `_docs_routes` from `ONPING_DOCS_API_KEY`, a plaintext `onping-docs` file, or
 | `--select JSON` | none | Restrict which fields come back |
 | `--draft` | off | Query the versions table instead of the published collection |
 | `--include-empty` | off | Show structurally empty documents |
-| `--trash` | off | Show ONLY trash-marked documents |
-| `--no-trash` | off | Hide trash-marked documents |
 | `--json` | off | Emit JSON instead of the text table |
 
 ## Two tools, two response shapes
@@ -84,45 +82,16 @@ reported** so a hidden record is never silently dropped:
 Presenting a null-titled draft as a documentation page is the defect this default
 prevents.
 
-## The trash convention
+## Trashed documents are not listed
 
-**This server has no trash folder, and nothing can actually delete a document.**
-`updateDocWithMarkdown` sets only `title`, `slug`, `description`, and `content` —
-**not `category`** — so a document cannot be moved to a "Trash" category through
-the API. And deletes fail for everyone: the MCP plugin acts as the API key's
-related user, who holds role `admin`, while `Docs.ts` permits an admin to delete
-only when `data.deletedAt` is truthy. No field defines `deletedAt` and
-`trash: true` is never enabled, so that branch is unreachable and **the delete
-control is hidden in the admin UI for every admin.** This is a known server-side
-bug. An `owner`-role account can still delete.
+`onping-doc-delete` moves a document to the trash (`moveToTrash` sets `deletedAt`),
+and a trashed document drops out of `findDocs` and out of this list. A human sees
+and restores it in the Payload admin panel.
 
-So a discarded document is **marked rather than moved**, using the two fields that
-are settable:
-
-| Field | Marker |
-| --- | --- |
-| `slug` | prefixed `trash/` — `validateSlug` permits `/` separators |
-| `title` | prefixed `TRASH` |
-
-Both appear in the admin UI's default columns (`title`, `category`, `slug`,
-`order`, `parent`), so a human can sort or spot them there, and both are
-filterable here:
-
-```bash
-# everything awaiting deletion
-uv run ~/.claude/skills/onping-doc-list/scripts/list_docs.py --trash
-
-# a clean list, with the count of what was hidden
-uv run ~/.claude/skills/onping-doc-list/scripts/list_docs.py --no-trash
-```
-
-`--no-trash` always reports how many it hid, so a marked document is never
-silently dropped. Set the marker with `onping-doc-write`, which carries a
-`--trash` flag for exactly this.
-
-Two documents currently carry the marker: 18 (`trash/zz-probe-b`) and 19
-(`trash/zz-table-probe`), both test artifacts from the skill verification that the
-API could not remove.
+This skill used to filter a `trash-` slug and `TRASH` title marker with `--trash`
+and `--no-trash`. That marker was a stopgap from before the server offered any
+delete, and both flags are gone. A document that still carries the marker is an
+ordinary document: trash it with `onping-doc-delete`.
 
 ## The documentation collections are world-readable
 
@@ -137,6 +106,7 @@ server's access posture — the skill neither introduces it nor can change it.
 ## Related
 
 - `onping-doc-get` — read one document, including its Lexical body shape.
-- `onping-doc-category` — list, create, update, and delete the sidebar tabs.
+- `onping-doc-category` — list, create, update, and trash the sidebar tabs.
+- `onping-doc-delete` — move a document to the trash.
 - `onping-doc-write` — publish markdown to a document.
 - `_docs_routes` — the shared transport, and the full list of this service's traps.

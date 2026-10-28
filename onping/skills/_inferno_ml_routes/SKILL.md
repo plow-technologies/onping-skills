@@ -34,7 +34,7 @@ from _inferno_ml_routes.inferno_ml_models import (
   the de-facto route table and records each route's request/response shape.
 
 Dependent skills: `ml-parameter-export`, `ml-parameter-update`,
-`ml-model-manage`, `ml-model-docs`, `ml-model-upload`.
+`ml-model-manage`, `ml-model-docs`, `ml-model-upload`, `ml-parameter-test-copy`.
 
 ## Why the marker, and why this name
 

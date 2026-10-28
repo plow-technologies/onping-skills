@@ -17,6 +17,10 @@ and picks the entry matching the caller's TableId.
 
 Read-only on the server: the POST is a query, not a mutation. No `--yes` gate.
 
+An expired token is caught (401, a redirect to /auth/login, or an HTML page)
+before anything is written, so a login page is never saved as the XLSX.
+The server is https://onping.plowtech.net unless ONPING_BASE_URL is set.
+
 Source of truth (re-verify if these drift):
   - Export handler: onping/Handler/OnpingLogTable/Service.hs
                     (postLogTableSourceExportQueryMultipleRowsHeaderR)
@@ -39,7 +43,7 @@ from typing import Any, Optional
 
 import requests
 
-BASE_URL = "https://onping.plowtech.net"
+BASE_URL = os.environ.get("ONPING_BASE_URL", "https://onping.plowtech.net").rstrip("/")
 TIMEOUT_SECONDS = 60
 
 LIST_PATH = "/logtable/{serial}/source/list"
@@ -51,6 +55,28 @@ EXPORT_PATH = (
 def _utc_stamp() -> str:
     # Use timezone-aware UTC so this works on Python 3.12+ where naive utcnow is deprecated.
     return dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _auth_guard(resp: requests.Response, url: str) -> None:
+    """Exit with a re-login hint when the token was not accepted.
+
+    An expired or wrong token does not always come back as 401: Yesod may
+    redirect to /auth/login and `requests` follows it to a 200 HTML page,
+    which would otherwise be parsed as JSON (list) or saved as the "XLSX"
+    (export).
+    """
+    redirected = any("/auth/login" in (r.headers.get("Location") or "") for r in resp.history)
+    html = "text/html" in (resp.headers.get("Content-Type") or "").lower()
+    if resp.status_code == 401 or redirected or "/auth/login" in resp.url or (
+        html and 200 <= resp.status_code < 300
+    ):
+        print(
+            f"Not authenticated at {url} (HTTP {resp.status_code}"
+            f"{', redirected to the login page' if redirected or '/auth/login' in resp.url else ''}"
+            f"{', HTML body' if html else ''}). Re-run onping-login for a fresh token.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def _fetch_source(
@@ -68,6 +94,7 @@ def _fetch_source(
     except requests.RequestException as e:
         print(f"Failed to fetch source list from {url}: {e}", file=sys.stderr)
         sys.exit(1)
+    _auth_guard(resp, url)
 
     if not (200 <= resp.status_code < 300):
         print(
@@ -156,6 +183,7 @@ def _export(
     except requests.RequestException as e:
         print(f"Export request failed: {e}", file=sys.stderr)
         sys.exit(1)
+    _auth_guard(resp, url)
 
     if not (200 <= resp.status_code < 300):
         body_text = resp.text[:1000]

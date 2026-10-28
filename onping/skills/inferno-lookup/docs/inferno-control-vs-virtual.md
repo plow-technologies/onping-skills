@@ -18,6 +18,10 @@ This note complements `inferno-virtual-control.md`. The core Inferno syntax and 
 | Output binding | VP configuration-specific | Explicit `cpData.outputs` with `ScalarOutput` or `RecordOutput` (each output parameter ID exclusive to one CP) |
 | Identity | VP IDs and script references | `cpId.engineHost` + `cpId.perEngineId` per Lumberjack |
 
+## List Element Tags
+
+Each `cpInferno/list` element is tagged. `ReadableControlParameterInferno` carries `{cpId, cpData}`; `ProhibitedReadControlParameterInferno` and `FailedToReadControlParameterInfernoPermissions` carry only the CPID. Since onping 2026.10.14.0 (#16220) a fourth tag, `OrphanedControlParameterInferno`, carries `[{cpId, cpData}, [<missing PID>, ...]]`. An orphan means an output PID was deleted; it still holds its other outputs. It can be repointed through `/cpInferno/update` or deleted through `/cpInferno/delete`. `cp-list` reports these elements on stderr, and `cp-import-json` omits orphans from its normalised output by default.
+
 ## Control Trigger Patterns
 
 From `cpInferno/list`, control parameters include runtime trigger metadata:
@@ -31,7 +35,7 @@ From `cpInferno/list`, control parameters include runtime trigger metadata:
 
 ## Control Output Patterns
 
-From `cpInferno/list`, control parameters define write targets in `cpData.outputs`. The output type **must** match the script's return expression — a mismatch causes **silent runtime failure** (the CP runs but writes no values).
+From `cpInferno/list`, control parameters define write targets in `cpData.outputs` (for an `OrphanedControlParameterInferno` element, some of those PIDs no longer exist; the element lists them). The output type **must** match the script's return expression — a mismatch causes **silent runtime failure** (the CP runs but writes no values).
 
 **How output type is determined:**
 

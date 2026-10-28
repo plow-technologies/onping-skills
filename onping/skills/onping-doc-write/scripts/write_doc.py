@@ -79,35 +79,6 @@ FIVE_SECTIONS = (
     "See Also",
 )
 
-# Trash convention — see onping-doc-list. Nothing can delete a document here, and
-# `category` is not settable, so a discarded document is MARKED, not moved.
-#
-# The slug marker is `trash-`, with a HYPHEN. A slash makes the nested-docs plugin
-# treat the first segment as a parent document, and the next update to that
-# document then fails with `The following field is invalid: Breadcrumbs 1 > Doc`.
-TRASH_SLUG_PREFIX = "trash-"
-TRASH_TITLE_PREFIX = "TRASH"
-
-TRASH_BODY = """# TRASH — safe to delete
-
-This is a discarded artifact, not documentation. It is a DRAFT, so it is not
-published and no customer can reach it.
-
-## Why it is still here
-
-Nothing can delete it through the API. The MCP plugin acts as the API key's
-related user, who holds role `admin`, and the docs access rule permits an admin to
-delete only when `data.deletedAt` is set — but no field defines that value and
-trash is never enabled, so the branch is unreachable. The delete control is hidden
-in the admin UI for every admin.
-
-This is a known server-side bug. An `owner`-role account can delete this today.
-
-## Finding every trash document
-
-Filter the docs list by a slug beginning `trash-`, or a title beginning `TRASH`.
-"""
-
 # Literal strings from Part A step 3 of the explainer self-check. The list is
 # CLOSED as written: the em dash and the colon are deliberately NOT on it, because
 # Rule 8.1 bans the semicolon and nothing else.
@@ -132,27 +103,18 @@ def parse_args() -> argparse.Namespace:
         description="Publish markdown to an OnPing documentation page (MUTATING).",
     )
     p.add_argument("--id", required=True, help="Target document id")
-    p.add_argument(
-        "--markdown",
-        help="Path to the markdown file. Required unless --trash is passed.",
-    )
+    p.add_argument("--markdown", required=True, help="Path to the markdown file")
     p.add_argument("--title", help="Also update the document title")
     p.add_argument("--description", help="Also update the description")
     p.add_argument("--slug", help="Also update the slug (the site's URL path)")
     p.add_argument(
         "--audience",
         help="Primary persona or a job title: Users, Builders, Platformers. "
-        "Required unless the markdown declares one, or --trash is passed.",
+        "Required unless the markdown declares one.",
     )
     p.add_argument(
         "--section-rationale",
         help="One sentence justifying a sixth top-level section",
-    )
-    p.add_argument(
-        "--trash",
-        action="store_true",
-        help="Mark this document as trash instead of publishing content: "
-        "prefixes the slug with 'trash/' and the title with 'TRASH'.",
     )
     p.add_argument(
         "--yes",
@@ -382,93 +344,58 @@ def main() -> int:
     findings: list[str] = []
     notes: list[str] = []
 
-    # ── trash mode: mark, do not publish ──
-    if args.trash:
-        cur_slug = target.get("slug") or ""
-        cur_title = target.get("title") or ""
-        new_slug = (
-            cur_slug if cur_slug.startswith(TRASH_SLUG_PREFIX)
-            else TRASH_SLUG_PREFIX + (cur_slug or f"doc-{args.id}")
-        )
-        new_title = (
-            cur_title if cur_title.startswith(TRASH_TITLE_PREFIX)
-            else f"{TRASH_TITLE_PREFIX} - delete me ({cur_title or 'untitled'})"
-        )
-        payload.update(
-            {
-                "content": TRASH_BODY,
-                "slug": new_slug,
-                "title": new_title,
-                "description": (
-                    "TRASH - safe to delete. Marked because the API cannot delete "
-                    "documents (a known server-side bug)."
-                ),
-            }
-        )
-        notes.append(
-            "TRASH MODE — marking, not moving. This server has no trash folder and "
-            "`category` is not settable, so the marker lives on the slug and title."
-        )
-    else:
-        if not args.markdown:
-            print(
-                "Refusing to run: --markdown <path> is required unless --trash is "
-                "passed.",
-                file=sys.stderr,
-            )
-            return 1
-        md_path = Path(args.markdown).expanduser()
-        if not md_path.is_file():
-            print(f"No such markdown file: {md_path}", file=sys.stderr)
-            return 1
-        md = md_path.read_text(encoding="utf-8")
+    md_path = Path(args.markdown).expanduser()
+    if not md_path.is_file():
+        print(f"No such markdown file: {md_path}", file=sys.stderr)
+        return 1
+    md = md_path.read_text(encoding="utf-8")
 
-        # ── HARD GATE: audience ──
-        declared = args.audience or audience_from_markdown(md)
-        if not declared:
-            print(
-                "Refusing to publish: no audience declaration.\n"
-                f"The three canonical OnPing personas are {', '.join(PERSONAS)}. "
-                "They are peers, not a hierarchy.\n"
-                "Declare one with --audience, or add a 'Target Audience:' line to "
-                "the markdown.",
-                file=sys.stderr,
-            )
-            return 1
-        persona, note = resolve_audience(declared)
-        if not persona:
-            print(f"Refusing to publish: {note}", file=sys.stderr)
-            return 1
-        if note:
-            notes.append(note)
-        notes.append(f"audience: Primary = {persona}")
-
-        # ── HARD GATE: no Open Questions in a published document ──
-        oq = find_open_questions(md)
-        if oq:
-            print(
-                f"Refusing to publish: the markdown contains {oq!r}.\n"
-                "Open Questions are internal workflow record and are never "
-                "published. Reframe each ACTIONABLE item as a Troubleshooting "
-                "entry with a symptom-first title, and leave the rest in the "
-                "intake trace.",
-                file=sys.stderr,
-            )
-            return 1
-
-        # ── HARD GATE: a sixth section needs a rationale ──
-        sec_findings, hard = section_report(md, args.section_rationale)
-        findings.extend(sec_findings)
-        if hard:
-            print(hard, file=sys.stderr)
-            return 1
-
-        findings.extend(prose_report(md))
-
-        payload["content"] = md
-        notes.append(
-            f"markdown: {len(md.encode('utf-8'))} bytes, {len(md.split())} words"
+    # ── HARD GATE: audience ──
+    declared = args.audience or audience_from_markdown(md)
+    if not declared:
+        print(
+            "Refusing to publish: no audience declaration.\n"
+            f"The three canonical OnPing personas are {', '.join(PERSONAS)}. "
+            "They are peers, not a hierarchy.\n"
+            "Declare one with --audience, or add a 'Target Audience:' line to "
+            "the markdown.",
+            file=sys.stderr,
         )
+        return 1
+    persona, note = resolve_audience(declared)
+    if not persona:
+        print(f"Refusing to publish: {note}", file=sys.stderr)
+        return 1
+    if note:
+        notes.append(note)
+    notes.append(f"audience: Primary = {persona}")
+
+    # ── HARD GATE: no Open Questions in a published document ──
+    oq = find_open_questions(md)
+    if oq:
+        print(
+            f"Refusing to publish: the markdown contains {oq!r}.\n"
+            "Open Questions are internal workflow record and are never "
+            "published. Reframe each ACTIONABLE item as a Troubleshooting "
+            "entry with a symptom-first title, and leave the rest in the "
+            "intake trace.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # ── HARD GATE: a sixth section needs a rationale ──
+    sec_findings, hard = section_report(md, args.section_rationale)
+    findings.extend(sec_findings)
+    if hard:
+        print(hard, file=sys.stderr)
+        return 1
+
+    findings.extend(prose_report(md))
+
+    payload["content"] = md
+    notes.append(
+        f"markdown: {len(md.encode('utf-8'))} bytes, {len(md.split())} words"
+    )
 
     if args.title:
         payload["title"] = args.title
