@@ -12,8 +12,12 @@ begins with an error sentence:
     findDocs id=99999   -> 'Error: Document with ID "99999" not found in collection "docs"'
     getDocsByCategory   -> 'Error fetching documents by category: Failed query: ... params: NaN'
     compareDoc (no id)  -> 'Error: Could not find document with ID "undefined"'
+    moveToTrash         -> 'Error moving docs 999999 to trash: ...'
+    unknown tool        -> 'MCP error -32602: Tool deleteDocs not found'
 
-All three arrive as HTTP 200 with a `result`. A client that checks only for a
+All of these arrive as HTTP 200 with a `result`. The last one also carries
+`result.isError: true`, but most tool failures do not set that flag, so both
+signals are checked. A client that checks only for a
 JSON-RPC `error` member reports every one of them as SUCCESS. That is the defect
 this module exists to prevent.
 
@@ -35,6 +39,7 @@ TRANSPORT NOTES
 from __future__ import annotations
 
 import json
+import re
 import sys
 
 import requests
@@ -55,6 +60,8 @@ _ERROR_PREFIXES = (
     "error creating",
     "error updating",
     "error deleting",
+    "error moving",
+    "mcp error",
     "failed to",
 )
 
@@ -84,8 +91,8 @@ def auth_failure_hint(status: int, body: str, header_form: str) -> str | None:
         "This service reports EVERY authentication failure this way, so the cause "
         "is most likely one of:\n"
         "  - the wrong Authorization form for this route "
-        "(/api/mcp needs Bearer; /api/users and /api/payload-mcp-api-keys need "
-        "the API-Key form)\n"
+        "(/api/mcp needs Bearer; /api/payload-mcp-api-keys needs the API-Key "
+        "form; /api/users now refuses every form)\n"
         "  - a missing, invalid, or revoked API key\n"
         "  - a genuine server fault, which looks identical\n"
         "The response carries no further diagnosis."
@@ -175,8 +182,9 @@ def _raise_on_error_text(tool: str, text: str) -> None:
 def call_tool(key: str, name: str, arguments: dict | None = None) -> str:
     """Call one MCP tool and return `result.content[0].text`.
 
-    Exits non-zero on a JSON-RPC `error` member AND on a `result` whose text
-    reports a failure. See `_raise_on_error_text`.
+    Exits non-zero on a JSON-RPC `error` member, on a `result` with
+    `isError: true`, AND on a `result` whose text reports a failure. See
+    `_raise_on_error_text`.
     """
     envelope = _post_rpc(
         key, "tools/call", {"name": name, "arguments": arguments or {}}
@@ -203,6 +211,9 @@ def call_tool(key: str, name: str, arguments: dict | None = None) -> str:
     if not isinstance(text, str):
         _fail(f"{name} returned no text payload: {json.dumps(content[0])[:500]}")
 
+    if result.get("isError") is True:
+        _fail(f"{name} failed:\n{text.strip()}")
+
     _raise_on_error_text(name, text)
     return text
 
@@ -220,6 +231,47 @@ def list_tools(key: str) -> list[str]:
     if not isinstance(tools, list):
         _fail(f"tools/list returned no tool array: {json.dumps(envelope)[:500]}")
     return [t.get("name", "") for t in tools if isinstance(t, dict)]
+
+
+_TOTAL_RE = re.compile(r"^Total:\s*(\d+)\s+documents?\b", re.MULTILINE)
+
+
+def prose_total(text: str) -> int | None:
+    """Return the match total from a `find*` tool's prose header, or None.
+
+    `findDocs` and `findCategories` carry no `totalDocs` in their JSON. The
+    total appears only in the prose that precedes it:
+
+        Collection: "docs"
+        Total: 12 documents
+        Page: 1 of 12
+
+    A caller that resolves a filter to ids must compare this total against the
+    ids it parsed, because one call returns at most one page.
+    """
+    m = _TOTAL_RE.search(text)
+    return int(m.group(1)) if m else None
+
+
+def refuse_if_truncated(found: int, total: int | None, limit: int, noun: str) -> None:
+    """Exit non-zero when a resolved filter is missing matches beyond one page.
+
+    A per-id mutation acts only on the ids it resolved. If the filter matched
+    more than one page, a `--confirm-count` equal to the resolved count would
+    approve a truncated set and leave the rest untouched, so refuse instead.
+    """
+    if total is not None and total > found:
+        _fail(
+            f"Refusing to run: the filter matches {total} {noun}, but one call "
+            f"resolves at most {limit} and this one returned {found}.\n"
+            "Narrow the filter so it matches no more than that, and re-run."
+        )
+    if total is None and found >= limit:
+        _fail(
+            f"Refusing to run: the filter returned {found} {noun}, the per-call "
+            f"limit, and the response carries no total to prove that is all of "
+            "them.\nNarrow the filter and re-run."
+        )
 
 
 def extract_json_blocks(text: str) -> list[dict]:

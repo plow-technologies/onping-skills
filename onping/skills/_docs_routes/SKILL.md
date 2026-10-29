@@ -96,9 +96,12 @@ Every tool returns its payload as a human-readable string at
 | `findDocs` with a missing id | `Error: Document with ID "99999" not found in collection "docs"` |
 | `getDocsByCategory` with a slug | `Error fetching documents by category: Failed query: … params: NaN` |
 | `compareDoc` with no id or slug | `Error: Could not find document with ID "undefined"` |
+| `moveToTrash` with a missing id | `Error moving docs 999999 to trash: …` |
+| a tool the server does not offer | `MCP error -32602: Tool deleteDocs not found` (also `isError: true`) |
 
 A client that checks only for a JSON-RPC `error` member reports **every one of these
-as success**. `call_tool()` inspects the text and exits non-zero, surfacing the
+as success**. Only the unknown-tool case sets `result.isError`, so neither signal is
+enough alone. `call_tool()` checks `isError` and inspects the text, and exits non-zero, surfacing the
 server's wording verbatim because it carries the SQL parameter and column that
 identify the cause.
 
@@ -116,24 +119,30 @@ fresh connection and the server returns no session id, so the client is stateles
 ## Authentication
 
 Re-verified 2026-08-25 **with a no-auth control on every row**, which is what makes
-the table trustworthy.
+the table trustworthy. The `/api/users` row changed on 2026-10-19 (see the note
+under the table).
 
 | Route | no auth | `Bearer <key>` | `payload-mcp-api-keys API-Key <key>` |
 |---|---|---|---|
 | `POST /api/mcp` | `500` | **works** | `500` |
 | `GET /api/docs`, `/api/categories`, `/api/media` | **works** | works | works |
 | `GET /api/access` | works | works | works (returns more) |
-| `GET /api/users`, `/api/payload-mcp-api-keys` | `500` | `500` | **works** |
+| `GET /api/payload-mcp-api-keys` | `500` | `500` | **works** |
+| `GET /api/users` | `500` | `500` | `500` (was **works**) |
 | `POST /api/docs` | — | — | `500` |
 | `POST /api/media` | — | — | **`201 Created`** |
+
+`/api/users` with the API-Key form returned `200` on 2026-08-25 and `500` on
+2026-10-19. The onping-doc trash change added an access rule that ignores a user without a
+`role`, and the API-key user has none. No skill reads `/api/users`. The `POST
+/api/media` row predates that change and was not re-probed, because the probe writes.
 
 Three rulings follow:
 
 1. **`Bearer <key>` is the only form that reaches `/api/mcp`**, and MCP is the only
    write path. A garbage Bearer returns `500`, so the credential is genuinely
    checked there.
-2. **The `API-Key` form is required only for `/api/users` and
-   `/api/payload-mcp-api-keys`.** `rest_headers()` sends it everywhere anyway, so a
+2. **The `API-Key` form is required only for `/api/payload-mcp-api-keys`.** `rest_headers()` sends it everywhere anyway, so a
    future tightening of the server's rules does not break the read skills.
 3. **No REST write works for `docs` or `categories`.** `POST /api/docs` returns
    `500`. **`POST /api/media` is the exception and returns `201`** — media is
@@ -180,18 +189,27 @@ and the key is never printed.
 
 ## The tool roster is a function of the key's grants
 
-Verified as an exact 10-for-10 match on 2026-08-25:
+Verified as an exact 9-for-9 match on 2026-10-19:
 
 ```
-docs:             find, create, delete         → findDocs, createDocs, deleteDocs
-categories:       find, create, update, delete → findCategories, createCategories,
-                                                 updateCategories, deleteCategories
-payload-mcp-tool: getDocsByCategory, updateDocWithMarkdown, compareDoc
+docs:             find, create          → findDocs, createDocs
+categories:       find, create, update  → findCategories, createCategories,
+                                          updateCategories
+payload-mcp-tool: getDocsByCategory, updateDocWithMarkdown, compareDoc,
+                  moveToTrash
 ```
+
+**There is no hard delete over MCP.** The onping-doc trash change
+removed `deleteDocs` and `deleteCategories` and added `moveToTrash`, which takes
+`{collection: "docs" | "categories", id}` — one id, no `where` — and sets
+`deletedAt`. A trashed record is hidden from the site and from search, and a
+trashed category also hides its documents from search. A human restores either
+from the Payload admin panel. A permanent delete is owner-only and admin-UI-only.
+No MCP tool restores a record.
 
 Two absences that a uniform-CRUD assumption gets wrong:
 
-- **There is no `updateDocs`.** `docs` is granted `find, create, delete` and not
+- **There is no `updateDocs`.** `docs` is granted `find, create` and not
   `update`, so a document body is edited only through `updateDocWithMarkdown`.
   `categories` *is* granted `update` and does get `updateCategories`, so the
   asymmetry appears inside one tool list.
@@ -238,6 +256,11 @@ producing confident fabrication.
 No skill wraps it. Revisit only if the server fixes the serialization.
 
 ## Response shapes differ between tools in the same collection
+
+- `findDocs` and `findCategories` carry the match total only in prose
+  (`Total: 12 documents`, `Page: 1 of 12`), never in the JSON. `prose_total()` reads
+  it, and `refuse_if_truncated()` stops a per-id mutation from acting on one page of
+  a larger match.
 
 - `findDocs` embeds a document as JSON inside a fenced ```json block within a prose
   string. Use `extract_json_blocks()`.

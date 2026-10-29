@@ -66,16 +66,6 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Include structurally empty documents (null title)",
     )
-    p.add_argument(
-        "--trash",
-        action="store_true",
-        help="Show ONLY trash-marked documents (slug prefixed trash/)",
-    )
-    p.add_argument(
-        "--no-trash",
-        action="store_true",
-        help="Hide trash-marked documents",
-    )
     p.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     return p.parse_args()
 
@@ -115,42 +105,6 @@ def resolve_category(key: str, value: str) -> int:
 def is_empty(doc: dict) -> bool:
     """A structurally empty draft: no title, so nothing to show a reader."""
     return not doc.get("title")
-
-
-# TRASH CONVENTION.
-#
-# This server has no trash folder and no way to reach one. `updateDocWithMarkdown`
-# sets only title, slug, description, and content — NOT `category` — so a document
-# cannot be moved to a "Trash" category through the API. And nothing can actually
-# delete a document: the MCP plugin acts as the API key's related user, who holds
-# role `admin`, and Docs.ts permits an admin to delete only when `data.deletedAt`
-# is truthy. No field defines `deletedAt` and `trash: true` is never enabled, so
-# that branch is unreachable and the delete control is hidden in the admin UI for
-# every admin. A known server-side bug; an owner-role account can still delete.
-#
-# So discarded documents are marked instead of moved, by a convention that lives
-# in the two fields we CAN set:
-#
-#   slug   -> prefixed `trash-`
-#   title  -> prefixed `TRASH`
-#
-# The slug marker is `trash-` and NOT `trash/`. A slash in a slug makes the
-# nested-docs plugin treat the first segment as a parent document, and a later
-# update then fails with `The following field is invalid: Breadcrumbs 1 > Doc`.
-# Field-verified 2026-08-26: `trash/zz-table-probe` broke the next write to that
-# document, and `trash-zz-table-probe` does not.
-#
-# Both are visible in the admin UI's default columns (title, category, slug, ...),
-# so a human can sort or eyeball them, and both are filterable here.
-TRASH_SLUG_PREFIX = "trash-"
-TRASH_TITLE_PREFIX = "TRASH"
-
-
-def is_trash(doc: dict) -> bool:
-    """True when a document carries the trash marker on its slug or title."""
-    slug = doc.get("slug") or ""
-    title = doc.get("title") or ""
-    return slug.startswith(TRASH_SLUG_PREFIX) or title.startswith(TRASH_TITLE_PREFIX)
 
 
 def main() -> int:
@@ -205,21 +159,12 @@ def main() -> int:
     kept = docs if args.include_empty else [d for d in docs if not is_empty(d)]
     omitted = len(docs) - len(kept)
 
-    trash_hidden = 0
-    if args.trash:
-        kept = [d for d in kept if is_trash(d)]
-    elif args.no_trash:
-        before = len(kept)
-        kept = [d for d in kept if not is_trash(d)]
-        trash_hidden = before - len(kept)
-
     if args.json:
         print(
             json.dumps(
                 {
                     "docs": kept,
                     "omitted_empty": omitted,
-                    "trash_hidden": trash_hidden,
                     "returned": len(docs),
                 },
                 indent=2,
@@ -241,13 +186,6 @@ def main() -> int:
                 f"{omitted} structurally empty document(s) omitted "
                 "(null title). Pass --include-empty to see them."
             )
-        if trash_hidden:
-            print(
-                f"{trash_hidden} trash-marked document(s) hidden. "
-                "Pass --trash to list only those."
-            )
-        if args.trash and not kept:
-            print("No trash-marked documents. Nothing is waiting for deletion.")
 
     return 0
 

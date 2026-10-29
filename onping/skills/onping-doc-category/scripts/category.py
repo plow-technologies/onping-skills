@@ -4,17 +4,19 @@
 # ///
 """Manage sidebar categories on the OnPing documentation site.
 
-All four `*Categories` tools in one skill, because a category is a small record
-(title, slug, description, icon, order) behind four routes.
+The three `*Categories` tools plus `moveToTrash` in one skill, because a category
+is a small record (title, slug, description, icon, order) behind four routes.
 
   --list                     read-only, no --yes
   --create                   MUTATING
   --update (--id | --where)  MUTATING
-  --delete (--id | --where)  MUTATING
+  --delete (--id | --where)  MUTATING — moves to the trash, not a permanent delete
 
 A CATEGORY IS A SIDEBAR TAB the customer sees, so its `order` controls live
-navigation, and deleting one orphans every document pointing at it — the dry run
-reports that count first.
+navigation. Trashing one also hides every document in it from site search — the
+dry run reports that count first. `moveToTrash` takes one id, so a `--where`
+delete trashes each resolved id in turn. Only a human can restore it, from the
+admin panel; a permanent delete is owner-only and not available over MCP.
 
 `icon` is a media id. The API key grants NO media access, so an icon can only be
 set by referencing an id that already exists; uploading one is impossible here.
@@ -31,7 +33,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
-from _docs_routes.docs_http import call_tool, extract_json_blocks
+from _docs_routes.docs_http import call_tool, extract_json_blocks, prose_total, refuse_if_truncated
 from _docs_routes.routes import resolve_key
 
 CREATE_REQUIRED = ("title", "slug", "order")
@@ -45,7 +47,7 @@ def parse_args() -> argparse.Namespace:
     mode.add_argument("--list", action="store_true", help="List categories (read-only)")
     mode.add_argument("--create", action="store_true", help="Create a category")
     mode.add_argument("--update", action="store_true", help="Update a category")
-    mode.add_argument("--delete", action="store_true", help="Delete a category")
+    mode.add_argument("--delete", action="store_true", help="Move a category to the trash")
 
     p.add_argument("--id", help="Category id, for --update or --delete")
     p.add_argument("--where", help="JSON filter, for --update or --delete")
@@ -101,7 +103,7 @@ def describe(cat: dict) -> str:
 
 
 def count_documents_in(key: str, cat_id) -> int:
-    """How many documents point at this category — they orphan on delete."""
+    """How many documents point at this category — trashing it hides them from search."""
     text = call_tool(
         key,
         "findDocs",
@@ -144,7 +146,16 @@ def resolve_targets(key: str, args: argparse.Namespace, verb: str) -> list[dict]
             sys.exit(1)
         return targets
 
-    targets = fetch(key, where=args.where, limit=100, depth=args.depth)
+    limit = 100  # the server's per-call maximum
+    text = call_tool(
+        key,
+        "findCategories",
+        {"where": args.where, "limit": limit, "depth": args.depth},
+    )
+    targets = categories_from(text)
+    # A --where mutation acts per resolved id, so a filter that matches more
+    # than one page must be refused rather than half-applied.
+    refuse_if_truncated(len(targets), prose_total(text), limit, "category(ies)")
     print(f"Filter: {args.where}")
     print(f"Matches {len(targets)} category(ies):")
     for cat in targets:
@@ -239,24 +250,34 @@ def main() -> int:
     # ── delete ──
     targets = resolve_targets(key, args, "delete")
     print("Target category(ies):")
-    total_orphans = 0
+    total_hidden = 0
     for cat in targets:
         n = count_documents_in(key, cat.get("id"))
-        total_orphans += n
+        total_hidden += n
         print(f"{describe(cat)}   -> {n} document(s) reference it")
 
-    if total_orphans:
+    if total_hidden:
         print(
-            f"\nWARNING: deleting these orphans {total_orphans} document(s). "
-            "They keep a category id that no longer resolves."
+            f"\nWARNING: trashing these hides {total_hidden} document(s) from site "
+            "search. The documents themselves are not trashed."
         )
     if not args.yes:
-        print("\nDRY RUN — nothing was deleted. Re-run with --yes. There is no undo.")
+        print(
+            "\nDRY RUN — nothing was trashed. Re-run with --yes.\n"
+            "A human restores a trashed category from the admin panel; no MCP tool can."
+        )
         return 0
 
-    payload: dict = {"id": args.id} if args.id else {"where": args.where}
-    print(call_tool(key, "deleteCategories", payload).rstrip())
-    print(f"\nDeleted {len(targets)} category(ies).")
+    # One call per id. If one fails, call_tool exits non-zero and the ids printed
+    # above it are already in the trash; the rest are untouched.
+    for i, cat in enumerate(targets, 1):
+        print(f"[{i}/{len(targets)}] ", end="")
+        print(
+            call_tool(
+                key, "moveToTrash", {"collection": "categories", "id": cat.get("id")}
+            ).rstrip()
+        )
+    print(f"\nMoved {len(targets)} category(ies) to the trash.")
     return 0
 
 

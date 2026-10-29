@@ -20,6 +20,8 @@ cp-list $ACCESS_TOKEN $LUMBERJACK_ID
 
 Check `cpData.outputs` across all returned CPs — each output parameter ID is exclusive to a single control parameter (the **Output Exclusivity Rule**).
 
+Read cp-list's stderr too. An `OrphanedControlParameterInferno` element (onping 2026.10.14.0, #16220) is a CP whose `contents` is `[{cpId, cpData}, [<missing PID>, ...]]`. An orphan means an output PID was deleted; it still holds its other outputs, so those PIDs are still claimed under the Output Exclusivity Rule. A prior migration that deleted PIDs leaves orphans behind: repoint them (`/cpInferno/update`) or delete them (`/cpInferno/delete`) before reusing their outputs. Prohibited elements carry only a CPID; their outputs are invisible to you but still claimed.
+
 ### 3. Categorize old script patterns
 
 Using the Phase 1 topology document, group old CPs by script type. Common patterns:
@@ -45,7 +47,7 @@ Using the Phase 1 topology document, group old CPs by script type. Common patter
    ```
    cp-list $ACCESS_TOKEN $REFERENCE_LJ_ID
    ```
-   This returns every CP on that LJ with its script hash, inputs, outputs, trigger, and resolution.
+   This returns every CP on that LJ with its script hash, inputs, outputs, trigger, and resolution. An orphaned CP (an output PID was deleted; it still holds its other outputs) still shows a verified script hash, but do not copy its outputs.
 
 3. **Match old patterns to reference CPs** — for each old script pattern from step 3, look for a CP on the reference LJ that performs the same computation. Compare the old script text to the reference CP's behavior.
 

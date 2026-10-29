@@ -1,0 +1,730 @@
+[
+  {
+    "Right": {
+      "alarmActive": true,
+      "alarmMixId": {
+        "contents": "o000007fb000000000028e4e7",
+        "tag": "AlarmMixIdRegular"
+      },
+      "alarmName": "Alarm 4",
+      "alarmTag": {
+        "tagInfo": {
+          "companyId": -20,
+          "description": "description 55",
+          "lastUpdate": 10,
+          "localParameterId": {
+            "source": "SourceToku",
+            "tag-id": "tag-id 56"
+          },
+          "locationId": 14,
+          "parameterId": 27,
+          "result": {
+            "tag": "OnPingInt",
+            "value": 23
+          },
+          "siteId": 16,
+          "unit": {
+            "id": 2,
+            "unit": "OtherUnit"
+          },
+          "writeability": "TagReadOnly"
+        },
+        "tagLocation": {
+          "company": 4,
+          "delete": 18,
+          "name": "",
+          "refId": 5,
+          "site": 12,
+          "slaveId": 8,
+          "url": "url 57"
+        }
+      },
+      "callOrderConfig": {
+        "orderEntries": [
+          {
+            "entryConfigNotificationFlags": null,
+            "entryConfigRepeatCount": 10,
+            "entryConfigUserId": "o0000210c00000000000a57f6",
+            "entryConfigUserName": "User 72"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -17,
+            "entryConfigUserId": "o000005940000000000f3647d",
+            "entryConfigUserName": "User 73"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 7,
+            "entryConfigUserId": "o000052f60000000000528306",
+            "entryConfigUserName": "User 74"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": 21,
+            "entryConfigUserId": "o00002056000000000092dd55",
+            "entryConfigUserName": "User 75"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": false,
+              "notificationFlagEmail": true,
+              "notificationFlagText": false,
+              "notificationFlagTextBroadcast": false
+            },
+            "entryConfigRepeatCount": -14,
+            "entryConfigUserId": "o0000568100000000002c4df5",
+            "entryConfigUserName": "User 76"
+          },
+          {
+            "entryConfigNotificationFlags": {
+              "notificationFlagCall": true,
+              "notificationFlagEmail": false,
+              "notificationFlagText": true,
+              "notificationFlagTextBroadcast": true
+            },
+            "entryConfigRepeatCount": 24,
+            "entryConfigUserId": "o00004907000000000083e95c",
+            "entryConfigUserName": "User 77"
+          }
+        ],
+        "orderGID": "o000028eb0000000000157a02",
+        "orderId": "o0000005f0000000000874e43",
+        "orderName": "Order 4",
+        "orderOID": "o000016bd00000000007ac203",
+        "orderPerm": [
+          {
+            "None": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "None": []
+          },
+          {
+            "Delete": []
+          },
+          {
+            "Read": []
+          },
+          {
+            "Edit": []
+          },
+          {
+            "Write": []
+          }
+        ]
+      },
+      "callOrderId": "o000065a200000000006cfb7c",
+      "clearTime": 9,
+      "customName": false,
+      "enableClearCalls": true,
+      "foldSampleCount": -24,
+      "foldStep": -10,
+      "groupId": "o000055ee0000000000ec496e",
+      "maskInfo": {
+        "alarmMaskCFG": {
+          "maskGID": "o0000242000000000005de197",
+          "maskName": "maskName 58",
+          "maskOID": "o00004b6e000000000000edfa",
+          "maskPerm": [
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "None": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "All": []
+            },
+            {
+              "All": []
+            },
+            {
+              "None": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Read": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Edit": []
+            },
+            {
+              "Delete": []
+            },
+            {
+              "Write": []
+            },
+            {
+              "All": []
+            },
+            {
+              "Delete": []
+            }
+          ],
+          "maskScript": {
+            "inputDefaults": [
+              -0.6666666666666666,
+              -2,
+              0.08750121832244817,
+              -10,
+              -3.6,
+              16,
+              16,
+              0.1034829780808102,
+              0.2179175264301103,
+              -24.14814814814815,
+              -25.185185185185187,
+              -7.214285714285714,
+              -0.3333333333333333
+            ],
+            "inputFolds": [
+              "inputFolds 59",
+              "inputFolds 60",
+              "inputFolds 61",
+              "inputFolds 62",
+              "inputFolds 63",
+              "inputFolds 64",
+              "inputFolds 65",
+              "inputFolds 66",
+              "",
+              "inputFolds 67",
+              "inputFolds 68",
+              "inputFolds 69",
+              "inputFolds 70",
+              "inputFolds 71",
+              "inputFolds 72",
+              "",
+              "inputFolds 73",
+              "inputFolds 74",
+              "inputFolds 75",
+              "inputFolds 76"
+            ],
+            "inputHistories": [
+              [
+                -3,
+                18,
+                -0.75,
+                -0.4,
+                0.4338668759031705,
+                -9,
+                0.02453518616534145,
+                0.5828029831276218,
+                0.9276866841671851,
+                -0.25,
+                7,
+                1.6666666666666667,
+                -15.333333333333334,
+                18,
+                -28,
+                -19.346153846153847,
+                -0.8,
+                -14.6,
+                0.6,
+                19,
+                -14,
+                0.4230769230769231,
+                -17,
+                -9.666666666666666,
+                21
+              ],
+              [],
+              [
+                -23,
+                -12.571428571428571,
+                18.9,
+                0.6,
+                -17,
+                3.1481481481481484,
+                0.25,
+                -14.925925925925926,
+                0.25,
+                -4,
+                0.12267979108195814,
+                0.08568013747012959,
+                23.466666666666665,
+                -22.1875,
+                -2.5,
+                1.6956521739130435,
+                0.11001629140453528,
+                0.24889987311772,
+                0.8083345089208908,
+                -18.846153846153847,
+                1,
+                4.5,
+                -20,
+                -22.384615384615383,
+                -22.933333333333334
+              ],
+              [
+                3,
+                -6.75,
+                -30,
+                -1.5,
+                3.2758620689655173,
+                -14.863636363636363,
+                -14.466666666666667,
+                -1,
+                12.074074074074074,
+                1,
+                0.692833030983361,
+                -0.6666666666666666,
+                4,
+                0.5548665032222979,
+                28,
+                12,
+                -14,
+                12.055555555555555,
+                -26,
+                -19.071428571428573,
+                3,
+                2,
+                -29,
+                -2.6666666666666665,
+                8,
+                -3.411764705882353
+              ],
+              [
+                -18.428571428571427,
+                9.307692307692308,
+                3,
+                -22.2,
+                8,
+                -8.071428571428571
+              ],
+              [
+                -1,
+                3,
+                -0.75,
+                0.005180931932552202,
+                3,
+                0.6136820363451883,
+                0.2216567797314999,
+                20.571428571428573,
+                -2,
+                -3.5,
+                0,
+                -0.3333333333333333,
+                2,
+                0.8152003892337383,
+                13.555555555555555,
+                -24,
+                -5.5,
+                15,
+                -20.571428571428573,
+                17,
+                -11,
+                -2.5
+              ],
+              [
+                -18,
+                -29.666666666666668,
+                22.5625,
+                5
+              ],
+              [
+                -2.6666666666666665,
+                -14,
+                12.666666666666666,
+                4.15,
+                0.16436211122458855,
+                1,
+                13.692307692307692,
+                0.2018372859695131,
+                -23,
+                17.157894736842106,
+                0,
+                -1,
+                0.75,
+                -0.5,
+                0.9756416761574527,
+                -19.941176470588236,
+                0.3157894736842105,
+                23.846153846153847,
+                5,
+                -14.333333333333334,
+                -1.6666666666666667,
+                14.333333333333334,
+                -1.5,
+                0.19816729651630072
+              ],
+              [
+                14.75,
+                0.4,
+                11.44,
+                0.5222799652804169,
+                2.5,
+                14.7,
+                -27.6,
+                7,
+                -28,
+                9,
+                0,
+                3,
+                19,
+                7,
+                5,
+                -1.84
+              ],
+              [
+                0.10714285714285714
+              ],
+              [
+                0.4,
+                -19.166666666666668,
+                28.875,
+                -18.25,
+                27,
+                20.76923076923077,
+                26.5,
+                -1.3333333333333333,
+                -2,
+                0.3847806209583947,
+                19.434782608695652,
+                0.3715738515035081,
+                0.6666666666666666,
+                0.9395266257101834,
+                1,
+                0.8992885499455913,
+                0.7333333333333333,
+                16,
+                0.06820500353153924,
+                1.6666666666666667,
+                10.733333333333333,
+                24
+              ],
+              [
+                -0.4,
+                0.2530187740822176,
+                -29,
+                0.03594151544876312,
+                -4,
+                0.6,
+                29
+              ],
+              [
+                1.3333333333333333,
+                1.3333333333333333
+              ],
+              [
+                -21.90909090909091,
+                1,
+                0.3082238970889095,
+                -23.482758620689655,
+                3.25,
+                -7.428571428571429,
+                0.5648678567933944,
+                5,
+                -4,
+                12.8,
+                8.166666666666666,
+                0.7298742203455468
+              ],
+              [
+                -1.3793103448275863,
+                19.954545454545453,
+                -29,
+                -8.95,
+                -5.285714285714286,
+                -4.666666666666667,
+                -28.818181818181817,
+                0.3099791756522864,
+                -25.875,
+                0.5982113910173334,
+                19.75,
+                -0.1875,
+                0.6056196272848965,
+                18.6,
+                26,
+                0.46471459100539547,
+                -22,
+                -2.5,
+                6,
+                9.857142857142858,
+                16
+              ],
+              [
+                0.4285402887244212,
+                -25.75
+              ],
+              [
+                1.6666666666666667,
+                29.0625,
+                -13.142857142857142,
+                -9.296296296296296,
+                2.5,
+                -7.384615384615385,
+                30,
+                0,
+                -17.333333333333332,
+                15.517241379310345
+              ],
+              [
+                -18.61111111111111,
+                5,
+                8.476190476190476,
+                -14.689655172413794,
+                14,
+                -0.75,
+                14.636363636363637,
+                14,
+                0.6,
+                20.32
+              ],
+              [
+                -4,
+                15.333333333333334,
+                29,
+                7,
+                0.3296865029850877,
+                28,
+                -2,
+                28
+              ],
+              [
+                -2.5,
+                -1.3333333333333333,
+                -1.0714285714285714,
+                0.75,
+                -27,
+                18,
+                -0.4,
+                0.11867354083502946,
+                -1.6666666666666667,
+                -12,
+                0.47935196990242657,
+                0.9648102237082419,
+                -23.363636363636363,
+                27.82608695652174,
+                0.2730741332590312,
+                0.00358658308188331,
+                0.6958958793870491,
+                -0.6,
+                -29.916666666666668,
+                12.608695652173912
+              ],
+              [
+                -0.3333333333333333,
+                0,
+                -23.352941176470587,
+                0.3333333333333333,
+                -30,
+                0.4812309080837506,
+                15,
+                -10.176470588235293,
+                -10,
+                -26.5,
+                23,
+                -2.5,
+                -1.5,
+                2.84,
+                16.4375,
+                -15.368421052631579,
+                -10.333333333333334,
+                30
+              ],
+              [
+                -0.05263157894736842,
+                -2,
+                1,
+                3,
+                -15,
+                -21.4,
+                -12,
+                -16,
+                -8,
+                -3,
+                -17,
+                -14,
+                -15.25,
+                -14
+              ]
+            ],
+            "inputNames": [
+              "inputNames 77",
+              "inputNames 78",
+              "inputNames 79",
+              "inputNames 80",
+              "inputNames 81",
+              "inputNames 82",
+              "inputNames 83",
+              "inputNames 84",
+              "inputNames 85",
+              "inputNames 86",
+              "inputNames 87",
+              "",
+              "inputNames 88",
+              "inputNames 89",
+              "inputNames 90",
+              "inputNames 91",
+              "inputNames 92",
+              "inputNames 93",
+              "inputNames 94",
+              "inputNames 95",
+              "inputNames 96",
+              "inputNames 97",
+              "",
+              "inputNames 98",
+              "inputNames 99",
+              "inputNames 100",
+              "inputNames 101",
+              "inputNames 102",
+              "inputNames 103",
+              "inputNames 104"
+            ],
+            "inputValues": [
+              20.375,
+              29.2,
+              19,
+              -22,
+              11.857142857142858,
+              0.8418151270998874,
+              0.6313956777854889,
+              -11.857142857142858,
+              0.3720672829675774,
+              0.913093394724572,
+              -19
+            ],
+            "workingCode": "workingCode 105"
+          },
+          "maskType": {
+            "contents": [
+              "contents 106",
+              8
+            ],
+            "tag": "SquareWave"
+          }
+        },
+        "builtIn": "InvBit10",
+        "maskTypeId": "o000004fa00000000007dc5a8"
+      },
+      "onpingKey": 22,
+      "ownerId": null,
+      "recallTime": 20,
+      "tripTime": 10,
+      "userPermissions": [
+        {
+          "Write": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Read": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "None": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "All": []
+        },
+        {
+          "All": []
+        },
+        {
+          "Edit": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Write": []
+        },
+        {
+          "None": []
+        },
+        {
+          "Delete": []
+        },
+        {
+          "Write": []
+        }
+      ]
+    }
+  },
+  {
+    "Left": {
+      "contents": [
+        "o000068fd00000000008c0ea1",
+        "o000020e6000000000011a799"
+      ],
+      "tag": "AlarmCallOrderNotFound"
+    }
+  }
+]

@@ -1,0 +1,94 @@
+[
+  {
+    "contents": {
+      "cpData": {
+        "calculateRetryStrategy": {
+          "tag": "NoRetries"
+        },
+        "description": "24hAvg: 500012 -> 500013",
+        "enabled": true,
+        "inputs": [
+          500012
+        ],
+        "name": "Example Casing PSI Daily Avg",
+        "outputs": {
+          "contents": {
+            "average": 500013
+          },
+          "tag": "RecordOutput"
+        },
+        "resolution": 1024,
+        "script": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF=",
+        "throttle": null,
+        "trigger": {
+          "contents": [
+            "0 0 1/1 * *",
+            null
+          ],
+          "tag": "OnCronSchedule"
+        },
+        "writeRetryStrategy": {
+          "tag": "NoRetries"
+        }
+      },
+      "cpId": {
+        "engineHost": 1001,
+        "perEngineId": "00000000-0000-4000-8000-00000000c001"
+      }
+    },
+    "tag": "ReadableControlParameterInferno"
+  },
+  {
+    "contents": [
+      {
+        "cpData": {
+          "calculateRetryStrategy": {
+            "tag": "NoRetries"
+          },
+          "description": "passthrough: 500014 -> 500015",
+          "enabled": true,
+          "inputs": [
+            500014
+          ],
+          "name": "Example Orphaned Passthrough",
+          "outputs": {
+            "contents": 500015,
+            "tag": "ScalarOutput"
+          },
+          "resolution": 2048,
+          "script": "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG=",
+          "throttle": null,
+          "trigger": {
+            "contents": 60,
+            "tag": "Periodic"
+          },
+          "writeRetryStrategy": {
+            "tag": "NoRetries"
+          }
+        },
+        "cpId": {
+          "engineHost": 1001,
+          "perEngineId": "00000000-0000-4000-8000-00000000c002"
+        }
+      },
+      [
+        500015
+      ]
+    ],
+    "tag": "OrphanedControlParameterInferno"
+  },
+  {
+    "contents": {
+      "engineHost": 1001,
+      "perEngineId": "00000000-0000-4000-8000-00000000c003"
+    },
+    "tag": "ProhibitedReadControlParameterInferno"
+  },
+  {
+    "contents": {
+      "engineHost": 1001,
+      "perEngineId": "00000000-0000-4000-8000-00000000c004"
+    },
+    "tag": "FailedToReadControlParameterInfernoPermissions"
+  }
+]

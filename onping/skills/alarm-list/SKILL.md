@@ -62,7 +62,7 @@ On success, outputs a JSON array of alarm objects to stdout. Each alarm object c
 - `alarmTag` — associated parameter info (tagInfo + tagLocation)
 - `onpingKey` — the monitored parameter key (`keyType` + `keyValue`)
 - `callOrderId` — associated call order ID
-- `callOrderConfig` — call order details including `orderName` and `userNames`
+- `callOrderConfig` — call order details including `orderName` and `orderEntries` (one `{entryConfigUserId, entryConfigUserName, entryConfigRepeatCount, entryConfigNotificationFlags}` per recipient, in call order; onping #16132 replaced the old `userNames` / `repeatCounts` lists). Use `alarm-call-order` for a validated, grouped view.
 - `tripTime`, `clearTime`, `recallTime` — timing configuration in seconds
 - `groupId` — alarm group reference
 

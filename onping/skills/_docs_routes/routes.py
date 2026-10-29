@@ -11,12 +11,16 @@ THE AUTH MATRIX (re-verified 2026-08-25 with a no-auth control on every row).
     POST /api/mcp                                  500      200       500
     GET  /api/docs, /categories, /media            200      200       200
     GET  /api/access                               200*     200*      200*
-    GET  /api/users, /payload-mcp-api-keys         500      500       200
+    GET  /api/payload-mcp-api-keys                 500      500       200
+    GET  /api/users                                500      500       500**
     POST /api/docs                                  -        -        500
 
     * /api/access returns MORE with a credential (1780 bytes vs 1136) because it
       reports the caller's own permissions. The other rows are byte-identical
       across all three columns.
+   ** Was 200 on 2026-08-25. Since the onping-doc trash change (deployed by 2026-10-19) the
+      server ignores an API-key user for access checks on `users`, so the API-Key
+      form now returns 500 too. No skill reads this route.
 
 Three consequences drive this module's shape:
 
@@ -30,7 +34,7 @@ Three consequences drive this module's shape:
    with the real key; document 14's full body is retrievable unauthenticated. The
    key is NOT what makes a document read succeed. `rest_headers()` is therefore
    sent DEFENSIVELY — so a future tightening of the server's access rules does not
-   break the read skills — and is genuinely required only for `/api/users` and
+   break the read skills — and is genuinely required only for
    `/api/payload-mcp-api-keys`. This is the server's access posture; these skills
    neither introduce it nor can change it.
 
@@ -99,25 +103,27 @@ REST_ROUTES: dict[str, dict] = {
     "users": {
         "endpoint": "GET /api/users",
         "requires_key": True,
-        "notes": "500 without the API-Key form.",
+        "notes": "500 with every header form since the onping-doc trash change "
+        "(2026-10-19). Was 200 with the API-Key form.",
     },
 }
 
-# Tools observed on 2026-08-25. REFERENCE ONLY — never a completeness claim.
+# Tools observed on 2026-10-19. REFERENCE ONLY — never a completeness claim.
 # The roster is a function of the API key's grants: `docs` is granted
-# find/create/delete and NOT update, so there is no `updateDocs` and a body edit
-# must go through `updateDocWithMarkdown`; `media` is absent from the grants
-# entirely, so no upload tool exists. Call `docs_http.list_tools()` for truth.
+# find/create and NOT update, so there is no `updateDocs` and a body edit must go
+# through `updateDocWithMarkdown`; `media` is absent from the grants entirely, so
+# no upload tool exists. the onping-doc trash change removed `deleteDocs` and
+# `deleteCategories`: the only delete over MCP is `moveToTrash`, a soft delete of
+# ONE id in `docs` or `categories`. Call `docs_http.list_tools()` for truth.
 KNOWN_TOOLS: tuple[str, ...] = (
     "findDocs",
     "createDocs",
-    "deleteDocs",
     "findCategories",
     "createCategories",
     "updateCategories",
-    "deleteCategories",
     "getDocsByCategory",
     "updateDocWithMarkdown",
+    "moveToTrash",
     "compareDoc",  # BROKEN — renders every body as "[object Object]". Not wrapped.
 )
 
@@ -176,7 +182,7 @@ def rest_headers(key: str | None) -> dict[str, str]:
 
     Payload's collection-scoped API key scheme. Sent DEFENSIVELY: the docs
     collections are world-readable, so this is not what makes a read succeed. It
-    is required only for `/api/users` and `/api/payload-mcp-api-keys`, and it is
+    is required only for `/api/payload-mcp-api-keys`, and it is
     sent everywhere so a future tightening of the server's rules does not break
     the read skills.
 

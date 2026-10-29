@@ -35,7 +35,7 @@ Import **Inferno** control parameters into OnPing from a JSON file — the write
 
 ## Usage
 
-Requires a valid access token and a JSON file containing an **array** of Inferno CP objects (from `cp-import-json`, `cp-list`, or hand-built).
+Requires a valid access token and a JSON file containing an **array** of Inferno CP objects, flat or `{cpId, cpData}` (shaped from `cp-list` output with `cp-import-json`, or hand-built; raw `cp-list` elements are refused).
 
 **Preview (default — makes no network call):**
 
@@ -68,7 +68,11 @@ uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_
 
 ## Input Shape
 
-A JSON array of CP objects. Each object requires `name`, `inputs`, `outputs`, `script`, `trigger`. `cpId` is optional — **present** ⇒ update/overwrite that CP, **absent** ⇒ create a new one (server-assigned id). `resolution` and `description` are also optional (the web-UI import body carries `resolution`, but the export round-trip format omits it):
+A JSON array of CP objects. Each object requires `inputs`, `outputs`, `script`, either at top level (flat, below) or nested under `cpData` (`{"cpId": ..., "cpData": {...}}`, what `cp-import-json normalize` emits); the server reads both (`NewOrExistingControlParameterInferno2`). `cpId` is optional — **present** ⇒ update/overwrite that CP, **absent** ⇒ create a new one (server-assigned id). It is a friendly `{ljSerial}-{uuid}` string or the generic `{"engineHost", "perEngineId"}` object. `name`, `description` and `resolution` are optional (the server defaults `name` and `description` to `""`; the web-UI import body carries `resolution`, but the export round-trip format omits it).
+
+`trigger` is optional on a create and on an update. In the server's friendly format a missing or `null` trigger **is** `OnInputChangeAny`: the friendly ToJSON omits that default, so `/cpInferno/export/json` output has no trigger for such a CP, and the import reads it back as `OnInputChangeAny` (onping-frontend-types `ControlParametersInferno.hs`). An exported entry therefore round-trips as-is. The preview shows a missing or `null` trigger as `trigger=<default: OnInputChangeAny>`. An update overwrites the whole `cpData`, so leave a trigger out only when the CP should run on any input change; a cron CP keeps its cron expression.
+
+`cpId`, when present, must parse as the server parses it (`parseJSONFriendlyCPID`, `ControlParametersInferno.hs`): a friendly string split on `-` into at least six parts, whose last five are a UUID (either case) and whose rest is an integer LJSerial; or the generic `{"engineHost", "perEngineId"}` object, where `engineHost` is an integer or a numeric string and extra keys are ignored (CPID's generic FromJSON, control-parameters-types `Types.hs`). Anything else is refused as a malformed cpId. `cpIdOrSerial` (the key of the **Dhall** import format) is refused: the JSON import reads only `cpId` (`Handler/ControlParameters/Inferno.hs`, whose Dhall path is the one that reads `cpIdOrSerial`), so such an entry would silently become a create.
 
 ```json
 [{
@@ -87,7 +91,7 @@ A JSON array of CP objects. Each object requires `name`, `inputs`, `outputs`, `s
 - `inputs` — array of input PIDs.
 - `outputs` — depends on the script's return type: a **bare PID integer** for a `ScalarOutput` script, or an **object** mapping output-slot name → PID for a `RecordOutput` script. (The server echoes it back tagged, e.g. `{"contents": 500015, "tag": "ScalarOutput"}`.)
 - `script` — base64 script-content hash (resolve/inspect with `cp-script-fetch`).
-- `trigger` — cron expression. `resolution` — integer (defaults to `2048` if omitted).
+- `trigger` — cron expression, or another friendly or generic trigger form. Omit it (on a create or an update) for the default `OnInputChangeAny`, shown as `<default: OnInputChangeAny>` in the preview. `resolution` — integer (defaults to `2048` if omitted).
 
 **Create example** (no `cpId`; a single-input `ScalarOutput` passthrough writing to PID 500015):
 
@@ -102,6 +106,22 @@ A JSON array of CP objects. Each object requires `name`, `inputs`, `outputs`, `s
 ```
 
 The import response echoes the server-assigned `cpId` (`{"engineHost": 1001, "perEngineId": "<uuid>"}`); keep it if you need to update or delete the CP later.
+
+### Not an import entry: raw cp-list elements
+
+`cp-list` passes the `/cpInferno/list` response through unchanged, and each element is a **tagged wrapper** (`{"tag": ..., "contents": ...}`), not a CP object: `ReadableControlParameterInferno`, `OrphanedControlParameterInferno`, `ProhibitedReadControlParameterInferno` or `FailedToReadControlParameterInfernoPermissions`. Local validation refuses any entry that carries `tag` and `contents` with "this is cp-list output; normalise it with cp-import-json first", names the tag, names every orphan in the file with its missing output PIDs, and sends nothing, even with `--yes`. `cp-import-json normalize` turns cp-list output into exactly the array this skill imports (it unwraps each readable CP to its `{cpId, cpData}`, omits the default trigger as the server's friendly format does, omits orphans by default, drops not-readable and malformed elements, and lists all of these on stderr):
+
+```bash
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001 > before.json
+uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py normalize --input before.json --output cps.json
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json   # preview
+```
+
+### Orphaned CPs (onping 2026.10.14.0, #16220)
+
+- **Orphan.** A CP whose output PID was deleted is listed by `cpInferno/list` as `OrphanedControlParameterInferno` with the missing PIDs (it used to be listed as prohibited). It still holds its other outputs. Re-importing it as-is points at PIDs that do not exist; fix its `outputs` first.
+- **Engine-host fix.** For a create (no `cpId`), the server derives the Lumberjack from the output PIDs. Since #16220 it looks up each PID's own tag, so a CP whose first output PID is missing gets **no** engine host (the import fails with HTTP 400 "Could not find a valid engine host") instead of landing on the wrong Lumberjack. CP export/import of such a CP no longer lands on the wrong Lumberjack. The server handles entries in order, so entries before the failing one in the same file may already be imported; check with `cp-list`.
+- **Not wrapped.** Repointing an orphan's output (`POST /cpInferno/update`) and deleting it (`POST /cpInferno/delete`) are not wrapped by any skill here. An overwrite through this skill (matching `cpId`, corrected `outputs`) is the only wrapped way to repoint.
 
 ## Flags
 
@@ -121,9 +141,9 @@ The success body is a JSON array of tagged-`Either` results, one per CP — `{"R
 
 | Endpoint | Method | Content-Type | Body | Response |
 |----------|--------|-------------|------|----------|
-| `/cpInferno/import` | POST | `text/plain;charset=UTF-8` | JSON array of `{ name, inputs, outputs, script, trigger, cpId?, resolution?, description? }` (omit `cpId` to create) | JSON result on success |
+| `/cpInferno/import` | POST | `text/plain;charset=UTF-8` | JSON array of `{ inputs, outputs, script, trigger?, name?, cpId?, resolution?, description? }`, or the same fields under `cpData` next to `cpId` (omit `cpId` to create; omit `trigger` for `OnInputChangeAny`, on a create or an update) | JSON result on success |
 
-The body is a JSON array exactly as the v3 UI sends it (the shape `cp-import-json` produces and `cp-list` returns per CP). Same Inferno engine as `cpInferno/list`.
+The body is a JSON array as the v3 UI sends it (flat CP objects) or with each CP's fields nested under `cpData`, not the tagged `{"tag", "contents"}` elements that `cp-list` returns (see "Not an import entry" above). Same Inferno engine as `cpInferno/list`.
 
 ## Authentication
 
@@ -131,7 +151,8 @@ The body is a JSON array exactly as the v3 UI sends it (the shape `cp-import-jso
 
 ## Error Handling
 
-- **Malformed input** — the body must be a JSON array of objects each carrying the required fields; a non-array, an empty array, a missing field, or a malformed `cpId` fails fast (non-zero exit) before any request.
+- **Malformed input** — the body must be a JSON array of objects each carrying the required fields; a non-array, an empty array, a missing field, a `cpData` that is not an object, a `cpIdOrSerial` key (Dhall format; the JSON import would ignore it and create a new CP), or a `cpId` the server would not parse fails fast (non-zero exit) before any request.
+- **Raw cp-list element** — an entry with `tag` and `contents` is refused before any request ("this is cp-list output; normalise it with cp-import-json first"), not reported as missing fields.
 - **Duplicate cpIds in the file** — rejected in validation before sending; the skill refuses to import.
 - **Token expired** — a redirect to `/auth/login` or an HTML login body fails fast (non-zero exit) and imports nothing.
 - **Script type-check failure / non-2xx** — a rejected `script` hash or other non-2xx / error envelope is surfaced verbatim, exit non-zero, nothing imported. Observed live: an invalid `script` value returns **HTTP 400** with `{"error": "...Base64-encoded bytestring has invalid padding..."}` (the endpoint tries Dhall/JSON/YAML parsing, then base64-validates `script`).

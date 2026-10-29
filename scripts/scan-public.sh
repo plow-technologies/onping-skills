@@ -58,7 +58,7 @@ HASH_SHAPE='[A-Za-z0-9_-]{43}='
 
 # Files allowed to contain the `marker` rows, because documenting them IS
 # their job. Deliberately narrow: exact repo-relative paths plus the change
-# directories that specify this mechanism. NOT a broad `openspec/*` — archived
+# directories that specify this mechanism. NOT a broad `htmlspec/*` — archived
 # changes hold real production fixtures, and the scanner must keep reporting
 # those. This exemption does NOT cover the `name` rows.
 is_exempt() {
@@ -67,8 +67,8 @@ is_exempt() {
     scripts/scan-patterns.tsv | \
     .githooks/pre-push | \
     docs/public-readiness.md | \
-    openspec/changes/add-public-skills-subset/* | \
-    openspec/changes/add-onping-skills-export/*) return 0 ;;
+    htmlspec/changes/archive/2026-07-31-add-public-skills-subset/* | \
+    htmlspec/changes/archive/2026-09-30-add-onping-skills-export/*) return 0 ;;
     *) return 1 ;;
   esac
 }

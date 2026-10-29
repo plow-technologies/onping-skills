@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 
 import requests
@@ -42,7 +43,28 @@ TIMEOUT_SECONDS = 30
 # `resolution` and `description` are also optional: the web-UI import body
 # carries `resolution`, but the export round-trip format omits it (server
 # defaults it, observed 2048).
-REQUIRED_FIELDS = ("name", "inputs", "outputs", "script", "trigger")
+# The server's parser (`NewOrExistingControlParameterInferno2` FromJSON,
+# onping-frontend-types src/OnPing/Frontend/Types/ControlParametersInferno.hs)
+# reads the CP fields either at top level or nested under `cpData`, so both
+# `{cpId?, inputs, ...}` and `{cpId?, cpData: {inputs, ...}}` are accepted here.
+# `name` and `description` default to "".
+# `trigger` is optional on a create and on an update: in the server's friendly
+# format a missing (or null) trigger IS OnInputChangeAny. The friendly ToJSON omits
+# that default (`toJSONFriendlyTrigger ... OnInputChangeAny = Nothing`), and
+# `parseJSONFriendlyTrigger Nothing` restores it, so /cpInferno/export/json
+# output round-trips with no trigger.
+REQUIRED_FIELDS = ("inputs", "outputs", "script")
+DEFAULT_TRIGGER_LABEL = "<default: OnInputChangeAny>"
+# `cpIdOrSerial` is the key of the Dhall import format (`NewOrExistingControlParameterInferno`,
+# ControlParametersInferno.hs). The JSON/YAML import parses
+# `NewOrExistingControlParameterInferno2`, which reads only `cpId`
+# (Handler/ControlParameters/Inferno.hs), so a JSON entry keyed by `cpIdOrSerial`
+# would silently become a create.
+DHALL_CP_ID_KEY = "cpIdOrSerial"
+# A UUID as Data.UUID parses it (8-4-4-4-12 hex digits, either case).
+_UUID_RE = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+# An LJSerial (Int32) as `reads` parses it in the friendly string.
+_HOST_RE = re.compile(r"-?[0-9]+")
 
 
 def _fail(msg: str) -> "None":
@@ -63,12 +85,96 @@ def _read_input(path: str | None) -> str:
     return data
 
 
+ORPHANED_TAG = "OrphanedControlParameterInferno"
+
+
+def _is_tagged(entry: object) -> bool:
+    return isinstance(entry, dict) and "tag" in entry and "contents" in entry
+
+
+def _fields(cp: dict) -> dict:
+    """The CP fields of an entry: its nested `cpData` object, or the entry itself (flat)."""
+    nested = cp.get("cpData")
+    return nested if isinstance(nested, dict) else cp
+
+
+def _friendly_cp_id(host: object, uuid: object) -> str | None:
+    """Canonical '{ljSerial}-{uuid}' text, or None when either part does not parse."""
+    if isinstance(host, bool):
+        return None
+    if isinstance(host, str) and _HOST_RE.fullmatch(host):
+        host = int(host)
+    if not isinstance(host, int) or not isinstance(uuid, str) or not _UUID_RE.fullmatch(uuid):
+        return None
+    return f"{host}-{uuid.lower()}"
+
+
+def _cp_id_text(cp_id: object) -> str | None:
+    """A cpId as canonical '{ljSerial}-{uuid}' text (for the preview and duplicate check).
+
+    Same rule as the server's `parseJSONFriendlyCPID` (onping-frontend-types
+    ControlParametersInferno.hs) and cp-import-json's `parse_friendly_cpid`:
+
+    - a friendly string: split on '-', at least six parts, the last five are the UUID
+      and the rest is an integer LJSerial (`reads`);
+    - otherwise the generic CPID object (`Aeson.parseJSON`). CPID's FromJSON is
+      the generic one with default options (control-parameters-types
+      ControlParameters/Types.hs), which ignores extra keys; `engineHost` is
+      an integer or a numeric string (lumberjack-identity-types Types.hs,
+      js-safe `parseJSONSafe`), and `perEngineId` a UUID string.
+
+    The UUID is lower-cased, since Data.UUID parses either case. Returns None for a
+    missing cpId (a create) and for anything the server would not parse.
+    """
+    if isinstance(cp_id, str):
+        parts = cp_id.split("-")
+        if len(parts) < 6:
+            return None
+        return _friendly_cp_id("-".join(parts[:-5]), "-".join(parts[-5:]))
+    if isinstance(cp_id, dict) and "engineHost" in cp_id and "perEngineId" in cp_id:
+        return _friendly_cp_id(cp_id["engineHost"], cp_id["perEngineId"])
+    return None
+
+
+def _cp_list_element_message(index: int, entry: dict, entries: list) -> str:
+    """Refusal text for raw /cpInferno/list elements (`{"tag", "contents"}`).
+
+    cp-list passes the server's tagged union through unchanged
+    (Readable / Orphaned / ProhibitedRead / FailedToReadPermissions, onping #16220);
+    none of those wrappers is an import entry. Every entry is scanned, so every
+    orphan in the file is named with its missing output PIDs.
+    """
+    tagged = sum(1 for e in entries if _is_tagged(e))
+    orphans = []
+    for i, e in enumerate(entries):
+        if not (_is_tagged(e) and e.get("tag") == ORPHANED_TAG):
+            continue
+        contents = e.get("contents")
+        missing = contents[1] if isinstance(contents, list) and len(contents) == 2 else None
+        orphans.append(f"entry {i} missing output PID(s) {json.dumps(missing)}")
+    detail = ""
+    if orphans:
+        detail = (
+            f" {len(orphans)} of them are orphaned CPs whose output PIDs no longer exist, so "
+            f"re-importing them as-is points at PIDs that do not exist ({'; '.join(orphans)})."
+        )
+    return (
+        f"Entry {index} is a raw cp-list element (tag {entry.get('tag')!r}). "
+        f"{tagged} of {len(entries)} entries are tagged list elements: this is cp-list output.{detail} "
+        "Normalise it with cp-import-json first: `cp_import_json.py normalize` unwraps each "
+        "readable CP to its {cpId, cpData} import entry, omits orphans by default and drops "
+        "not-readable elements, listing them on stderr. Nothing was sent."
+    )
+
+
 def _parse_and_validate(raw: str) -> list[dict]:
     """Parse the JSON body and validate it locally before any send.
 
     Must be a JSON array of objects, each carrying the required Inferno CP
-    fields; duplicate cpIds are rejected (the round-trip keys on cpId). Any
-    failure exits non-zero and imports nothing.
+    fields, flat or nested under `cpData`; a present cpId must parse as the server
+    parses it; `cpIdOrSerial` (the Dhall key) is refused; duplicate cpIds are
+    rejected (the round-trip keys on cpId). Any failure exits non-zero and imports
+    nothing.
     """
     try:
         parsed = json.loads(raw)
@@ -85,15 +191,32 @@ def _parse_and_validate(raw: str) -> list[dict]:
     for i, cp in enumerate(parsed):
         if not isinstance(cp, dict):
             _fail(f"Entry {i} is not a JSON object.")
-        missing = [key for key in REQUIRED_FIELDS if key not in cp]
+        if _is_tagged(cp):
+            _fail(_cp_list_element_message(i, cp, parsed))
+        if "cpData" in cp and not isinstance(cp["cpData"], dict):
+            _fail(f"Entry {i} has a cpData that is not a JSON object.")
+        if DHALL_CP_ID_KEY in cp:
+            _fail(
+                f"Entry {i} has {DHALL_CP_ID_KEY} {cp[DHALL_CP_ID_KEY]!r}, the key of the Dhall import "
+                "format. The JSON import reads only cpId and ignores cpIdOrSerial, so this entry "
+                "would be imported as a new CP. Use cpId with the CPID for an update, or drop the "
+                "key for a create. Nothing was sent."
+            )
+        fields = _fields(cp)
+        label = cp.get("cpId", "<create>")
+        missing = [key for key in REQUIRED_FIELDS if key not in fields]
         if missing:
-            _fail(f"Entry {i} (cpId {cp.get('cpId', '<create>')}) missing required field(s): {missing}")
+            _fail(f"Entry {i} (cpId {label}) missing required field(s): {missing}")
         # cpId is optional (absent => create). When present it must be well-formed
         # and unique within the file (the update round-trip keys on it).
-        cp_id = cp.get("cpId")
-        if cp_id is not None:
-            if not isinstance(cp_id, str) or "-" not in cp_id:
-                _fail(f"Entry {i} has a malformed cpId {cp_id!r} (expected '{{ljSerial}}-{{uuid}}').")
+        raw_id = cp.get("cpId")
+        if raw_id is not None:
+            cp_id = _cp_id_text(raw_id)
+            if cp_id is None:
+                _fail(
+                    f"Entry {i} has a malformed cpId {raw_id!r} (expected '{{ljSerial}}-{{uuid}}', "
+                    "or an {engineHost, perEngineId} object)."
+                )
             if cp_id in seen:
                 if cp_id not in dupes:
                     dupes.append(cp_id)
@@ -189,16 +312,21 @@ def _print_preview(cps: list[dict], input_label: str) -> None:
     # no cpId are creates (server assigns the id) and group under '<create>'.
     by_serial: dict[str, list[dict]] = {}
     for cp in cps:
-        by_serial.setdefault(_lj_serial(cp.get("cpId")), []).append(cp)
+        by_serial.setdefault(_lj_serial(_cp_id_text(cp.get("cpId"))), []).append(cp)
 
     print(f"Would create/overwrite {len(cps)} Inferno CP(s) from {input_label}:")
     for serial in sorted(by_serial):
         label = "CREATE (server-assigned cpId)" if serial == "<create>" else f"ljSerial {serial}"
         print(f"  {label}:")
         for cp in by_serial[serial]:
+            fields = _fields(cp)
+            trigger = fields.get("trigger")
+            # A missing or null trigger is OnInputChangeAny, on a create and an update alike.
+            trigger_text = DEFAULT_TRIGGER_LABEL if trigger is None else repr(trigger)
             print(
-                f"    {cp.get('cpId', '<new>')}  name={cp['name']!r}  "
-                f"trigger={cp['trigger']!r}  resolution={cp.get('resolution', '<none>')}"
+                f"    {_cp_id_text(cp.get('cpId')) or '<new>'}  name={fields.get('name', '')!r}  "
+                f"trigger={trigger_text}  "
+                f"resolution={fields.get('resolution', '<none>')}"
             )
     print("\n" + _OVERWRITE_WARNING, file=sys.stderr)
 
@@ -226,7 +354,7 @@ def main() -> None:
     raw = _read_input(args.input)
     cps = _parse_and_validate(raw)
     # A missing cpId is a CREATE (server assigns the id); represent it as null.
-    cp_ids = [cp.get("cpId") for cp in cps]
+    cp_ids = [_cp_id_text(cp.get("cpId")) for cp in cps]
     input_label = args.input or "<stdin>"
 
     # Safety gate: no network call unless --yes; --dry-run wins over --yes.

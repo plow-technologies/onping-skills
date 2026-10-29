@@ -14,9 +14,10 @@ The XLSX has EXACTLY 4 header rows in order:
     row 2: `name: <label>`     (every column)
     row 3: `tag: dateTime`     (column 1 — the trigger column)
            `tag: result`       (every other column)
-    row 4: `source: <PID>`     (every column; PID must be an integer)
+    row 4: `source: <PID>`     (every column; `<n>` for a PID, `<n> VPID` for a
+                               VPID; the trigger column must be a PID)
 
-Every row-4 cell must be `source: <integer>`. Non-integer sources — including
+Every row-4 cell must be `source: <n>` or `source: <n> VPID`. Other sources — including
 `TODO`-style placeholders — are rejected server-side with
 `Invalid PID or VPID format for: <value>. input does not start with a digit`
 (observed live on a test Lumberjack on 2026-07-10). The pre-flight reproduces this
@@ -24,8 +25,8 @@ check locally and blocks the upload rather than paying for a full multipart
 round-trip only to see the 400.
 
 The skill requires an existing log-table source; it does NOT create sources.
-Source creation belongs to a separate wrapper for
-POST /logtable/#LJSerial/source/create.
+Create one with onping-logtable-create; edit single columns with
+onping-logtable-column-add / -column-delete / -column-set.
 
 MUTATES live OnPing state only with --yes. Without --yes (or with --dry-run)
 the skill runs local pre-flight validation and prints a preview, never POSTing.
@@ -50,6 +51,7 @@ from __future__ import annotations
 import argparse
 import io
 import os
+import re
 import sys
 import uuid as _uuid
 from typing import List, Optional, Tuple
@@ -75,6 +77,8 @@ EVENT_MARKER = "event"
 NAME_PREFIX = "name:"
 TAG_PREFIX = "tag:"
 SOURCE_PREFIX = "source:"
+# parsePointerFromText: a bare decimal is a PID; `<n> VPID` is a VPID. Strict.
+POINTER_RE = re.compile(r"\A([0-9]+)( VPID)?\Z")
 TAG_DATETIME = "tag: dateTime"
 TAG_RESULT = "tag: result"
 
@@ -191,34 +195,39 @@ def _validate(
                     f"`{TAG_RESULT}`, found `{cell}`"
                 )
 
-    # 7 & 8. Every row-4 cell must be `source: <integer>`. Non-integer values
+    # 7 & 8. Every row-4 cell must be `source: <n>` (a PID) or `source: <n> VPID`,
+    # the exact forms parsePointerFromText accepts. Anything else
     # (including `TODO`-style placeholders) are rejected server-side with
     # `Invalid PID or VPID format for: <value>. input does not start with a digit`
     # (observed live on a test Lumberjack on 2026-07-10). Pre-empt the server round-trip.
-    seen_pids: dict[int, int] = {}  # pid -> first column
+    seen: dict[tuple[str, int], int] = {}  # (PID|VPID, n) -> first column
     for c, cell in enumerate(r4, start=1):
         if not cell.startswith(SOURCE_PREFIX):
             errors.append(
-                f"row 4 col {c}: expected `source: <integer-PID>`, found `{cell}`"
+                f"row 4 col {c}: expected `source: <PID>` or `source: <n> VPID`, found `{cell}`"
             )
             continue
         rest = cell[len(SOURCE_PREFIX):].strip()
-        try:
-            pid = int(rest)
-        except ValueError:
+        m = POINTER_RE.match(rest)
+        if not m:
             errors.append(
-                f"row 4 col {c}: `source:` value `{rest}` is not an integer PID. "
-                "Server rejects non-integer sources with "
+                f"row 4 col {c}: `source:` value `{rest}` is not a PID (`1234`) or a "
+                "VPID (`1234 VPID`). Server rejects it with "
                 "`Invalid PID or VPID format for: <value>. input does not start with a digit`."
             )
             continue
-        # 9. Warn on duplicate PIDs (server accepts them, but almost always a bug).
-        if pid in seen_pids:
+        pointer = ("VPID" if m.group(2) else "PID", int(m.group(1)))
+        if c == 1 and pointer[0] == "VPID":
+            errors.append(
+                "row 4 col 1: the trigger (event) column must be a PID, not a VPID"
+            )
+        # 9. Warn on duplicate pointers (server accepts them, but almost always a bug).
+        if pointer in seen:
             warnings.append(
-                f"row 4 col {c}: duplicate PID {pid} (also at col {seen_pids[pid]})"
+                f"row 4 col {c}: duplicate {pointer[0]} {pointer[1]} (also at col {seen[pointer]})"
             )
         else:
-            seen_pids[pid] = c
+            seen[pointer] = c
 
     return errors, warnings, col_count
 
@@ -298,9 +307,12 @@ def _upload(
 
     # Non-2xx.
     body = resp.text[:1000]
-    if resp.status_code == 400 and "Permission Denied" in body:
+    if resp.status_code in (400, 500) and "Permission Denied" in body:
+        # The handler throws Permission Denied as an application error, which
+        # Yesod answers with HTTP 500 (as the source survey shows for the other
+        # LJ table routes); 400 is kept in case a proxy rewrites it.
         print(
-            f"HTTP 400 Permission Denied from {url}\n"
+            f"HTTP {resp.status_code} Permission Denied from {url}\n"
             "The log-table source's group must be in your owned-groups list "
             "(handler check at onping/Handler/OnpingLogTable/Service.hs). "
             "Confirm the source's `logTableSourceGroupId` matches a group you own.",

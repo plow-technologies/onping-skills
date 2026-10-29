@@ -64,6 +64,19 @@ uv run ~/.claude/skills/onping-logtable-export/scripts/export_logtable.py \
 On success, the skill writes the response body to that path and prints the
 absolute file path to stdout.
 
+### Expired tokens and the server
+
+An expired or wrong token does not always come back as 401: OnPing may
+redirect to `/auth/login`, and following that redirect yields a 200 HTML page.
+The skill checks both responses for a 401, a redirect to `/auth/login`, or an
+HTML body, and exits 1 with a re-login hint **before writing anything**, so a
+login page is never saved as the `.xlsx`. The server is
+`https://onping.plowtech.net` unless `ONPING_BASE_URL` is set.
+
+To read or edit the table without the XLSX round trip, see
+`onping-logtable-get`, `onping-logtable-fetch`, and the
+`onping-logtable-column-*` skills.
+
 ## Source of truth
 
 - Export handler: `onping/Handler/OnpingLogTable/Service.hs`
