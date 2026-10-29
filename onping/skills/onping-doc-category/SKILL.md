@@ -61,8 +61,7 @@ uv run ~/.claude/skills/onping-doc-category/scripts/category.py \
 
 ## Deleting a category moves it to the trash
 
-Since onping-doc PR #60 (<https://github.com/plow-technologies/onping-doc/pull/60>,
-AzDO work item 50168) the server has no `deleteCategories` tool. `--delete` calls
+Since the onping-doc server added `moveToTrash`, the server has no `deleteCategories` tool. `--delete` calls
 `moveToTrash` with `{"collection": "categories", "id": <n>}`, which sets
 `deletedAt`. A human restores the category from the Payload admin panel; no MCP
 tool restores it, and a permanent delete is owner-only in the admin UI.

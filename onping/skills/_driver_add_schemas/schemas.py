@@ -216,23 +216,30 @@ SCHEMAS: dict[str, dict] = {
         "driver": "singlewell-manual",
         "endpoint": "POST /singlewellmanual/location/add",
         "handler": "onping/Handler/SingleWellManual/Service.hs",
-        "request_type": "ManualLocationConfigTagged",
-        "request_type_source": "onping/Handler/SingleWellManual/Service.hs",
+        "request_type": "ManualLocationConfig [ManualTag] (ManualLocationConfigTagged)",
+        "request_type_source": "onping-types/onping-handler-types/src/Onping/Types/Handler/SingleWellManual.hs",
         "request_schema": {
-            "name": "string",
-            "id": "int | null",
-            "url": "string",
-            "port": "int",
-            "group_id": "int",
-            "location_ref_id": "int | null",
-            "company_id": "int",
-            "site_id": "int",
-            "notes": "string | null",
-            "data": "[ManualTag] | null",
-            "coordinates": "GPS | null",
+            "manualLocationName": "string (required)",
+            "manualLocationId": "null (optional; a value makes the server refuse with 500 'Use update endpoint instead')",
+            "manualLocationUrl": "string (required; the Lumberjack's lumberjackUrl from /las/api/v1/lumberjack/profiles)",
+            "manualLocationPort": "int (required; the UI default is 13001)",
+            "manualLocationGroupId": "string (required; group ObjectId, e.g. o + 24 hex)",
+            "manualLocationRefId": "null (optional; the server assigns the id)",
+            "locationCompanyId": "int (required)",
+            "locationSiteId": "int (required)",
+            "locationNotes": "string (required; may be empty)",
+            "locationData": "[ManualTag] (required; [] for a new location)",
+            "coordinates": "{lat, lng} | null (optional)",
         },
-        "response_type": "OnpingResponse ManualLocationKey",
-        "response_schema": {"_success": "ManualLocationKey (mongo ObjectId string)"},
+        "response_type": "ManualLocationKey",
+        "response_schema": {"int": "int (the new LocationIdRef)"},
+        "notes": (
+            "Not transactional: MySQL row, switcher index, then Step 1 manual record, "
+            "Step 2 Mongo location, Step 3 single-well extras, Step 4 group join. A failure "
+            "after the MySQL insert answers 500 with the step and the LocationIdRef and leaves "
+            "the earlier records. To create one for real, use "
+            "onping-create-singlewell-manual."
+        ),
     },
     "mqtt-json": {
         "driver": "mqtt-json",

@@ -18,7 +18,7 @@ THE AUTH MATRIX (re-verified 2026-08-25 with a no-auth control on every row).
     * /api/access returns MORE with a credential (1780 bytes vs 1136) because it
       reports the caller's own permissions. The other rows are byte-identical
       across all three columns.
-   ** Was 200 on 2026-08-25. Since onping-doc PR #60 (deployed by 2026-10-19) the
+   ** Was 200 on 2026-08-25. Since the onping-doc trash change (deployed by 2026-10-19) the
       server ignores an API-key user for access checks on `users`, so the API-Key
       form now returns 500 too. No skill reads this route.
 
@@ -103,7 +103,7 @@ REST_ROUTES: dict[str, dict] = {
     "users": {
         "endpoint": "GET /api/users",
         "requires_key": True,
-        "notes": "500 with every header form since onping-doc PR #60 "
+        "notes": "500 with every header form since the onping-doc trash change "
         "(2026-10-19). Was 200 with the API-Key form.",
     },
 }
@@ -112,7 +112,7 @@ REST_ROUTES: dict[str, dict] = {
 # The roster is a function of the API key's grants: `docs` is granted
 # find/create and NOT update, so there is no `updateDocs` and a body edit must go
 # through `updateDocWithMarkdown`; `media` is absent from the grants entirely, so
-# no upload tool exists. onping-doc PR #60 removed `deleteDocs` and
+# no upload tool exists. the onping-doc trash change removed `deleteDocs` and
 # `deleteCategories`: the only delete over MCP is `moveToTrash`, a soft delete of
 # ONE id in `docs` or `categories`. Call `docs_http.list_tools()` for truth.
 KNOWN_TOOLS: tuple[str, ...] = (

@@ -133,9 +133,9 @@ under the table).
 | `POST /api/media` | — | — | **`201 Created`** |
 
 `/api/users` with the API-Key form returned `200` on 2026-08-25 and `500` on
-2026-10-19. onping-doc PR #60 added an access rule that ignores a user without a
+2026-10-19. The onping-doc trash change added an access rule that ignores a user without a
 `role`, and the API-key user has none. No skill reads `/api/users`. The `POST
-/api/media` row predates that PR and was not re-probed, because the probe writes.
+/api/media` row predates that change and was not re-probed, because the probe writes.
 
 Three rulings follow:
 
@@ -199,8 +199,7 @@ payload-mcp-tool: getDocsByCategory, updateDocWithMarkdown, compareDoc,
                   moveToTrash
 ```
 
-**There is no hard delete over MCP.** onping-doc PR #60
-(<https://github.com/plow-technologies/onping-doc/pull/60>, AzDO work item 50168)
+**There is no hard delete over MCP.** The onping-doc trash change
 removed `deleteDocs` and `deleteCategories` and added `moveToTrash`, which takes
 `{collection: "docs" | "categories", id}` — one id, no `where` — and sets
 `deletedAt`. A trashed record is hidden from the site and from search, and a

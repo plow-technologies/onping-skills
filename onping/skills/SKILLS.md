@@ -511,11 +511,11 @@ Read recorded rows newest first, with the count and the newest event time and ag
 
 #### onping-logtable-create
 
-Create a log table: `source/create`, then a version-1 `schema/upgrade` with one event column keyed by the trigger PID. **Mutating.** Names any orphaned version-0 source if the second step fails.
+Create a log table with all its columns in one step: `source/create`, then one version-1 `schema/upgrade` holding the event column keyed by the trigger PID plus every declared column. Columns come from `--column NAME=SOURCE[:TAG]` or from an `onping-logtable-export` XLSX (`--from`, which copies the visible columns but not hidden columns, layout or rows). Columns are checked before any request. **Mutating.** Names any orphaned version-0 source if the second step fails. No dashboard is needed.
 
 - **Script:** `onping-logtable-create/scripts/create_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ --name NAME --event-pid N --group ID` (without `--group`: hints, exit 2)
-- **Options:** `--event-name NAME`, `--yes`, `--dry-run`
+- **Input:** `ACCESS_TOKEN LJ --name NAME (--event-pid N | --from FILE.xlsx) --group ID` (without `--group`: hints, exit 2)
+- **Options:** `--column NAME=SOURCE[:TAG]` (repeatable; SOURCE `<n>` or `<n> VPID`, TAG default `result`), `--event-name NAME` (not with `--from`), `--yes`, `--dry-run`
 - **Output:** the version-1 grid; on `--yes`, the new UUID and read-back check
 
 #### onping-logtable-column-add
@@ -578,7 +578,7 @@ record. There is no compound skill; compose the primitives:
 
 1. `onping-datatable-fetch <LJ> <dt-uuid> --row <ID>` — the row's pointers (`PID n` / `VPID n`) per column.
 2. `onping-logtable-list <LJ> --references-pid <trigger PID>` — is there already a log table for it?
-3. If not, `onping-logtable-create <LJ> --name … --event-pid <trigger PID> --group …`.
+3. If not, `onping-logtable-create <LJ> --name … --event-pid <trigger PID> --group … --column "<name>=<n>" …` with one `--column` per pointer in the row (`<n> VPID` for a VPID). The table then matches the row from version 1; skip to step 6.
 4. `onping-logtable-get <LJ> <lt-uuid>` — compare its column keys with the row's pointers.
 5. For each difference: `onping-logtable-column-add` (missing PID), `onping-logtable-column-set` (repointed PID), `onping-logtable-column-delete` (PID no longer in the row). Each run is a new empty version, so preview every edit first and apply them in one sitting.
 6. `onping-logtable-fetch <LJ> <lt-uuid> --limit 1` — after the trigger next updates, a row should appear.
@@ -694,6 +694,52 @@ Look up Lumberjack profiles by OnPing location ID. Matches the location's IP add
 - **Input:** `ACCESS_TOKEN LOCATION_ID [LOCATION_ID ...]`
 - **Output:** Matched profile JSON (single ID) or JSON object keyed by location ID (multiple IDs)
 
+#### onping-pak-transport-link
+
+List, show, export, create, edit and delete the PAK transport Ticket Permissive link: the record that routes a PAK facility's ticket requests to one Lumberjack, with the LJ's host and port and a list of bay-to-lane mappings (`--map BAY=LANE`, repeatable; several bays may share a lane). Supports only the seven-field record; it refuses, writing nothing, if the server returns the older record. **Mutating:** `set` and `delete` preview by default, send with `--yes`, and `--dry-run` wins.
+
+- **Ownership.** It computes the LJs you own the way OnPing does (LAS profile group in `GET /permissions/groups/ownership`). `get`, `set --id` and `delete` find the link by id among the links on those LJs and refuse (exit 3) if it is not there; the target LJ must be yours too.
+- **Preflight.** It refuses (exit 3, nothing sent) empty mappings, a repeated bay, a bay in another link, a second link on the LJ, and an invalid host or port, by the cloud app's own rules.
+- **Writes.** A backup JSON is written before each write; the write is sent once, then read back. OnPing's HTTP 500 is unwrapped to the cloud app's status and message; a 502 means the switcher registration failed and nothing was saved. Each write prints its undo.
+- **Script:** `onping-pak-transport-link/scripts/pak_link.py` (skill-local routes and checks in `scripts/pak_routes.py`)
+- **Subcommands:** `list (--serial N ... | --all-owned)`, `get --id UUID`, `export ... -o FILE`, `set [--id UUID] [--from FILE [--new-id]] [--serial N [--allow-move]] [--facility-id] [--facility-name] [--url] [--port] [--map BAY=LANE ...]`, `delete --id UUID`. Every subcommand takes `--json`.
+- **Exits:** 0 ok/preview/no-op, 1 request failure (nothing written), 2 usage or file, 3 guard or preflight refusal, 4 unknown outcome or read-back mismatch.
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+### Lumberjack Dynamic Configs (LAS)
+
+Skills for a Lumberjack's **LAS dynamic configs**: the per-package editable keys (`PackageConfig.pkgConfSchema`, a list of `{configKey, configType, configValue}`) that OnPing's LAS pages edit through `/las/api/v1/lumberjack/configs`. When one changes, the device's las-local rewrites the package's YAML and restarts its service. All three are backed by the shared `_las_routes` module (routes, HTTP with the expired-token hardening and las-server error unwrapping, `ConfigType` validation, `CPassword` masking) and accept an access token from `onping-login`. `CPassword` values are masked in printed output unless `--show-secrets`; export and backup files hold them in plaintext, mode 0600.
+
+#### lj-config-list
+
+List a Lumberjack's packages (monitor name, key count, YAML path) or one package's keys with types and values, plus the Lumberjack's name, whether you own it, and `is-storage-synced`. Read-only.
+
+- **Script:** `lj-config-list/scripts/lj_config_list.py`
+- **Input:** `ACCESS_TOKEN SERIAL [--package P] [--show-secrets] [--json]`, or `ACCESS_TOKEN --lumberjacks [--name SUBSTR] [--json]` (the Lumberjacks you own; `lumberjackPassword` is never printed)
+- **Note:** `is-mqtt-bridge-up` answers `null` even for a live Lumberjack; it is shown as `unknown` and never used to decide
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### lj-config-export
+
+Write one package's config to a new local file: the flat `key: value` YAML from `GET configs/export` (Owner), or the `PackageConfig` JSON with `--json`.
+
+- **Script:** `lj-config-export/scripts/lj_config_export.py`
+- **Input:** `ACCESS_TOKEN SERIAL --package P [-o FILE | -o -] [--force] [--json]`
+- **Rules:** owner precheck (exit 3); never overwrites without `--force` (exit 2); unmasked, mode 0600
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### lj-config-set
+
+Change values of existing keys in one package's config. **MUTATING — requires `--yes`; a real change restarts the package's service.**
+
+- **Script:** `lj-config-set/scripts/lj_config_set.py`
+- **Input:** `ACCESS_TOKEN SERIAL --package P KEY=VALUE | KEY:=JSON ... | --from-yaml FILE | --restore BACKUP`
+- **Options:** `--yes`, `--dry-run` (wins), `--backup PATH`, `--allow-noop`, `--allow-unsynced`, `--wait SECONDS`, `--show-secrets`
+- **Validation:** every value against its key's `ConfigType` (`CInteger`, `CPort` 0-65535, `CFloat` finite, `CBool`, `CText`, `CPassword`, `CURL` without whitespace, `CMaybe`, `CList`); unknown keys and unknown type tags refused; only values change, key order and types kept
+- **Flow:** owner precheck, refuse unless `is-storage-synced` (or `--allow-unsynced`), backup, re-read, POST the full `PackageConfig`, wait for the device to acknowledge, read back, print `undo:` (`--restore`)
+- **Exit codes:** 0 ok/preview/no-op, 1 failure or mismatch, 2 validation, 3 preflight refusal, 4 saved in the cloud but not acknowledged by the device (offline: it applies, with a restart, on reconnect)
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
 ### Lumberjack Restore (`lumberjack-restore/`)
 
 Skills for listing and restoring lumberjack backups from S3 via the lumberjack-restore-server running on edge devices. These skills talk directly to the device (no OnPing auth required), but use `lj-profile` or `onping-locations` to discover the device IP.
@@ -789,6 +835,7 @@ Compare Bedrock token spend across 1-10 candidate models for one inference (ml-)
 - **Subcommands:** `sweep` (default), `models`, `cleanup`
 - **Input:** `[sweep] --param UUID --candidate MODEL_ID [...]`, plus `--repeat`, `--max-invocations`, `--ident`, `--script`, `--temperature`, `--top-p`, `--max-tokens`, `--allow-active`, `--backend python|upstream`, `--yes`, `--dry-run`; `cleanup --model UUID [...] [--min-age-minutes 60]`. The access token comes from `$ONPING_ACCESS_TOKEN` or `--token-stdin`, never argv (a leading positional token is deprecated and warns)
 - **Output:** JSON preview, or a JSON array of `SweepResult` objects (`candidate`, `run`, `started-at`, `duration-ms`, `tokens`, `writes`, `logs`); exit 4 with ready `ml-model-manage version-delete` commands if any temporary version leaks
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 #### ml-parameter-test-copy
 
@@ -798,6 +845,7 @@ Create, list and delete non-live test copies of one inference (ml-) parameter, s
 - **Subcommands:** `create`, `delete`, `list`
 - **Input:** `ACCESS_TOKEN create --from UUID --outputs-map JSON|@FILE [--gid GID] [--company N] [--itype DEVICE/CAP] [--name TEXT] [--description TEXT] [--yes] [--dry-run]`; `delete --param UUID [--yes] [--dry-run]`; `list [--source UUID] [--json]`
 - **Output:** JSON preview with the exact request body; after `create --yes`, the new uuid, instance id, readback and a ready `delete_command`; exit 4 on an unknown outcome or a readback mismatch
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 #### parameter-import
 
@@ -903,6 +951,42 @@ List masks, show each PID's default read and write mask, and assign or remove a 
 - **Exits:** 0 ok/preview/no-op, 1 a read failure before any write, 2 usage or file, 3 gate or preflight refusal, 4 unknown outcome or read-back mismatch.
 - Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
+### Generic SWD Kiosks
+
+Skills for **generic-SWD kiosks**: the saltwater-disposal offload kiosks, including Ticket Permissive kiosks. A kiosk configuration has a name, **lanes** (a read PID with an optional mask script, a write PID and a waiting-to-start value) and a **status map** from masked read values to `Available`, `WaitingToStart`, `Pumping` or `Disabled(<message>)`. All three skills share `_generic_swd_routes` and take an access token from `onping-login`.
+
+**Safety model:** `list` and `get` are read-only and only reach kiosks in groups you own or belong to. `update` needs ownership of the kiosk's group, and every new or changed lane PID must pass OnPing's PID-write rule (its location has exactly one permission group, and you own it; a changed write PID must be writeable). It validates the whole configuration, previews by default, writes with `--yes` (`--dry-run` wins), saves a backup, refuses if the configuration changed since it was read, sends one write, and confirms it by read-back and a live lane read. None of the skills starts an offload or creates, moves or deletes a kiosk.
+
+#### onping-generic-swd-list
+
+List the kiosks in your owned and member groups, marked `owned` or `member`.
+
+- **Script:** `onping-generic-swd-list/scripts/list_generic_swd.py`
+- **Input:** `ACCESS_TOKEN`
+- **Options:** `--group GID` (repeatable; must be one of your groups), `--owned-only`, `--json`
+- **Output:** UUID, name, group, owned or member, address
+
+#### onping-generic-swd-get
+
+Show one kiosk's name, lanes (with each read PID's reported raw value, masked value and status) and status map, and list any validation problems in the stored configuration.
+
+- **Script:** `onping-generic-swd-get/scripts/get_generic_swd.py`
+- **Input:** `ACCESS_TOKEN KIOSK_UUID`
+- **Options:** `--live` (the live lane states; about half a second per lane, and one failing lane fails the read), `--tickets N` (1-100), `--output FILE` (a backup that `update ... replace --from` restores), `--json`
+- **Exits:** 0 ok, 1 a read failed, 2 usage, 3 refused
+
+#### onping-generic-swd-update
+
+Change one kiosk's configuration. **Mutating:** it previews by default, sends with `--yes`, and `--dry-run` wins.
+
+- **Script:** `onping-generic-swd-update/scripts/update_generic_swd.py`
+- **Input:** `ACCESS_TOKEN KIOSK_UUID SUBCOMMAND`
+- **Subcommands:** `name-set`, `lane-set`, `lane-add`, `lane-delete`, `status-set` (`--status NAME` or `--disabled MESSAGE`), `status-delete`, `replace --from FILE` (restore)
+- **Options:** `--yes`, `--dry-run`, `--backup PATH`, `--no-live-check`, `--json`
+- **Output:** the diff, the PIDs the change sets, the guard result, the backup path and the `restore:` command; after a write, the read-back result
+- **Exits:** 0 preview/no change/written and confirmed, 1 a read failed or the write was rejected with nothing changed, 2 usage, 3 guard, validation, concurrent-edit or backup refusal, 4 unknown or unconfirmed outcome
+- Held back from the `plow-technologies/onping-skills` export, with `list` and `get`, pending a public-readiness review.
+
 ### Imports
 
 #### onping-mass-write
@@ -941,6 +1025,48 @@ Upload/round-trip a singlewell-manual parameter spreadsheet to `POST /v2/singlew
   - `--yes` — perform the upload (required for the mutating POST)
 - **Note:** unlike mqtt-json, the `Type` column IS honored on import (it drives how the `Value` cell is parsed). New-row Pids are server-assigned — re-export to see them.
 - **Field-name gotcha:** multipart field names are Yesod auto-names `f1` (file) / `f2` (location int), not the labels "File"/"Location".
+
+#### onping-import-modbus-flexible
+
+Import an edited modbus-flexible tag spreadsheet into one location via `POST /modbus/flexible/import/params` (a multipart form: `f1` = the XLSX, `f2` = the location refId int). The write counterpart to `onping-export-modbus-flexible`. The server's one check on the sheet is that its populated PIDs equal the location's current PIDs, then **rebuilds every tag from the Index column**, so a tag's identity is its Index: a row on a current Index with that tag's PID updates it, a blank-PID row with a new Index creates a tag, and a populated row whose Index changed moves the tag to a different PID (the old PID leaves the location). The skill reproduces the server's parse and coverage rules locally, compares Index values as canonical JSON, and refuses a duplicate Index (the server would drop a row silently), a duplicate PID, a blank-PID row on a current Index, and `IdecMicroSmartIndex` rows. **Mutating** — no POST without `--yes`; with `--yes` it saves the pre-import export as a backup, uploads, and reads the result back by re-export. The SKILL.md is also the **modbus-flexible tag-sheet reference**: the 7 columns, the 24 Index families, the 13 data types, and what an import clears.
+
+- **Script:** `onping-import-modbus-flexible/scripts/import_params.py`
+- **Inputs:** `access_token`, `location_id` (int), `spreadsheet` (path)
+- **Options:**
+  - `--dry-run` — validate + plan + preview, never POST (wins over `--yes`)
+  - `--yes` — perform the upload (required for the mutating POST)
+  - `--allow-pid-change` — allow rows whose Index change moves a tag to a different PID
+  - `--backup PATH` — where `--yes` saves the pre-import export
+- **Exit codes:** 0 on a clean preview or a matching read-back; 1 when a check blocks, the server refuses (its message is printed as it came), or the read-back differs.
+- **Note:** every tag's cached value is cleared until the next poll. `Data Type` is used only by `IdecMicroSmartIndex`; other families derive it from the Index.
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+### Singlewell Manual Locations
+
+Create and delete one singlewell-manual **location** at a time (the parameter sheet is `onping-import-singlewell-manual` / `onping-export-singlewell-manual`; field edits are `onping-update-singlewell-manual`). Both skills are **mutating**: preview by default, `--yes` to write, `--dry-run` wins. Both refuse a group the caller does not own (`GET /permissions/groups/ownership`). Both send one request, never retried, and decide the outcome from a read-back of `POST /singlewellmanual/get/loc` plus the site listing `POST /singlewellmanual/locations`. Shared helper: `_singlewell_manual_routes/` (`routes.py`, `swm_http.py`). Exit codes: 0 preview or verified; 1 request failed before any write; 2 usage; 3 refusal; 4 partial, unknown or read-back mismatch.
+
+#### onping-create-singlewell-manual
+
+Create one location via `POST /singlewellmanual/location/add`, with no parameters. The add route is **not transactional** (MySQL row, switcher index, Step 1 manual record, Step 2 Mongo location, Step 3 extras record, Step 4 group join); a 500 naming a step is reported with its location id and the records it left.
+
+- **Script:** `onping-create-singlewell-manual/scripts/create_location.py`
+- **Inputs:** `access_token`, `--lj SERIAL` (the URL comes from the LAS profile's `lumberjackUrl`), `--company`, `--site`, `--group` (owned), `--name`
+- **Options:** `--port` (default 13001), `--notes`, `--yes`, `--dry-run`, `--json`
+- **Refuses:** an LJ with no URL, a group you do not own, a site outside the company, a name already used at the site
+- **Output:** the body, the checks, the new id, the field-by-field read-back, and the delete command that undoes it
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-delete-singlewell-manual
+
+Delete one location via `POST /singlewellmanual/delete [id]`. The route **always answers HTTP 200**, so gone means `get/loc` answers `failed to find single well manual location by id` and the site listing no longer has the id. **No undo**: the backup is a record, and re-creating gives a new id.
+
+- **Script:** `onping-delete-singlewell-manual/scripts/delete_location.py`
+- **Inputs:** `access_token`, `location_id`
+- **Options:** `--allow-parameters` (otherwise a location with parameters is refused), `--backup PATH`, `--yes`, `--dry-run`, `--json`
+- **Leaves behind:** the MySQL location row, the extras record, the group join, the switcher index, and any parameters' MySQL rows. No route removes them; the output names them.
+
+Both skills and the helper are held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 ### MQTT JSON Integrator
 
@@ -1061,7 +1187,7 @@ All entries share the same shape: `driver`, `endpoint`, `handler`, `request_type
 - **onping-add-control-logix** — ControlLogix driver `/control/logix/location/add` schema
 - **onping-add-total-flow** — TotalFlow driver `/total/flow/location/add` schema
 - **onping-add-micrologix** — Micrologix driver `/micrologix/location/add` schema (same handler also handles update when `locationId` is set)
-- **onping-add-singlewell-manual** — SingleWell Manual driver `/singlewellmanual/location/add` schema
+- **onping-add-singlewell-manual** — SingleWell Manual driver `/singlewellmanual/location/add` schema (to create one for real, see [Singlewell Manual Locations](#singlewell-manual-locations))
 - **onping-add-mqtt-json** — MQTT/JSON driver `/mqtt/json/location/add` schema. To create these locations automatically from MQTT pattern rules instead, see [MQTT JSON Integrator](#mqtt-json-integrator).
 - **onping-add-opc-ua** — OPC/UA driver `/opc/ua/location/add` schema
 - **onping-add-wellpilot** — WellPilot driver `/wellpilot/location/add` schema
@@ -1221,8 +1347,7 @@ need `--yes`.
 
 #### Delete is move-to-trash
 
-onping-doc PR #60 (<https://github.com/plow-technologies/onping-doc/pull/60>, AzDO
-work item 50168) removed `deleteDocs` and `deleteCategories` and added
+The onping-doc trash change removed `deleteDocs` and `deleteCategories` and added
 `moveToTrash {collection: "docs" | "categories", id}`. It sets `deletedAt`, which
 hides the record from the site and from search. **Only a human can restore it**,
 from the Payload admin panel, and a permanent delete is owner-only in the admin UI.

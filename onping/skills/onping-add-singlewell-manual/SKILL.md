@@ -8,12 +8,15 @@ allowed-tools: Bash(uv run *)
 
 Prints the curated JSON request and response shape for the `POST /singlewellmanual/location/add` endpoint. The data lives in `_driver_add_schemas/schemas.py`; this skill is a thin reader.
 
-This skill is **read-only**. It makes no network call. Hitting `POST /singlewellmanual/location/add` for real (which would create a record on OnPing) is intentionally out of scope.
+This skill is **read-only**. It makes no network call. Hitting `POST /singlewellmanual/location/add` for real (which would create a record on OnPing) is intentionally out of scope here.
+
+To create a location for real, use **onping-create-singlewell-manual** (preview by default, `--yes` to write, ownership gate and read-back). To delete one, use **onping-delete-singlewell-manual**.
 
 ## Source of truth
 
 - Handler: `onping/Handler/SingleWellManual/Service.hs` (in the OnPing repo)
-- Request type: `ManualLocationConfigTagged`
+- Request type: `ManualLocationConfig [ManualTag]` (`ManualLocationConfigTagged`), defined in `onping-types/onping-handler-types/src/Onping/Types/Handler/SingleWellManual.hs`
+- Response: `{"int": N}`, the new location's LocationIdRef
 
 If the Haskell types drift, re-verify against the recorded handler location and update `_driver_add_schemas/schemas.py`.
 

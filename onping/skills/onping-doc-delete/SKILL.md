@@ -48,8 +48,7 @@ with the server's wording.
 
 ## The delete is a soft delete: `moveToTrash`
 
-Since onping-doc PR #60 (<https://github.com/plow-technologies/onping-doc/pull/60>,
-AzDO work item 50168), the server offers **no hard delete over MCP**. It removed
+Since the onping-doc server added `moveToTrash`, the server offers **no hard delete over MCP**. It removed
 `deleteDocs` and `deleteCategories` and added one tool:
 
 ```
@@ -67,7 +66,7 @@ of search.
 This is the same shape as `onping-hmi-delete`, which sets `dashDeleted=true`, except
 that here no skill can undo it.
 
-**Before PR #60 was handled here, this skill reported false success.** It still
+**Before this skill handled that change, it reported false success.** It still
 called `deleteDocs`; the server answered HTTP `200` with
 `MCP error -32602: Tool deleteDocs not found`, and the skill printed
 `Deleted document N.` and exited `0`. `call_tool` now fails on that reply. If a
