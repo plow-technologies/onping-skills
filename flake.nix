@@ -216,6 +216,10 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           bundle = bundleFor system;
+          tokenArgvRoots = builtins.concatStringsSep " "
+            (map (d: "${self}/${d}")
+              (builtins.filter (d: builtins.pathExists (self + "/${d}"))
+                [ "onping" "onping-charts" ]));
         in
         {
           skill-sync-smoke = pkgs.runCommand "skill-sync-smoke" { } ''
@@ -294,9 +298,11 @@
               mkdir -p "$out"
               touch "$out/ok"
             '';
-          # No OnPing skill may take the access token as an argument.
+          # No OnPing skill may take the access token as an argument. The
+          # roots are the OnPing trees that exist: the standalone export has
+          # no onping-charts.
           token-argv = pkgs.runCommand "token-argv" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-            python3 ${self}/scripts/check-token-argv.py ${self}/onping ${self}/onping-charts
+            python3 ${self}/scripts/check-token-argv.py ${tokenArgvRoots}
             touch "$out"
           '';
           # Every script that imports a shared _helper carries the one canonical sys.path line (every provider with helpers).
