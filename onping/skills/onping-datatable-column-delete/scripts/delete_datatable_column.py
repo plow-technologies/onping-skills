@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import datatable as dt  # noqa: E402
-from _lj_table_routes.cli import base_parser, datatable_metadata_flow, fail  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, datatable_metadata_flow, fail  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die  # noqa: E402
 from _lj_table_routes.mutate import add_mutation_flags  # noqa: E402
 
@@ -32,7 +32,7 @@ def main() -> None:
     p.add_argument("--drop-filters", action="store_true",
                    help="also remove stored filter rules that reference the column")
     add_mutation_flags(p)
-    args = p.parse_args()
+    args = parse(p)
 
     try:
         before = dt.find_source(args.access_token, args.lj, args.table_uuid)

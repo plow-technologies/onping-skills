@@ -16,6 +16,9 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source  # noqa: E402
 
 DEFAULTS = {
     "resolution": 2048,
@@ -1145,7 +1148,6 @@ def build_parser() -> argparse.ArgumentParser:
         "fetch-normalize",
         help="Fetch control parameters by Lumberjack ID and normalize result",
     )
-    fetch_normalize.add_argument("access_token", help="OnPing OAuth2 access token")
     fetch_normalize.add_argument(
         "lumberjack_ids",
         nargs="+",
@@ -1210,7 +1212,7 @@ def handle_fetch_normalize(
 
 def main() -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, subcommands={'fetch-normalize'})
 
     if args.command == "normalize":
         code = handle_transform("normalize", args.input, args.output, args.pretty, args.include_orphans)

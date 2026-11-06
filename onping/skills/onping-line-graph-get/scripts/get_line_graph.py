@@ -23,6 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _line_graph_routes.line_graph_http import get_json
 from _line_graph_routes.routes import ROUTES
+from _token_input import shapes, token_source
 
 
 def main() -> None:
@@ -30,11 +31,10 @@ def main() -> None:
         description="Get an OnPing line-graph widget as JSON via "
         "GET /content/widgets/line-graph/widget/{id}. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("widget_id", help="LineGraphWidgetId (Mongo `o…` id)")
+    p.add_argument("widget_id", help="LineGraphWidgetId (Mongo `o…` id)", type=shapes.oid_arg)
     p.add_argument("--output", help="output file path (also prints to stdout)")
     p.add_argument("--pretty", action="store_true", help="pretty-print JSON (2-space indent)")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_oid)
 
     body = get_json(args.access_token, ROUTES["get"]["endpoint"], widget_id=args.widget_id)
 

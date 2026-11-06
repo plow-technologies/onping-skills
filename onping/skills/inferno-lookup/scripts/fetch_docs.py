@@ -2,13 +2,17 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""Fetch Inferno documentation from OnPing and save as markdown - takes ACCESS_TOKEN."""
+"""Fetch Inferno documentation from OnPing and save as markdown - (token from $ONPING_ACCESS_TOKEN or --token-stdin)."""
 
+import argparse
 import json
 import sys
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
 
 
 DOCS_DIR = Path(__file__).parent.parent / "docs"
@@ -44,11 +48,9 @@ def fetch_page(url: str, access_token: str) -> str | None:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("Usage: fetch_docs.py ACCESS_TOKEN", file=sys.stderr)
-        sys.exit(1)
-
-    access_token = sys.argv[1]
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    args = token_source.parse(p, None)
+    access_token = args.access_token
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
     success_count = 0

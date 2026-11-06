@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _event_table_routes.event_table_http import EventTableError, die, post_json
 from _event_table_routes.keys import bindings, describe, max_events, pid_matches
 from _event_table_routes.routes import ROUTES
+from _token_input import shapes, token_source
 
 
 def print_bindings(config: dict) -> None:
@@ -60,13 +61,12 @@ def main() -> None:
         description="Get an OnPing event table's configuration as JSON via "
         "POST /event/table/config. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("uuid", help="event-table UUID (from onping-event-table-list)")
+    p.add_argument("uuid", help="event-table UUID (from onping-event-table-list)", type=shapes.uuid_arg)
     p.add_argument("--output", help="write the configuration JSON to this file")
     p.add_argument("--pretty", action="store_true", help="pretty-print JSON")
     p.add_argument("--bindings", action="store_true", help="print the flat bindings view")
     p.add_argument("--pid", type=int, help="report whether this PID is bound, and where")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_uuid)
 
     try:
         config = post_json(

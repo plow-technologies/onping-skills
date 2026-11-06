@@ -20,6 +20,12 @@ The `hmiInfoUuid` values feed `onping-hmi-export`, `onping-hmi-export-data`, and
 > copy) that is not placed on a panel will **not** appear here — retrieve it
 > directly by its UUID instead. Read-only.
 
+> **Recovering an `onping-hmi-import --new` copy.** `/hmi/list` cannot enumerate
+> panel-less HMIs, so a `--new` copy never shows up here and there is no way to
+> search for it. Recover it by the UUID the import printed (`NEW HMI UUID: …`) or
+> appended with `--record-new PATH`, then pass that UUID straight to
+> `onping-hmi-export` or `onping-hmi-delete`.
+
 ## Related Skills
 
 - **onping-login** — Authenticate and get an access token
@@ -29,14 +35,16 @@ The `hmiInfoUuid` values feed `onping-hmi-export`, `onping-hmi-export-data`, and
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Table (uuid, name, panel, dashboard)
-uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py "$ACCESS_TOKEN"
+uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py
 # Just UUIDs, space-separated
-uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py "$ACCESS_TOKEN" --uuids-only
+uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py --uuids-only
 # Raw JSON
-uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py "$ACCESS_TOKEN" --json
+uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py --json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

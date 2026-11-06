@@ -67,32 +67,34 @@ state.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-unprocessed/scripts/unprocessed.py
 
 # Counts and health hints:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 
 # What topics are arriving:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --topics
+uv run "$SKILL" 1001 --topics
 
 # Look at real payloads (to write JQ selectors against):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --show 3
+uv run "$SKILL" 1001 --show 3
 
 # What the rules have generated but not created:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --uncreated
+uv run "$SKILL" 1001 --uncreated
 
 # Back up the payloads:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --export /tmp/unprocessed-1001.json
+uv run "$SKILL" 1001 --export /tmp/unprocessed-1001.json
 
 # Clear the queue (preview, then apply):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --clear
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --clear --yes
+uv run "$SKILL" 1001 --clear
+uv run "$SKILL" 1001 --clear --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `--json` — raw `UnprocessedData` JSON
 - `--export PATH` — write the topic/message pairs via the server's own export

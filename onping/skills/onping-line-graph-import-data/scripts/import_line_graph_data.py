@@ -26,6 +26,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _line_graph_routes.line_graph_http import _fail, extract_error, post_dhall
 from _line_graph_routes.routes import ROUTES
+from _token_input import token_source  # noqa: E402
 
 
 # ─────────────── shape check + from/to mapping extraction ────────────────
@@ -102,7 +103,6 @@ def main() -> None:
         description="Remap pid bindings on an OnPing line-graph widget via "
         "POST /content/widgets/line-graph/import-data-only/{id}. MUTATING; requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("--id", dest="widget_id", required=True, help="LineGraphWidgetId to remap")
     p.add_argument("--input", dest="input_path", help="input Dhall file (default: read from stdin)")
     p.add_argument("--yes", action="store_true", help="perform the remap (required to write)")
@@ -112,7 +112,7 @@ def main() -> None:
         help="explicit preview (default when --yes is not passed); wins over --yes",
     )
     p.add_argument("--json", dest="emit_json", action="store_true", help="emit the imported widget JSON on success")
-    args = p.parse_args()
+    args = token_source.parse(p, None, stdin_busy=lambda a: not a.input_path)
 
     # ── 1. Read input ──
     if args.input_path:

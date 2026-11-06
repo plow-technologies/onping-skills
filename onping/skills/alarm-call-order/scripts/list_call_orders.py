@@ -26,6 +26,9 @@ import sys
 from typing import Any
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source
 
 BASE_URL = os.environ.get("ONPING_BASE_URL", "https://onping.plowtech.net").rstrip("/")
 URL = f"{BASE_URL}/alarmmix/lister"
@@ -278,11 +281,10 @@ def summarize(data: Any) -> dict:
 
 def main(argv: list[str] | None = None, post=None) -> int:
     parser = argparse.ArgumentParser(description="List alarm call orders from OnPing (read-only).")
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument("--site", dest="site_ids", nargs="+", help="Site MongoKeys to filter by")
     parser.add_argument("--location", dest="location_ids", nargs="+", help="Location MongoKeys to filter by")
     parser.add_argument("--company", dest="company_ids", nargs="+", help="Company MongoKeys to filter by")
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     body = build_body(args.site_ids, args.location_ids, args.company_ids)
     try:

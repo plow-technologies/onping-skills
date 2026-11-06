@@ -21,18 +21,20 @@ Prefer the new skills:
 These wrappers preserve the old script names and forward to `ml-model-manage`.
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_list.py "$ACCESS_TOKEN"
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_list.py
 ```
 
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
+
 ```bash
-uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_create.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_create.py \
   --name "Alpha SAC Actor" \
   --gid "o00000000000000000000004d"
 ```
 
 ```bash
-uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_version_upload.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/ml-model-upload/scripts/ml_model_version_upload.py \
   --model-id "<MODEL_UUID>" \
   --file path/to/model.ts.pt \
   --version "v5.1.6" \

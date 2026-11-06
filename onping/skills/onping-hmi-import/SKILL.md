@@ -82,42 +82,73 @@ Requires a valid access token and an HMI Dhall file (from `onping-hmi-export`).
 **Preview (default — validates via /hmi/parse, no upsert):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --input hmi.dhall
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input hmi.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns. This skill reads the Dhall from stdin when `--input` is absent, so `--token-stdin` needs `--input FILE` (otherwise it exits 2 before any request); with `$ONPING_ACCESS_TOKEN` the piped form works.
 
 **Apply — overwrite the HMI whose dashId is in the file:**
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --input hmi.dhall --yes
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input hmi.dhall --yes
 ```
 
 **Clone — create a new HMI with a fresh dashId (source left untouched):**
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --input hmi.dhall --new --yes
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input hmi.dhall --new --yes
 ```
 
 **From stdin:**
 
 ```bash
-cat hmi.dhall | uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --yes
+cat hmi.dhall | uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --yes
 ```
 
 **Recommended round-trip — back up before overwriting:**
 
 ```bash
 # 1. Back up the HMI you're about to change
-uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py "$ACCESS_TOKEN" <uuid> --output before.dhall
+uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py <uuid> --output before.dhall
 # 2. Edit before.dhall as needed, then preview and import
-uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --input before.dhall          # preview
-uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" --input before.dhall --yes    # apply
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input before.dhall          # preview
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input before.dhall --yes    # apply
+```
+
+## Concurrency stamp
+
+`/hmi/upsert` is **optimistic concurrency on `dashLastUpdate`**. An overwrite is rejected with **HTTP 400 and the generic body `Internal Server Error`** unless the submitted `dashLastUpdate` equals the value currently stored for that `dashId`. `/hmi/parse` does not check it, so a clean preview does not mean the overwrite will be accepted. Every successful import bumps the stored value, so importing the same file twice fails the second time, and a generated or older file always carries a stale value.
+
+So on an **overwrite with `--yes`** the skill reads the stored `dashLastUpdate` of the target `dashId` immediately before the upsert and stamps it into the body (`GET /hmi/{uuid}`; if that JSON has no such key, the `_dashLastUpdate` in `GET /hmi/export/{uuid}`). Nothing is read for a preview or for `--new` (a new copy has no prior version).
+
+- `--concurrency-stamp N` — submit `N` instead of the live value (digits only). Not replaced and not retried if rejected.
+- `--no-concurrency-stamp` — skip the read and submit the file's own `dashLastUpdate` (escape hatch, or to reproduce the 400).
+- The two are mutually exclusive, and neither applies with `--new` (exit 2).
+- If the target does not exist yet, the upsert creates it and no stamp is sent. If no live value can be read, the skill warns and submits the file's own value.
+- **On a 400 during an overwrite** the skill prints a hint that this is most likely a stale stamp. If it stamped the live value and the stored value has since changed (someone else saved in between), it re-reads, re-stamps and retries **once**; it fails non-zero if that retry is also rejected. If the stored value is unchanged, a retry would be rejected identically, so it fails without one.
+- The body text `Internal Server Error` is shown in the hint but not matched: any 400 on an overwrite gets it.
+
+The flags are called "stamp", not "token", because "token" means the OnPing access token here. The earlier working names `--concurrency-token` and `--no-token` (from the change text) were never shipped and are not accepted (exit 2).
+
+## Orphan copies
+
+A `--new` copy is **not placed on any dashboard panel**, so it is **absent from `onping-hmi-list`** (`GET /hmi/list` only enumerates HMIs embedded in panels). Its UUID is the only handle: if it is lost the copy cannot be found again to export or delete.
+
+- A successful `--new --yes` prints the UUID on its own stdout line, `NEW HMI UUID: <uuid>`, and in `--json` as `targetDashId`.
+- `--record-new PATH` (with `--new`) appends `<uuid><TAB><UTC time>` to `PATH` after a successful create, so copies can be cleaned up later with `onping-hmi-export` / `onping-hmi-delete`. The path is checked as writable before anything is sent (exit 2 if not); nothing is written for a preview or a failed create.
+
+```bash
+uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py --input hmi.dhall --new --yes --record-new ~/hmi-copies.txt
 ```
 
 ## Flags
 
 - `--input PATH` — exported HMI Dhall file to import (default: read from stdin).
 - `--new` — generate a fresh `dashId` and **create a copy** instead of overwriting.
+- `--concurrency-stamp N` — overwrite only: submit this `dashLastUpdate` instead of the live stored value.
+- `--no-concurrency-stamp` — overwrite only: do not read the live value; submit the file's own.
+- `--record-new PATH` — with `--new`: append the created copy's UUID and a UTC time to `PATH`.
 - `--yes` — perform the upsert. **Required** for any write to OnPing.
 - `--dry-run` — explicit preview; validates via `/hmi/parse` and shows the target, makes no upsert. Wins over `--yes`.
 - `--json` — emit JSON instead of text.
@@ -125,13 +156,14 @@ uv run ~/.claude/skills/onping-hmi-import/scripts/import_hmi.py "$ACCESS_TOKEN" 
 ## Output
 
 - **Preview:** source `dashId`, target `dashId`, name, component count, and whether it would overwrite or create; validated via `/hmi/parse`; no upsert; exit 0.
-- **Apply:** the created/updated `HmiDashboard` JSON from OnPing; exit 0 on success, non-zero on failure.
+- **Apply:** the created/updated `HmiDashboard` JSON from OnPing; exit 0 on success, non-zero on failure. A `--new` create also prints `NEW HMI UUID: <uuid>`. `--json` adds `concurrencyStamp` (`mode` of `fetched`, `override`, `file` or `none`, the `value` sent, and whether it `retried`) for an overwrite, and `recordedTo` for a `--new` create.
 
 ## API Reference
 
 | Step | Endpoint | Method | Content-Type | Body | Response |
 |------|----------|--------|--------------|------|----------|
 | parse | `/hmi/parse/{nil-uuid}` | POST | `text/plain;charset=UTF-8` | Dhall `HmiDashboard` | JSON `HmiDashboard` (read-only validation; uuid ignored) |
+| stamp read (overwrite only) | `/hmi/{uuid}` | GET | — | — | JSON `HmiDashboard` (`dashLastUpdate`); fallback `/hmi/export/{uuid}` Dhall `_dashLastUpdate` |
 | upsert | `/hmi/upsert` | POST | `application/json` | raw JSON `HmiDashboard` | JSON `HmiDashboard` (created/updated) |
 
 `/hmi/upsert` consumes a **raw** `HmiDashboard` (not an `HmiUpsertRequest` wrapper); the server adds the caller's username. Same `dashId` overwrites; a different `dashId` creates.
@@ -144,4 +176,5 @@ All `/hmi/*` routes accept **Bearer token auth** from `onping-login` (verified).
 
 - **Token expired** — a `303 → /auth/login` redirect or an HTML login body fails fast (non-zero exit) and imports nothing.
 - **Malformed Dhall** — `/hmi/parse` returns a non-200 (or `{"error": ...}`); the skill surfaces it and imports nothing.
+- **HTTP 400 on an overwrite** — most likely a stale `dashLastUpdate`; see "Concurrency stamp". Retried once only if the stored value changed.
 - **No Write permission on the target** — `/hmi/upsert` returns 403; surfaced verbatim, exit non-zero.

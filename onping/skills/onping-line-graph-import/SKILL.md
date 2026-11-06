@@ -77,46 +77,48 @@ Requires a valid access token and an input file (`.dhall`, `.json`, or `.yaml`).
 **Preview (default — validates locally, shows the pid list, no network):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/onping-line-graph-import/scripts/import_line_graph.py \
-  "$ACCESS_TOKEN" --id <widget-id> --input chart.dhall
+  --id <widget-id> --input chart.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply — overwrite the target widget:**
 
 ```bash
-uv run …/import_line_graph.py "$ACCESS_TOKEN" --id <widget-id> --input chart.dhall --yes
+uv run …/import_line_graph.py --id <widget-id> --input chart.dhall --yes
 ```
 
 **Clone — mint a fresh widget and populate it (source untouched):**
 
 ```bash
-NEW_ID=$(uv run …/import_line_graph.py "$ACCESS_TOKEN" --new --input chart.dhall --yes)
+NEW_ID=$(uv run …/import_line_graph.py --new --input chart.dhall --yes)
 echo "created widget: $NEW_ID"
 ```
 
 **Friendly JSON input:**
 
 ```bash
-uv run …/import_line_graph.py "$ACCESS_TOKEN" --id <widget-id> --input chart.json --yes
+uv run …/import_line_graph.py --id <widget-id> --input chart.json --yes
 ```
 
 **Friendly YAML input:**
 
 ```bash
-uv run …/import_line_graph.py "$ACCESS_TOKEN" --id <widget-id> --input chart.yaml --yes
+uv run …/import_line_graph.py --id <widget-id> --input chart.yaml --yes
 ```
 
 **Round-trip:**
 
 ```bash
 # 1. Back up
-uv run …/onping-line-graph-export/scripts/export_line_graph.py "$ACCESS_TOKEN" <widget-id> --output before.dhall
+uv run …/onping-line-graph-export/scripts/export_line_graph.py <widget-id> --output before.dhall
 # 2. Edit
 $EDITOR before.dhall
 # 3. Preview + apply
-uv run …/import_line_graph.py "$ACCESS_TOKEN" --id <widget-id> --input before.dhall           # preview
-uv run …/import_line_graph.py "$ACCESS_TOKEN" --id <widget-id> --input before.dhall --yes     # apply
+uv run …/import_line_graph.py --id <widget-id> --input before.dhall           # preview
+uv run …/import_line_graph.py --id <widget-id> --input before.dhall --yes     # apply
 ```
 
 ## Friendly JSON/YAML input format

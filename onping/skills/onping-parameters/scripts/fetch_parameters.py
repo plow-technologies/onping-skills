@@ -9,17 +9,20 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Fetch OnPing parameters for given locations."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument(
         "location_ids",
         nargs="+",
         help="One or more location IDs (refId from onping-locations)",
+        type=shapes.int_arg,
     )
     parser.add_argument(
         "--vp", action="store_true", help="Include virtual parameters"
@@ -32,13 +35,9 @@ def main() -> None:
     parser.add_argument(
         "--exclude-pid", action="store_true", help="Exclude PID parameters"
     )
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, is_id=shapes.is_int)
 
-    try:
-        location_ids = [int(lid) for lid in args.location_ids]
-    except ValueError as e:
-        print(f"Location IDs must be integers: {e}", file=sys.stderr)
-        sys.exit(1)
+    location_ids = args.location_ids
 
     url = "https://onping.plowtech.net/v2/json/listers/parameters"
     headers = {"Accept": "application/json", "Authorization": f"Bearer {args.access_token}"}

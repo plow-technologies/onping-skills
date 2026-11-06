@@ -13,13 +13,15 @@ It issues a single `POST /singlewellextras/lister` call, reads each location's s
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/onping-driver-resolve/scripts/resolve_driver.py \
-  "$ACCESS_TOKEN" 20006 20007 20008
+  20006 20007 20008
 # JSON for piping into a batch wrapper:
 uv run ~/.claude/skills/onping-driver-resolve/scripts/resolve_driver.py \
-  "$ACCESS_TOKEN" 20006 --json
+  20006 --json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Output (table by default; `--json` for `{ "<refId>": {"driver", "protocol"} }`):
 

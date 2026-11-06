@@ -151,24 +151,26 @@ entries were already submitted so you can trim the CSV and retry the tail.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # Preview (validate, no delete):
 uv run ~/.claude/skills/onping-massdelete/scripts/massdelete.py \
-  "$ACCESS_TOKEN" delete.csv --dry-run
+  delete.csv --dry-run
 
 # Apply:
 uv run ~/.claude/skills/onping-massdelete/scripts/massdelete.py \
-  "$ACCESS_TOKEN" delete.csv --yes
+  delete.csv --yes
 
 # Force smaller chunks (e.g. for very large deletes):
 uv run ~/.claude/skills/onping-massdelete/scripts/massdelete.py \
-  "$ACCESS_TOKEN" delete.csv --yes --max-batch 1000
+  delete.csv --yes --max-batch 1000
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument is **not accepted** by this command (it exits 2).
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `csv_path`     — path to the CSV described above
 - `--dry-run` / `--yes` — see Safety
 - `--max-batch N` — chunk size (default 5000)

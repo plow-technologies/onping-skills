@@ -45,7 +45,8 @@ def no_network(monkeypatch):
 
 
 def run_main(monkeypatch, capsys, path: Path, *flags: str):
-    monkeypatch.setattr(sys, "argv", ["import_inferno_cp.py", "TOKEN", "--input", str(path), *flags])
+    monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
+    monkeypatch.setattr(sys, "argv", ["import_inferno_cp.py", "--input", str(path), *flags])
     with pytest.raises(SystemExit) as exc:
         ici.main()
     out, err = capsys.readouterr()

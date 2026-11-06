@@ -44,27 +44,29 @@ Requires an access token and a Dhall `[Field]` file (typically from `-export-dat
 **Preview (default — parses input, prints from→to table, no network):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/onping-line-graph-import-data/scripts/import_line_graph_data.py \
-  "$ACCESS_TOKEN" --id <widget-id> --input data.dhall
+  --id <widget-id> --input data.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply — rewrite pids on the target widget:**
 
 ```bash
-uv run …/import_line_graph_data.py "$ACCESS_TOKEN" --id <widget-id> --input data.dhall --yes
+uv run …/import_line_graph_data.py --id <widget-id> --input data.dhall --yes
 ```
 
 **Round-trip pid remap:**
 
 ```bash
 # 1. Export current bindings
-uv run …/onping-line-graph-export-data/scripts/export_line_graph_data.py "$ACCESS_TOKEN" <widget-id> --output data.dhall
+uv run …/onping-line-graph-export-data/scripts/export_line_graph_data.py <widget-id> --output data.dhall
 # 2. Hand-edit the `to = Some { type = "PID", value = +<new-pid> }` lines
 $EDITOR data.dhall
 # 3. Preview + apply the remap
-uv run …/import_line_graph_data.py "$ACCESS_TOKEN" --id <widget-id> --input data.dhall           # preview
-uv run …/import_line_graph_data.py "$ACCESS_TOKEN" --id <widget-id> --input data.dhall --yes     # apply
+uv run …/import_line_graph_data.py --id <widget-id> --input data.dhall           # preview
+uv run …/import_line_graph_data.py --id <widget-id> --input data.dhall --yes     # apply
 ```
 
 ## Flags

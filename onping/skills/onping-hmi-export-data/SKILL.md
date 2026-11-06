@@ -28,10 +28,12 @@ Maybe onpingKey }` (`Content-Type: text/x-dhall`, `filename="hmi-data.dhall"`).
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-hmi-export-data/scripts/export_hmi_data.py "$ACCESS_TOKEN" <uuid>
-uv run ~/.claude/skills/onping-hmi-export-data/scripts/export_hmi_data.py "$ACCESS_TOKEN" <uuid> --output hmi-data.dhall
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-hmi-export-data/scripts/export_hmi_data.py <uuid>
+uv run ~/.claude/skills/onping-hmi-export-data/scripts/export_hmi_data.py <uuid> --output hmi-data.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

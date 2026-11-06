@@ -46,6 +46,7 @@ def run_main(monkeypatch, capsys, argv, bodies: dict[int, list] | None = None):
         monkeypatch.setattr(
             cij.requests, "post", lambda url, data, **_kw: FakeResponse(bodies[int(data)])
         )
+    monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
     monkeypatch.setattr(sys, "argv", ["cp_import_json.py", *argv])
     with pytest.raises(SystemExit) as exc:
         cij.main()
@@ -63,7 +64,7 @@ def cp_ids_in(doc) -> list[str]:
 
 def test_fetch_normalize_omits_orphan_by_default(monkeypatch, capsys):
     code, out, err = run_main(
-        monkeypatch, capsys, ["fetch-normalize", "TOKEN", "1001"], {1001: copy.deepcopy(FIXTURE)}
+        monkeypatch, capsys, ["fetch-normalize", "1001"], {1001: copy.deepcopy(FIXTURE)}
     )
     assert code == 0
     doc = json.loads(out)
@@ -81,7 +82,7 @@ def test_fetch_normalize_include_orphans_keeps_it(monkeypatch, capsys):
     code, out, err = run_main(
         monkeypatch,
         capsys,
-        ["fetch-normalize", "TOKEN", "1001", "--include-orphans"],
+        ["fetch-normalize", "1001", "--include-orphans"],
         {1001: copy.deepcopy(FIXTURE)},
     )
     assert code == 0
@@ -95,7 +96,7 @@ def test_fetch_normalize_include_orphans_keeps_it(monkeypatch, capsys):
 
 def test_fetch_normalize_multiple_lumberjacks(monkeypatch, capsys):
     bodies = {1001: [copy.deepcopy(READABLE)], 1002: [copy.deepcopy(ORPHAN)]}
-    code, out, err = run_main(monkeypatch, capsys, ["fetch-normalize", "TOKEN", "1001", "1002"], bodies)
+    code, out, err = run_main(monkeypatch, capsys, ["fetch-normalize", "1001", "1002"], bodies)
     assert code == 0
     doc = json.loads(out)
     assert doc["1002"] == []
@@ -292,7 +293,7 @@ def test_readable_without_usable_cpdata_is_dropped_and_exits_1(monkeypatch, caps
 
 def test_fetch_normalize_exits_1_on_a_malformed_element(monkeypatch, capsys):
     body = [copy.deepcopy(READABLE), {"tag": cij.READABLE_TAG, "contents": {"cpId": None}}]
-    code, out, err = run_main(monkeypatch, capsys, ["fetch-normalize", "TOKEN", "1001"], {1001: body})
+    code, out, err = run_main(monkeypatch, capsys, ["fetch-normalize", "1001"], {1001: body})
     assert code == 1
     assert cp_ids_in(json.loads(out)) == [READABLE_CPID]
     assert "malformed" in err

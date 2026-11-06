@@ -18,13 +18,13 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     parse_categories,
     upload_model_version,
 )
+from _token_input import token_source  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Upload a TorchScript model version to OnPing."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument("--model-id", required=True, help="Parent model UUID")
     parser.add_argument("--file", required=True, help="Path to local .pt file")
     parser.add_argument("--version", required=True, help="Version string")
@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Comma-separated category IDs; defaults to 8 for inference models",
     )
     parser.add_argument("--card-base-model", help="Optional base-model field")
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         categories = parse_categories(args.card_categories)

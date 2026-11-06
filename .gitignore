@@ -236,6 +236,9 @@ devtools/skills/grip/state/
 # Per-machine Claude Code permissions
 .claude/settings.local.json
 
+# Dashboard skill backups (live dashboard JSON)
+dashboard-*.backup.json
+
 # OnPing credentials read by onping-login and the onping-doc-* skills.
 refresh_token
 refresh_token.gpg

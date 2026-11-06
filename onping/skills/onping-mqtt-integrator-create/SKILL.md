@@ -88,31 +88,33 @@ blacklisted (those are filtered server-side even with `--all`).
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-create/scripts/create_artifacts.py
 
 # 1. See what is available (safe, no url needed):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --list
+uv run "$SKILL" 1001 --list
 
 # 2. Find the LJ's url:
 uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py ...
 
 # 3. Preview creating everything:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --location-url 192.0.2.25 --all
+uv run "$SKILL" 1001 --location-url 192.0.2.25 --all
 
 # 4. Do it:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --location-url 192.0.2.25 --all --yes
+uv run "$SKILL" 1001 --location-url 192.0.2.25 --all --yes
 
 # Create one location and one of its PIDs:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --location-url 192.0.2.25 \
+uv run "$SKILL" 1001 --location-url 192.0.2.25 \
   --location 'facility1-building2-sensor001' \
   --pid 'facility1-building2-sensor001::/sensors/TEMP001/data::.temperature' \
   --yes
 ```
 
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
+
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `--location-url URL` — the LJ's `lumberjackUrl` (required unless `--list`)
 - `--port N` — driver listener port (default 2000)
@@ -135,8 +137,8 @@ The integrator's record is **one-way and never re-checked** — it cannot confir
 these objects still exist. Verify independently:
 
 ```bash
-uv run .../onping-pid-locate/scripts/... "$ACCESS_TOKEN" <pid>
-uv run .../onping-export-mqtt-json/scripts/export_tags.py "$ACCESS_TOKEN" <refId>
+uv run .../onping-pid-locate/scripts/... <pid>
+uv run .../onping-export-mqtt-json/scripts/export_tags.py <refId>
 ```
 
 ## Source of truth

@@ -73,20 +73,22 @@ the same trap the mqtt-json and singlewell-manual imports fell into.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # Preview (validate, no write):
 uv run ~/.claude/skills/onping-logtable-import/scripts/import_logtable.py \
-  "$ACCESS_TOKEN" LJ_SERIAL TABLE_UUID sheet.xlsx --dry-run
+  LJ_SERIAL TABLE_UUID sheet.xlsx --dry-run
 
 # Apply:
 uv run ~/.claude/skills/onping-logtable-import/scripts/import_logtable.py \
-  "$ACCESS_TOKEN" LJ_SERIAL TABLE_UUID sheet.xlsx --yes
+  LJ_SERIAL TABLE_UUID sheet.xlsx --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `lj_serial`    — Lumberjack serial (int, forwarded as a path segment)
 - `table_uuid`   — target log-table source's `logTableSourceId` (UUID)
 - `spreadsheet`  — path to the `.xlsx` to upload

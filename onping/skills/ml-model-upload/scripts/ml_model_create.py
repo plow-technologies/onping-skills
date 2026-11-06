@@ -13,11 +13,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 
 from _inferno_ml_routes.inferno_ml_models import OnPingRequestError, create_model  # noqa: E402
+from _token_input import token_source  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Create an OnPing ML model record.")
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument("--name", required=True, help="Model name")
     parser.add_argument("--gid", required=True, help="OnPing group ID")
     parser.add_argument(
@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
         default="VCObjectPrivate",
         help="Visibility value such as VCObjectPrivate or VCObjectPublic",
     )
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         print(

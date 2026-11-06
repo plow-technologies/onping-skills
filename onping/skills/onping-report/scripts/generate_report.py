@@ -13,6 +13,9 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 REPORT_URL = "https://onping.plowtech.net/tachdb/report"
 
@@ -21,21 +24,20 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate an OnPing CSV report and print the download URL."
     )
-    parser.add_argument("access_token", help="Bearer access token (JWT)")
-    parser.add_argument("start_date", help="ISO 8601 start date (e.g. 2026-02-22T06:00:00Z)")
-    parser.add_argument("end_date", help="ISO 8601 end date (e.g. 2026-02-25T06:00:00Z)")
-    parser.add_argument("pids", nargs="+", help="Parameter IDs (integers)")
+    parser.add_argument("start_date", help="ISO 8601 start date (e.g. 2026-02-22T06:00:00Z)", type=shapes.iso_date_arg)
+    parser.add_argument("end_date", help="ISO 8601 end date (e.g. 2026-02-25T06:00:00Z)", type=shapes.iso_date_arg)
+    parser.add_argument("pids", nargs="+", help="Parameter IDs (integers)", type=shapes.int_arg)
     parser.add_argument("--step", type=int, default=60, help="Step size in seconds (default: 60)")
     parser.add_argument("--resolution", type=int, default=8, help="Resolution exponent (default: 8)")
     parser.add_argument("--title", default="CSV Report", help="Report title (default: 'CSV Report')")
     parser.add_argument("--vpid", action="store_true", help="Treat PIDs as virtual parameter IDs")
 
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, is_id=shapes.is_iso_date)
 
     if args.vpid:
-        pid_list = [{"keyType": "VPID", "keyValue": int(p)} for p in args.pids]
+        pid_list = [{"keyType": "VPID", "keyValue": p} for p in args.pids]
     else:
-        pid_list = [int(p) for p in args.pids]
+        pid_list = list(args.pids)
 
     body = {
         "title": args.title,

@@ -50,21 +50,23 @@ an export is a valid backup and transfer artifact.
 ## Commands
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Export one parameter
 
 ```bash
 uv run ~/.claude/skills/ml-parameter-export/scripts/ml_parameter_export.py \
-  "$ACCESS_TOKEN" 00000000-0000-4000-8000-00000000a001 --pretty
+  00000000-0000-4000-8000-00000000a001 --pretty
 ```
 
 ### Export several, to a file
 
 ```bash
 uv run ~/.claude/skills/ml-parameter-export/scripts/ml_parameter_export.py \
-  "$ACCESS_TOKEN" \
+  \
   00000000-0000-4000-8000-00000000c002 \
   00000000-0000-4000-8000-00000000c003 \
   --output params-backup.json --pretty
@@ -73,16 +75,16 @@ uv run ~/.claude/skills/ml-parameter-export/scripts/ml_parameter_export.py \
 ### Pipe ids in from `ml-parameter-update list`
 
 ```bash
-uv run .../ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" list \
+uv run .../ml-parameter-update/scripts/ml_parameter_update.py list \
   | awk '{print $1}' \
-  | uv run .../ml-parameter-export/scripts/ml_parameter_export.py "$ACCESS_TOKEN" --stdin-ids \
+  | uv run .../ml-parameter-export/scripts/ml_parameter_export.py --stdin-ids \
       --output all-params.json
 ```
 
 ### Single bare object instead of a one-element array
 
 ```bash
-uv run .../ml_parameter_export.py "$ACCESS_TOKEN" <UUID> --unwrap-single --pretty
+uv run .../ml_parameter_export.py <UUID> --unwrap-single --pretty
 ```
 
 `--unwrap-single` refuses (non-zero, no file) if more than one record came back,

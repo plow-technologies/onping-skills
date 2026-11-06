@@ -81,7 +81,8 @@ an array, so `array_length(headers, 1)` errors out. Learned the hard way.
 The skill SSHes to the audit host, reads the postgres block from the deployed
 `onping-audit-server` config, and connects with what it finds. No password, username,
 or database name is stored in this repository, and a password rotation needs no
-change here.
+change here. The password is sent to `psql` on the SSH connection's standard input,
+so it appears on no command line, local or remote.
 
 Two topology facts the skill encodes, both of which cost real time to discover:
 

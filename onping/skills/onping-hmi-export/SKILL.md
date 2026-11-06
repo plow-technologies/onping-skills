@@ -29,17 +29,19 @@ export: a single `GET /hmi/export/{uuid}` returning the complete `HmiDashboard`
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Print the Dhall to stdout
-uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py "$ACCESS_TOKEN" <uuid>
+uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py <uuid>
 # Save to a file (also printed to stdout; status line to stderr)
-uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py "$ACCESS_TOKEN" <uuid> --output hmi.dhall
+uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py <uuid> --output hmi.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Discover a UUID first with `onping-hmi-list`, then export:
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py "$ACCESS_TOKEN" --uuids-only
+uv run ~/.claude/skills/onping-hmi-list/scripts/list_hmis.py --uuids-only
 ```
 
 ## Flags

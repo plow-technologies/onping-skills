@@ -14,7 +14,7 @@ Requires a valid access token (from onping-login) and a search query. The server
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-search/scripts/search.py "$ACCESS_TOKEN" "North Field 12"
+  uv run ~/.claude/skills/onping-search/scripts/search.py "North Field 12"
 ```
 
 ### Pagination
@@ -23,7 +23,7 @@ ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
 - `--from N` — Result offset for pagination (default: 0)
 
 ```bash
-uv run ~/.claude/skills/onping-search/scripts/search.py "$ACCESS_TOKEN" "North Field" --size 20 --from 10
+uv run ~/.claude/skills/onping-search/scripts/search.py "North Field" --size 20 --from 10
 ```
 
 ## Output

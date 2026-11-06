@@ -28,13 +28,15 @@ Field keys are verified against the live Haskell record JSON. If the types drift
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Preview (no write):
 uv run ~/.claude/skills/onping-update-sparkplug-bridge/scripts/update_location.py \
-  "$ACCESS_TOKEN" REF_ID --dry-run
+  REF_ID --dry-run
 # Apply:
 uv run ~/.claude/skills/onping-update-sparkplug-bridge/scripts/update_location.py \
-  "$ACCESS_TOKEN" REF_ID --yes
+  REF_ID --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 You need the location's **driver** to pick this skill. To resolve a bare refId to its driver, see the "Driver Updates" section of `onping/skills/SKILLS.md`.

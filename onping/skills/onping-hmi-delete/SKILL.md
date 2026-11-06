@@ -31,21 +31,23 @@ Delete an HMI dashboard by UUID. `DELETE /hmi/delete/{uuid}` removes an HMI.
 **Preview (default — probes the HMI, does not delete):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py "$ACCESS_TOKEN" <uuid>
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py <uuid>
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply (actually deletes):**
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py "$ACCESS_TOKEN" <uuid> --yes
+uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py <uuid> --yes
 ```
 
 **Recommended — back up first:**
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py "$ACCESS_TOKEN" <uuid> --output backup.dhall
-uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py "$ACCESS_TOKEN" <uuid> --yes
+uv run ~/.claude/skills/onping-hmi-export/scripts/export_hmi.py <uuid> --output backup.dhall
+uv run ~/.claude/skills/onping-hmi-delete/scripts/delete_hmi.py <uuid> --yes
 ```
 
 ## Flags

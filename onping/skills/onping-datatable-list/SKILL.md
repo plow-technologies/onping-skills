@@ -24,12 +24,14 @@ the dashboard ctable widget.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
-uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py "$ACCESS_TOKEN" <LJ>
-uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py "$ACCESS_TOKEN" --all --name pump
-uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py "$ACCESS_TOKEN" --all --references-pid 500001
+uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py <LJ>
+uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py --all --name pump
+uv run ~/.claude/skills/onping-datatable-list/scripts/list_datatables.py --all --references-pid 500001
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

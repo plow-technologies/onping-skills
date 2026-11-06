@@ -21,7 +21,7 @@ Before starting this phase, the operator must verify in the OnPing UI that the c
 ### 1. Authenticate
 
 ```
-ACCESS_TOKEN=$(onping-login)
+export ONPING_ACCESS_TOKEN=$(onping-login)
 ```
 
 ### 2. Verify classic CPs are disabled (operator check)
@@ -31,7 +31,7 @@ ACCESS_TOKEN=$(onping-login)
 ### 3. List currently installed packages
 
 ```
-lj-deploy installed $ACCESS_TOKEN $LJ_SERIAL
+lj-deploy installed $LJ_SERIAL
 ```
 
 Check which of the 5 required packages are already installed and at what version. Record the LJ architecture from the installed package metadata (e.g., `armv7l-linux`, `aarch64-linux`, `x86_64-linux`).
@@ -43,7 +43,7 @@ The old `single-well-control-parameters` package is no longer needed — it was 
 First, find its exact store path from the `installed` output (step 3). Then attempt to delete it:
 
 ```
-lj-deploy delete $ACCESS_TOKEN $LJ_SERIAL "/nix/store/<single-well-control-parameters-store-path>"
+lj-deploy delete $LJ_SERIAL "/nix/store/<single-well-control-parameters-store-path>"
 ```
 
 The response should be `{"tag": "MultiPackageEditOK"}`. Monitor with `lj-deploy status` and wait for completion before proceeding.
@@ -55,7 +55,7 @@ The response should be `{"tag": "MultiPackageEditOK"}`. Monitor with `lj-deploy 
 For each package that is missing or needs updating, find the correct Nix store path:
 
 ```
-lj-deploy packages $ACCESS_TOKEN --filter <package-name>
+lj-deploy packages --filter <package-name>
 ```
 
 Select the store path matching the Lumberjack's architecture. Each architecture has a different store path.
@@ -65,7 +65,7 @@ Select the store path matching the Lumberjack's architecture. Each architecture 
 Use the `Update` operation (idempotent — safe whether or not the package is already installed):
 
 ```
-lj-deploy update $ACCESS_TOKEN $LJ_SERIAL "/nix/store/path1" "/nix/store/path2" ...
+lj-deploy update $LJ_SERIAL "/nix/store/path1" "/nix/store/path2" ...
 ```
 
 Pass all store paths in a single command. The response should be `{"tag": "MultiPackageEditOK"}`.
@@ -73,7 +73,7 @@ Pass all store paths in a single command. The response should be `{"tag": "Multi
 ### 7. Monitor installation status
 
 ```
-lj-deploy status $ACCESS_TOKEN $LJ_SERIAL
+lj-deploy status $LJ_SERIAL
 ```
 
 Possible responses:
@@ -90,7 +90,7 @@ Possible responses:
 Re-run the installed packages check:
 
 ```
-lj-deploy installed $ACCESS_TOKEN $LJ_SERIAL
+lj-deploy installed $LJ_SERIAL
 ```
 
 Confirm all 5 required packages appear in the installed package set.

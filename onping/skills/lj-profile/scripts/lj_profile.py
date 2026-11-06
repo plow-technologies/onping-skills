@@ -2,12 +2,17 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""Look up Lumberjack profiles by OnPing location ID - takes ACCESS_TOKEN and one or more location IDs."""
+"""Look up Lumberjack profiles by OnPing location ID - takes one or more location IDs (token from $ONPING_ACCESS_TOKEN or --token-stdin)."""
 
+import argparse
 import json
 import sys
+from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
 
 BASE = "https://onping.plowtech.net"
 
@@ -96,19 +101,11 @@ def match_profile(profiles: list, ip: str) -> dict | None:
 
 
 def main() -> None:
-    if len(sys.argv) < 3:
-        print(
-            "Usage: lj_profile.py ACCESS_TOKEN LOCATION_ID [LOCATION_ID ...]",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    access_token = sys.argv[1]
-    try:
-        location_ids = [int(arg) for arg in sys.argv[2:]]
-    except ValueError as e:
-        print(f"Location IDs must be integers: {e}", file=sys.stderr)
-        sys.exit(1)
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("location_ids", nargs="+", type=shapes.int_arg, help="location ids")
+    args = token_source.parse(p, None, is_id=shapes.is_int)
+    access_token = args.access_token
+    location_ids = args.location_ids
 
     headers = {"Accept": "application/json", "Authorization": f"Bearer {access_token}"}
 

@@ -58,14 +58,16 @@ inspecting a parameter never reveals the link.
 ## Commands
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Forward: which models does this parameter use?
 
 ```bash
 uv run ~/.claude/skills/ml-script-models/scripts/ml_script_models.py \
-  "$ACCESS_TOKEN" 00000000-0000-4000-8000-00000000a001
+  00000000-0000-4000-8000-00000000a001
 ```
 
 ```
@@ -86,7 +88,7 @@ A script hash works in place of the UUID, skipping the parameter hop.
 ### Reverse: what uses this model version?
 
 ```bash
-uv run .../ml_script_models.py "$ACCESS_TOKEN" \
+uv run .../ml_script_models.py \
   00000000-0000-4000-8000-00000000b005 --reverse
 ```
 
@@ -95,20 +97,20 @@ A parent model id works too, and expands over that model's versions.
 ### Is this parameter running the newest script?
 
 ```bash
-uv run .../ml_script_models.py "$ACCESS_TOKEN" <param-uuid> --check-latest
+uv run .../ml_script_models.py <param-uuid> --check-latest
 ```
 
 ### Scripted use
 
 ```bash
 # ident -> version-id pairs, tab separated
-uv run .../ml_script_models.py "$ACCESS_TOKEN" <param-uuid> --map-only
+uv run .../ml_script_models.py <param-uuid> --map-only
 
 # full record, including the resolved script hash
-uv run .../ml_script_models.py "$ACCESS_TOKEN" <param-uuid> --json --pretty
+uv run .../ml_script_models.py <param-uuid> --json --pretty
 
 # just the version ids in use
-uv run .../ml_script_models.py "$ACCESS_TOKEN" <param-uuid> --map-only | cut -f2
+uv run .../ml_script_models.py <param-uuid> --map-only | cut -f2
 ```
 
 The default is a table, matching the rest of the `ml-*` family. `--json` and

@@ -42,6 +42,9 @@ import uuid as _uuid
 from typing import Any, Optional
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 BASE_URL = os.environ.get("ONPING_BASE_URL", "https://onping.plowtech.net").rstrip("/")
 TIMEOUT_SECONDS = 60
@@ -208,8 +211,7 @@ def main() -> None:
     p = argparse.ArgumentParser(
         description="Download a log-table source's XLSX (multi-row-header) from OnPing."
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("lj_serial", help="Lumberjack serial (int, sent as path segment)")
+    p.add_argument("lj_serial", help="Lumberjack serial (int, sent as path segment)", type=shapes.int_arg)
     p.add_argument("table_uuid", help="log-table source's TableId (UUID)")
     p.add_argument(
         "filename",
@@ -217,7 +219,7 @@ def main() -> None:
         default=None,
         help="local output path (default: ./logtable-<lj>-<uuid>-<UTC>.xlsx)",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     try:
         parsed_uuid = _uuid.UUID(args.table_uuid)

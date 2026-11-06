@@ -29,7 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import logtable as lt  # noqa: E402
 from _lj_table_routes import logtable_template as tpl  # noqa: E402
-from _lj_table_routes.cli import base_parser, fail, print_logtable_grid  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, fail, print_logtable_grid  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die, post_json  # noqa: E402
 from _lj_table_routes.mutate import add_mutation_flags, new_column_mark, should_post  # noqa: E402
 
@@ -72,7 +72,7 @@ def plan_columns(args) -> tuple[list[tpl.ColumnSpec], list[str]]:
 
 def main() -> None:
     p = build_parser()
-    args = p.parse_args()
+    args = parse(p)
     if args.from_file and (args.event_pid is not None or args.event_name is not None):
         p.error("--from takes the event column from the file; drop --event-pid and --event-name")
     if not args.from_file and args.event_pid is None:

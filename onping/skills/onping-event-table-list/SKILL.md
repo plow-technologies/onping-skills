@@ -39,21 +39,23 @@ each listed table's configuration and keeps the tables that bind PID N.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SCRIPT=~/.claude/skills/onping-event-table-list/scripts/list_event_tables.py
 
 # Every event table on one dashboard
-uv run $SCRIPT "$ACCESS_TOKEN" --dashboard <o-key>
+uv run $SCRIPT --dashboard <o-key>
 
 # Two widgets by title
-uv run $SCRIPT "$ACCESS_TOKEN" --dashboard <o-key> --title "Recent Events" --title "Status Log"
+uv run $SCRIPT --dashboard <o-key> --title "Recent Events" --title "Status Log"
 
 # Which tables on this dashboard read PID 500001, and in which column?
-uv run $SCRIPT "$ACCESS_TOKEN" --dashboard <o-key> --references-pid 500001
+uv run $SCRIPT --dashboard <o-key> --references-pid 500001
 
 # Across every dashboard you can see (large: reads them all)
-uv run $SCRIPT "$ACCESS_TOKEN" --all --title "Recent Events" --json
+uv run $SCRIPT --all --title "Recent Events" --json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

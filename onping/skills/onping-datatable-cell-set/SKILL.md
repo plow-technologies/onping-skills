@@ -25,15 +25,17 @@ is VPID 1234. A Text column stores literal text and never resolves a PID.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 S=~/.claude/skills/onping-datatable-cell-set/scripts/set_datatable_cells.py
 
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --row 12 --column "Casing Pressure" --pid 500002
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --row 12 --column "Lease" --text "North 4"
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --replace-pid 500001 500002            # every column
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --replace-vpid 70 71 --column 3      # one column
+uv run $S <LJ> <table-uuid> --row 12 --column "Casing Pressure" --pid 500002
+uv run $S <LJ> <table-uuid> --row 12 --column "Lease" --text "North 4"
+uv run $S <LJ> <table-uuid> --replace-pid 500001 500002            # every column
+uv run $S <LJ> <table-uuid> --replace-vpid 70 71 --column 3      # one column
 # add --yes to apply
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

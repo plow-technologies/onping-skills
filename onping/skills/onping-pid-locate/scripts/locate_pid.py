@@ -49,6 +49,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from _pid_routes.pid_http import lookup_pids, resolve_names  # noqa: E402
 from _pid_routes.routes import ROUTES  # noqa: E402
+from _token_input import shapes, token_source
 
 
 def _print_table(entries: dict[int, dict], *, show_names: bool) -> None:
@@ -117,8 +118,7 @@ def main() -> None:
         "VPIDs since the keyed route never computes a VP value).",
         epilog=f"Route: {ROUTES['locate']['endpoint']}  handler: {ROUTES['locate']['handler']}",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token (from onping-login)")
-    p.add_argument("pids", nargs="+", help="one or more numeric PIDs (or VPIDs with --vp)")
+    p.add_argument("pids", nargs="+", help="one or more numeric PIDs (or VPIDs with --vp)", type=shapes.int_arg)
     p.add_argument(
         "--vp",
         action="store_true",
@@ -134,17 +134,9 @@ def main() -> None:
     )
     p.add_argument("--json", action="store_true", help="emit JSON keyed by PID")
     p.add_argument("--output", help="write to this path instead of stdout")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
-    # Reject non-integer PIDs locally: no request is issued for input we can
-    # already tell is wrong.
-    pids: list[int] = []
-    for raw in args.pids:
-        try:
-            pids.append(int(raw))
-        except ValueError:
-            print(f"PID must be an integer, got {raw!r}", file=sys.stderr)
-            sys.exit(1)
+    pids: list[int] = args.pids
 
     # De-duplicate but keep the caller's order — duplicates collapse server-side
     # ([500001, 500001] returns 1 item), and we still emit one entry per PID asked for.

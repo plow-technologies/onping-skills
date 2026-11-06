@@ -10,6 +10,9 @@ import sys
 from typing import Any
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 BASE_URL = "https://onping.plowtech.net"
 
@@ -362,7 +365,6 @@ def main() -> None:
     p_packages = subparsers.add_parser(
         "packages", help="List available packages"
     )
-    p_packages.add_argument("access_token", help="OnPing OAuth2 access token")
     p_packages.add_argument(
         "--filter", dest="filter_name", help="Filter by package name substring"
     )
@@ -371,17 +373,15 @@ def main() -> None:
     p_installed = subparsers.add_parser(
         "installed", help="List installed packages on a Lumberjack"
     )
-    p_installed.add_argument("access_token", help="OnPing OAuth2 access token")
     p_installed.add_argument(
-        "serials", nargs="+", type=int, help="One or more Lumberjack serial numbers"
+        "serials", nargs="+", type=shapes.int_arg, help="One or more Lumberjack serial numbers"
     )
 
     # update
     p_update = subparsers.add_parser(
         "update", help="Install or update packages on a Lumberjack"
     )
-    p_update.add_argument("access_token", help="OnPing OAuth2 access token")
-    p_update.add_argument("serial", type=int, help="Lumberjack serial number")
+    p_update.add_argument("serial", type=shapes.int_arg, help="Lumberjack serial number")
     p_update.add_argument(
         "store_paths", nargs="+", help="Nix store paths of packages to update"
     )
@@ -395,8 +395,7 @@ def main() -> None:
     p_delete = subparsers.add_parser(
         "delete", help="Delete packages from a Lumberjack"
     )
-    p_delete.add_argument("access_token", help="OnPing OAuth2 access token")
-    p_delete.add_argument("serial", type=int, help="Lumberjack serial number")
+    p_delete.add_argument("serial", type=shapes.int_arg, help="Lumberjack serial number")
     p_delete.add_argument(
         "store_paths", nargs="+", help="Nix store paths of packages to delete"
     )
@@ -410,10 +409,9 @@ def main() -> None:
     p_status = subparsers.add_parser(
         "status", help="Check installation status"
     )
-    p_status.add_argument("access_token", help="OnPing OAuth2 access token")
-    p_status.add_argument("serial", type=int, help="Lumberjack serial number")
+    p_status.add_argument("serial", type=shapes.int_arg, help="Lumberjack serial number")
 
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, is_id=shapes.is_int, subcommands={'packages', 'installed', 'update', 'delete', 'status'})
 
     if args.command == "packages":
         cmd_packages(args.access_token, args.filter_name)

@@ -21,16 +21,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _hmi_routes.hmi_args import parse
 from _hmi_routes.hmi_http import _fail, delete, get_json
 from _hmi_routes.routes import ROUTES
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(
         description="Delete an OnPing HMI dashboard via DELETE /hmi/delete/{uuid}. "
         "Soft delete (sets dashDeleted=true); mutating; requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("uuid", help="HMI dashboard UUID to delete")
     p.add_argument(
         "--dry-run",
@@ -43,7 +43,7 @@ def main() -> None:
         help="actually delete (required for the DELETE call)",
     )
     p.add_argument("--json", action="store_true", help="emit JSON instead of text")
-    args = p.parse_args()
+    args = parse(p, argv, uuid=True)
 
     # --dry-run wins over --yes; no --yes => preview only.
     preview = args.dry_run or not args.yes

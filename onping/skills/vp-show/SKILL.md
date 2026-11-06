@@ -30,7 +30,7 @@ Requires a valid access token and a numeric VP ID. Run login and show in a singl
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/vp-show/scripts/show_vp.py "$ACCESS_TOKEN" VP_ID
+  uv run ~/.claude/skills/vp-show/scripts/show_vp.py VP_ID
 ```
 
 Replace `VP_ID` with the numeric virtual parameter ID (e.g. `500111`).

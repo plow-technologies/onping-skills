@@ -12,6 +12,8 @@ import json
 import sys
 from typing import Any, Callable
 
+from _token_input import shapes, token_source
+
 from . import datatable as dt
 from . import logtable as lt
 from .lj_http import LJTableError, die
@@ -21,17 +23,21 @@ from .pointers import Pointer, from_cli, normalize_selector
 
 def base_parser(description: str, *, needs_table: bool = True) -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=description)
-    p.add_argument("access_token", help="OnPing bearer token from onping-login")
     if needs_table:
-        p.add_argument("lj", type=int, help="Lumberjack serial the table lives on")
+        p.add_argument("lj", type=shapes.int_arg, help="Lumberjack serial the table lives on")
         p.add_argument("table_uuid", help="the table's UUID (from the -list skill)")
     return p
 
 
+def parse(p: argparse.ArgumentParser, argv: list[str] | None = None) -> argparse.Namespace:
+    """p.parse_args with the token from $ONPING_ACCESS_TOKEN or --token-stdin, never argv."""
+    return token_source.parse(p, argv, is_id=shapes.is_int)
+
+
 def pointer_args(p: argparse.ArgumentParser, *, prefix: str = "", what: str = "") -> None:
     g = p.add_mutually_exclusive_group()
-    g.add_argument(f"--{prefix}pid", type=int, metavar="N", help=f"{what} PID N".strip())
-    g.add_argument(f"--{prefix}vpid", type=int, metavar="N", help=f"{what} VPID N".strip())
+    g.add_argument(f"--{prefix}pid", type=shapes.int_arg, metavar="N", help=f"{what} PID N".strip())
+    g.add_argument(f"--{prefix}vpid", type=shapes.int_arg, metavar="N", help=f"{what} VPID N".strip())
 
 
 def pointer_from(args: argparse.Namespace, prefix: str = "") -> Pointer | None:

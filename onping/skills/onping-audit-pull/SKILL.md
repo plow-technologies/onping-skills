@@ -23,10 +23,12 @@ a single view, which is why this skill wraps one route instead of three services
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
   uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
-    "$ACCESS_TOKEN" --type controllogix --since 2026-08-01T00:00:00Z
+    --type controllogix --since 2026-08-01T00:00:00Z
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Token comes from `onping-login`.
 
@@ -260,14 +262,14 @@ payload into columns; there is no stable schema across 30 audit types.
 Recent ControlLogix writes at one site, exact count:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type controllogix --since 2026-08-09T00:00:00Z --until 2026-08-10T00:00:00Z
 ```
 
 Everything for one PID, as CSV — note terms rank, so verify by post-filtering:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type controllogix --terms 500008 \
   --since 2025-08-10T00:00:00Z --until 2026-08-10T00:00:00Z \
   --csv --output writes.csv
@@ -276,7 +278,7 @@ uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" 
 Exact post-filter on the payload, which `--terms` cannot do:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type controllogix --terms 500008 --since 2025-08-10T00:00:00Z \
   | jq '[.items[] | select(.json.controllogixWriteOnpingId == 500008)]'
 ```
@@ -284,7 +286,7 @@ uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" 
 One user's recent changes — post-filter, since `edited-by:` does not work:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type controllogix --since 2026-08-01T00:00:00Z \
   | jq '[.items[] | select(.editedBy == "someone@example.com")]'
 ```
@@ -292,7 +294,7 @@ uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" 
 A sparse type where empty pages appear — needs a generous page budget:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type usertag --max-pages 100
 ```
 

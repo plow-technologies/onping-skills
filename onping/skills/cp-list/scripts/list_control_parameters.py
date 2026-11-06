@@ -11,6 +11,9 @@ from collections import Counter
 from typing import Any
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 READABLE = "ReadableControlParameterInferno"
 ORPHANED = "OrphanedControlParameterInferno"
@@ -169,14 +172,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="List OnPing control parameters for one or more Lumberjack IDs."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument(
         "lumberjack_ids",
         nargs="+",
-        type=int,
+        type=shapes.int_arg,
         help="One or more numeric Lumberjack IDs",
     )
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, is_id=shapes.is_int)
 
     if len(args.lumberjack_ids) == 1:
         data = fetch_control_parameters(args.access_token, args.lumberjack_ids[0])

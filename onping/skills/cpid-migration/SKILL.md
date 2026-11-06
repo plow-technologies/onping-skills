@@ -40,8 +40,8 @@ Migrate old-style control parameters to the Inferno CP system on OnPing Lumberja
 The primary way to find Inferno script hashes is by querying already-migrated Lumberjacks with your OnPing token:
 
 1. **Find a reference LJ** — any Lumberjack on the same account that has already been migrated to Inferno CPs.
-2. **List its CPs** — `cp-list $ACCESS_TOKEN $REFERENCE_LJ_ID` returns all CPs with their script hashes, inputs, outputs, and triggers.
-3. **Inspect script source** — `cp-script-fetch $ACCESS_TOKEN $SCRIPT_HASH` returns the Inferno source code. Read it to confirm behavioral equivalence with the old script you're migrating.
+2. **List its CPs** — `cp-list $REFERENCE_LJ_ID` returns all CPs with their script hashes, inputs, outputs, and triggers.
+3. **Inspect script source** — `cp-script-fetch $SCRIPT_HASH` returns the Inferno source code. Read it to confirm behavioral equivalence with the old script you're migrating.
 4. **Determine output format** — the script's return expression tells you whether `"outputs"` should be a bare PID (scalar return) or `{"field": PID}` (record return). Always verify this from the source.
 
 This workflow replaces guessing from a static catalog. Any migrated LJ is a live source of verified script hashes.

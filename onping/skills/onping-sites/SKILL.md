@@ -21,7 +21,7 @@ and fetch in a single pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-sites/scripts/fetch_sites.py "$ACCESS_TOKEN" COMPANY_ID
+  uv run ~/.claude/skills/onping-sites/scripts/fetch_sites.py COMPANY_ID
 ```
 
 Replace `COMPANY_ID` with the numeric company ID.

@@ -36,13 +36,15 @@ PID is bound and where. For a Dhall copy, use `onping-event-table-export`.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SCRIPT=~/.claude/skills/onping-event-table-get/scripts/get_event_table.py
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid>                  # raw JSON
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid> --bindings       # one row per bound key
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid> --pid 500001     # is PID 500001 bound?
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid> --output table.json --pretty
+uv run $SCRIPT <uuid>                  # raw JSON
+uv run $SCRIPT <uuid> --bindings       # one row per bound key
+uv run $SCRIPT <uuid> --pid 500001     # is PID 500001 bound?
+uv run $SCRIPT <uuid> --output table.json --pretty
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

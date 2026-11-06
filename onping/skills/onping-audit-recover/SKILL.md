@@ -94,7 +94,9 @@ identified the incident this skill family was built for.
 
 The skill SSHes to the audit host, reads the postgres block from the deployed
 `onping-audit-server` config, and connects with what it finds. No password, username,
-or database name lives in this repository, and a rotation needs no change here.
+or database name lives in this repository, and a rotation needs no change here. The
+password is sent to `psql` on the SSH connection's standard input, so it appears on no
+command line, local or remote.
 
 Two topology facts, both of which cost real time to discover:
 

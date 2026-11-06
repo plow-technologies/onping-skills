@@ -13,18 +13,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 
 from _inferno_ml_routes.inferno_ml_models import OnPingRequestError, emit_json, list_models  # noqa: E402
+from _token_input import token_source  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="List OnPing ML models and their versions."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument(
         "--name-filter",
         help="Filter models by name using a case-insensitive substring match",
     )
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         data = list_models(args.access_token)

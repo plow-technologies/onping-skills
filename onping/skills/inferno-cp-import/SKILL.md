@@ -40,30 +40,32 @@ Requires a valid access token and a JSON file containing an **array** of Inferno
 **Preview (default — makes no network call):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply (actually imports — overwrites matching cpIds):**
 
 ```bash
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json --yes
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json --yes
 ```
 
 **From stdin:**
 
 ```bash
-cat cps.json | uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --yes
+cat cps.json | uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --yes
 ```
 
 **Recommended round-trip — snapshot, then import an edit:**
 
 ```bash
 # 1. Snapshot the target Lumberjack's current Inferno CPs (capture what you'll overwrite)
-uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001 > before.json
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001 > before.json
 # 2. Build/edit the CP array (optionally via cp-import-json), then preview and import
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json           # preview
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json --yes     # apply
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json           # preview
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json --yes     # apply
 ```
 
 ## Input Shape
@@ -112,9 +114,9 @@ The import response echoes the server-assigned `cpId` (`{"engineHost": 1001, "pe
 `cp-list` passes the `/cpInferno/list` response through unchanged, and each element is a **tagged wrapper** (`{"tag": ..., "contents": ...}`), not a CP object: `ReadableControlParameterInferno`, `OrphanedControlParameterInferno`, `ProhibitedReadControlParameterInferno` or `FailedToReadControlParameterInfernoPermissions`. Local validation refuses any entry that carries `tag` and `contents` with "this is cp-list output; normalise it with cp-import-json first", names the tag, names every orphan in the file with its missing output PIDs, and sends nothing, even with `--yes`. `cp-import-json normalize` turns cp-list output into exactly the array this skill imports (it unwraps each readable CP to its `{cpId, cpData}`, omits the default trigger as the server's friendly format does, omits orphans by default, drops not-readable and malformed elements, and lists all of these on stderr):
 
 ```bash
-uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001 > before.json
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001 > before.json
 uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py normalize --input before.json --output cps.json
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json   # preview
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json   # preview
 ```
 
 ### Orphaned CPs (onping 2026.10.14.0, #16220)

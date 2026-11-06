@@ -27,6 +27,9 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 BASE_URL = "https://onping.plowtech.net"
 TIMEOUT_SECONDS = 30
@@ -181,9 +184,8 @@ def main() -> None:
         description="Look up classic (legacy, non-Inferno) OnPing control "
         "parameters by outputPID via POST /cp/by-pid. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument(
-        "output_pids", nargs="+", type=int, help="one or more classic-CP outputPIDs"
+        "output_pids", nargs="+", type=shapes.int_arg, help="one or more classic-CP outputPIDs"
     )
     p.add_argument("--json", action="store_true", help="emit JSON instead of a table")
     p.add_argument(
@@ -191,7 +193,7 @@ def main() -> None:
         action="store_true",
         help="print only resolved CPIDs space-separated (skip not-found)",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     records = [_fetch_one(args.access_token, pid) for pid in args.output_pids]
 

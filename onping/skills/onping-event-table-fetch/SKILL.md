@@ -32,11 +32,13 @@ this is the fastest way to find out why.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SCRIPT=~/.claude/skills/onping-event-table-fetch/scripts/fetch_event_table.py
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid>                          # rows as of now
-uv run $SCRIPT "$ACCESS_TOKEN" <uuid> --at 2026-10-01T12:00:00Z --pretty
+uv run $SCRIPT <uuid>                          # rows as of now
+uv run $SCRIPT <uuid> --at 2026-10-01T12:00:00Z --pretty
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

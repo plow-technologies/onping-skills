@@ -57,6 +57,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 # Fields this skill will change. Everything else is preserved as fetched.
 EDITABLE = (
@@ -97,8 +98,7 @@ def main() -> None:
             "by read-modify-write. Mutates OnPing only with --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument(
         "--broker",
         help="MQTT broker URI; expected to start with mqtt:// and may include a "
@@ -141,7 +141,7 @@ def main() -> None:
         help="fetch and show the diff, never POST (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the write")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     current = get_json(
         args.access_token, endpoint("get_config"), serial=args.serial

@@ -57,6 +57,9 @@ import uuid as _uuid
 from typing import List, Optional, Tuple
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
 
 try:
     from openpyxl import load_workbook
@@ -329,8 +332,7 @@ def main() -> None:
         description="Upload a multiple-rows-header log-table XLSX to OnPing. "
         "MUTATING — requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("lj_serial", help="Lumberjack serial (int, sent as path segment)")
+    p.add_argument("lj_serial", help="Lumberjack serial (int, sent as path segment)", type=shapes.int_arg)
     p.add_argument("table_uuid", help="target log-table source's TableId (UUID)")
     p.add_argument("spreadsheet", help="path to the .xlsx to upload")
     p.add_argument(
@@ -343,7 +345,7 @@ def main() -> None:
         action="store_true",
         help="perform the upload (POST). Without it, preview only.",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     # Sanity-check the UUID locally so the handler doesn't reject with a
     # bare `error "tableId is not a valid UUID"` (Service.hs).

@@ -35,13 +35,15 @@ It preserves the existing binary `contents`, `size`, and untouched card fields b
 ## Commands
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/ml-model-docs/scripts/ml_model_docs.py "$ACCESS_TOKEN" show \
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/ml-model-docs/scripts/ml_model_docs.py show \
   --version-id "<VERSION_UUID>"
 ```
 
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
+
 ```bash
-uv run ~/.claude/skills/ml-model-docs/scripts/ml_model_docs.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-model-docs/scripts/ml_model_docs.py update \
   --version-id "<VERSION_UUID>" \
   --description "Updated production model for the Alpha well" \
   --version "v5.1.7" \

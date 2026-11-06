@@ -15,6 +15,11 @@ from pathlib import Path
 
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _env_token(monkeypatch):
+    monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
+
 HERE = Path(__file__).resolve().parent
 SCRIPT = HERE.parent / "scripts" / "list_call_orders.py"
 spec = importlib.util.spec_from_file_location("list_call_orders", SCRIPT)
@@ -88,7 +93,7 @@ SITE = "o00000000000000000000000c"
 
 def run(capsys, status, body):
     post = FakePost(status, body)
-    code = lco.main(["TOKEN", "--site", SITE], post=post)
+    code = lco.main(["--site", SITE], post=post)
     out, err = capsys.readouterr()
     return code, out, err, post
 
@@ -469,7 +474,7 @@ def test_non_json_200_exits_3_with_login_hint(capsys):
 def test_auth_failure_via_monkeypatched_requests_post(monkeypatch, capsys):
     post = FakePost(401, "")
     monkeypatch.setattr(lco.requests, "post", post)
-    code = lco.main(["TOKEN"])
+    code = lco.main([])
     out, err = capsys.readouterr()
     assert code == 1
     assert out == ""
@@ -514,7 +519,7 @@ def test_base_url_from_environment(monkeypatch):
     spec2.loader.exec_module(mod)
     assert mod.URL == "https://staging.example.test/alarmmix/lister"
     post = FakePost(200, [])
-    assert mod.main(["TOKEN"], post=post) == 0
+    assert mod.main([], post=post) == 0
     assert post.calls[0][0] == "https://staging.example.test/alarmmix/lister"
 
 

@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import logtable as lt  # noqa: E402
-from _lj_table_routes.cli import base_parser, fail, print_logtable_grid  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, fail, print_logtable_grid  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die, post_json  # noqa: E402
 from _lj_table_routes.mutate import add_mutation_flags, should_post, write_backup  # noqa: E402
 
@@ -26,7 +26,7 @@ from _lj_table_routes.mutate import add_mutation_flags, should_post, write_backu
 def main() -> None:
     p = base_parser(__doc__.splitlines()[0])
     add_mutation_flags(p)
-    args = p.parse_args()
+    args = parse(p)
     token = args.access_token
 
     try:

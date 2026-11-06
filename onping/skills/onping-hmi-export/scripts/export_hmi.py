@@ -21,19 +21,19 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _hmi_routes.hmi_args import parse
 from _hmi_routes.hmi_http import get_dhall
 from _hmi_routes.routes import ROUTES
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(
         description="Export a full OnPing HMI dashboard to Dhall via "
         "GET /hmi/export/{uuid}. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("uuid", help="HMI dashboard UUID to export")
     p.add_argument("--output", help="output file path (also prints to stdout)")
-    args = p.parse_args()
+    args = parse(p, argv, uuid=True)
 
     dhall_text = get_dhall(args.access_token, ROUTES["export"]["endpoint"], uuid=args.uuid)
 

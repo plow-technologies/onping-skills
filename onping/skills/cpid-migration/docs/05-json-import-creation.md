@@ -162,7 +162,7 @@ Authenticate and execute the import. (The exact import procedure depends on the 
 After import, fetch the live CP configuration from the Lumberjack and compare:
 
 ```
-cp-import-json fetch-normalize $ACCESS_TOKEN $LUMBERJACK_ID > post-import.json
+cp-import-json fetch-normalize $LUMBERJACK_ID > post-import.json
 ```
 
 Diff the normalized import file against the post-import fetch. Every entry in your import should appear in the fetched result. Differences may include:

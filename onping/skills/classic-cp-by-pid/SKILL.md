@@ -36,14 +36,16 @@ Requires a valid access token and one or more numeric outputPIDs.
 **Look up a single outputPID:**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py "$ACCESS_TOKEN" 500016
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py 500016
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Batch lookup** (one `POST /cp/by-pid` per outputPID; a not-found on one does not stop the rest):
 
 ```bash
-uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py "$ACCESS_TOKEN" 500016 500018 500017
+uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py 500016 500018 500017
 ```
 
 **Resolve Dhall outputPIDs to CPIDs for deletion:**
@@ -51,10 +53,10 @@ uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py "$ACCESS_T
 ```bash
 # 1. Look up the outputPIDs and get just the CPIDs
 CPIDS=$(uv run ~/.claude/skills/classic-cp-by-pid/scripts/lookup_cp_by_pid.py \
-  "$ACCESS_TOKEN" 500016 500018 500017 --cpids-only)
+  500016 500018 500017 --cpids-only)
 # 2. Delete them (irreversible; requires --yes)
 uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py \
-  "$ACCESS_TOKEN" $CPIDS --yes
+  $CPIDS --yes
 ```
 
 ## Flags

@@ -30,7 +30,7 @@ Requires a valid access token from onping-login. Run login and list in a single 
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/vp-scripts/scripts/list_scripts.py "$ACCESS_TOKEN"
+  uv run ~/.claude/skills/vp-scripts/scripts/list_scripts.py
 ```
 
 ## Output

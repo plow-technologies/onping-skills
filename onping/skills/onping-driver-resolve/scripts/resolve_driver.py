@@ -24,6 +24,9 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 BASE_URL = "https://onping.plowtech.net"
 TIMEOUT_SECONDS = 30
@@ -163,10 +166,9 @@ def main() -> None:
         description="Resolve OnPing location refIds to their driver slug "
         "(read-only; one /singlewellextras/lister call).",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("ref_ids", nargs="+", type=int, help="one or more location refIds")
+    p.add_argument("ref_ids", nargs="+", type=shapes.int_arg, help="one or more location refIds")
     p.add_argument("--json", action="store_true", help="emit JSON instead of a table")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     result = resolve(args.access_token, args.ref_ids)
 

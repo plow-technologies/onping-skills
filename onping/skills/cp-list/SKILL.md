@@ -31,20 +31,20 @@ List control parameters configured on one or more Lumberjack edge devices.
 Requires a valid access token and one or more numeric Lumberjack IDs:
 
 ```bash
-uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001
 ```
 
 Run login and list in a single pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001
+  uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001
 ```
 
 You can pass multiple Lumberjack IDs:
 
 ```bash
-uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001 1002 1003
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001 1002 1003
 ```
 
 ## Output

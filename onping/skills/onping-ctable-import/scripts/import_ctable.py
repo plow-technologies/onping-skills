@@ -43,6 +43,7 @@ from _ctable_routes.routes import (
     ROUTES,
     normalize_ctable_id,
 )
+from _token_input import shapes, token_source  # noqa: E402
 
 SCALAR_FIELDS = (
     "customTableWidgetTitle",
@@ -138,8 +139,7 @@ def main() -> None:
         description="Write a CustomTableWidget to OnPing via "
         "POST /content/ctable/json. MUTATING — full-document repsert.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("ctable_id", help="target custom table id (o-prefixed or bare 24-hex)")
+    p.add_argument("ctable_id", help="target custom table id (o-prefixed or bare 24-hex)", type=shapes.oid_arg)
     p.add_argument("widget_json", help="bare widget or {ctable, cid} envelope")
     p.add_argument("--yes", action="store_true", help="actually perform the write")
     p.add_argument("--dry-run", action="store_true", help="validate and preview only; wins over --yes")
@@ -148,7 +148,7 @@ def main() -> None:
         "--verify-live", action="store_true",
         help="after the write, report how many parameters resolve to live values",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_oid)
 
     try:
         target_id = normalize_ctable_id(args.ctable_id)

@@ -26,6 +26,8 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source  # noqa: E402
 
 QUERY_URL = "https://onping.plowtech.net/log/audit2/query"
 
@@ -352,7 +354,6 @@ def build_parser() -> argparse.ArgumentParser:
             "user's changes, post-filter the output on editedBy."
         ),
     )
-    parser.add_argument("access_token", help="Bearer access token from onping-login")
     parser.add_argument(
         "--type",
         dest="types",
@@ -413,7 +414,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    args = token_source.parse(parser, None)
 
     if args.list_types:
         for wire, display in AUDIT_TYPES.items():

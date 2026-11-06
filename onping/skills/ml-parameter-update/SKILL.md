@@ -40,21 +40,23 @@ List, fetch, and update OnPing inference parameters (`InferenceParamX`). Uses st
 Resolve commands relative to this skill directory.
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### List
 
 ```bash
 # All accessible params
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" list
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py list
 
 # Filter by exact script hash
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" list \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py list \
   --script-hash CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=
 
 # Substring match on param name
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" list \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py list \
   --name-filter example
 ```
 
@@ -62,11 +64,11 @@ uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACC
 
 ```bash
 # Bare InferenceParamX
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" get \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py get \
   --param-id 00000000-0000-4000-8000-00000000c004
 
 # With-sources variant (includes SourceInfo per binding)
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" get \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py get \
   --param-id 00000000-0000-4000-8000-00000000c004 --with-sources
 ```
 
@@ -74,25 +76,25 @@ uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACC
 
 ```bash
 # Dry-run a script-hash swap — no PUT is issued
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> \
   --script-hash <NEW_SCRIPT_HASH>
 
 # Apply (destructive) — always dry-run first
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> \
   --script-hash <NEW_SCRIPT_HASH> \
   --apply
 
 # Replace existing bindings or add new ones
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> \
   --set-input casing_psi_in=500012 \
   --set-input new_channel_in=999123 \
   --set-output alert_pumper_out=500026
 
 # Drop an existing binding (requires explicit allow flag)
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> \
   --allow-remove-input well_specific_notes_in \
   --apply
@@ -104,13 +106,13 @@ uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACC
 
 ```bash
 # Preview only; the live parameter remains unchanged.
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" restore-export \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py restore-export \
   --param-id <EXISTING_UUID> --file <ONE_BARE_EXPORT_JSON> \
   --expect-script <CURRENT_SERVING_HASH> --expect-current-width 4
 
 # MUTATING: use only after separate operator approval, review of the preview,
 # a fresh live read and a plan to verify the actual device/parameter result.
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" restore-export \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py restore-export \
   --param-id <EXISTING_UUID> --file <ONE_BARE_EXPORT_JSON> \
   --expect-script <CURRENT_SERVING_HASH> --expect-current-width 4 --apply
 ```
@@ -136,19 +138,19 @@ Rules:
 ## Typical workflow: post-retrain script-hash swap
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # 1. Upload the new TorchScript version (separate skill)
 # 2. Identify all deployed params on the old script hash
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" list \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py list \
   --script-hash <OLD_SCRIPT_HASH>
 
 # 3. Dry-run the swap on each param ID
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> --script-hash <NEW_SCRIPT_HASH>
 
 # 4. Apply after reviewing each diff
-uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py "$ACCESS_TOKEN" update \
+uv run ~/.claude/skills/ml-parameter-update/scripts/ml_parameter_update.py update \
   --param-id <UUID> --script-hash <NEW_SCRIPT_HASH> --apply
 ```
 

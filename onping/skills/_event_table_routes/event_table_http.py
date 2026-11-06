@@ -4,7 +4,9 @@ Every `onping-event-table-*` skill goes through these functions, so the base URL
 bearer-token auth, and the auth-redirect / HTML-fallthrough hardening live in
 one place. The hardening matches `_line_graph_routes/line_graph_http.py`: an
 expired bearer token makes OnPing answer `303 -> /auth/login` and a 200 HTML
-login page, so both are detected on every call and treated as failures.
+login page, so both are detected on every call and treated as failures. An
+HTTP 429 is checked first, so a rate-limit answered with an HTML page still
+raises with `status=429`; it is never resent.
 
 Unlike the line-graph helper, failures RAISE `EventTableError` instead of
 exiting. `onping-event-table-list --references-pid` reads many tables and must
@@ -83,6 +85,7 @@ def _send(
     json_body: Any = None,
     params: dict[str, str] | None = None,
     path_params: dict[str, str] | None = None,
+    files: dict[str, Any] | None = None,
 ) -> requests.Response:
     method = endpoint.split(" ", 1)[0]
     url = _url(endpoint, **(path_params or {}))
@@ -94,11 +97,18 @@ def _send(
             headers=headers,
             json=json_body,
             params=params,
+            files=files,
             allow_redirects=True,
             timeout=TIMEOUT_SECONDS,
         )
     except requests.RequestException as e:
         raise EventTableError(f"Request error ({endpoint}): {e}") from e
+    if resp.status_code == 429:
+        raise EventTableError(
+            f"HTTP 429 (rate-limited) from {endpoint}: {error_text(resp.text)[:500]}",
+            status=429,
+            body=resp.text,
+        )
     if _auth_redirected(resp):
         raise EventTableError(
             f"Access token redirected to auth — the token is likely expired "
@@ -121,6 +131,23 @@ def _send(
 def post_json(token: str, endpoint: str, body: Any) -> Any:
     """POST a JSON body and return the parsed JSON response."""
     resp = _send(token, endpoint, accept="application/json", json_body=body)
+    try:
+        return resp.json()
+    except ValueError as e:
+        raise EventTableError(
+            f"Expected JSON from {endpoint} but could not parse:\n{resp.text[:500]}"
+        ) from e
+
+
+def post_multipart(token: str, endpoint: str, fields: dict[str, tuple]) -> Any:
+    """POST multipart/form-data and return the parsed JSON answer (None when the body is empty).
+
+    `fields` maps a part name to a requests `files` tuple: `(filename, bytes, content_type)` for a
+    file part, `(None, text)` for a plain field.
+    """
+    resp = _send(token, endpoint, accept="application/json", files=fields)
+    if not resp.text.strip():
+        return None
     try:
         return resp.json()
     except ValueError as e:

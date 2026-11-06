@@ -7,7 +7,7 @@ Map each old control parameter to a verified Inferno script with the correct out
 ### 1. Authenticate
 
 ```
-ACCESS_TOKEN=$(onping-login)
+export ONPING_ACCESS_TOKEN=$(onping-login)
 ```
 
 ### 2. List existing Inferno CPs on the target Lumberjack
@@ -15,7 +15,7 @@ ACCESS_TOKEN=$(onping-login)
 Use `cp-list` to see what's already on the LJ. This catches partial prior migrations and identifies output PID conflicts.
 
 ```
-cp-list $ACCESS_TOKEN $LUMBERJACK_ID
+cp-list $LUMBERJACK_ID
 ```
 
 Check `cpData.outputs` across all returned CPs — each output parameter ID is exclusive to a single control parameter (the **Output Exclusivity Rule**).
@@ -45,7 +45,7 @@ Using the Phase 1 topology document, group old CPs by script type. Common patter
 
 2. **List its CPs:**
    ```
-   cp-list $ACCESS_TOKEN $REFERENCE_LJ_ID
+   cp-list $REFERENCE_LJ_ID
    ```
    This returns every CP on that LJ with its script hash, inputs, outputs, trigger, and resolution. An orphaned CP (an output PID was deleted; it still holds its other outputs) still shows a verified script hash, but do not copy its outputs.
 
@@ -53,7 +53,7 @@ Using the Phase 1 topology document, group old CPs by script type. Common patter
 
 4. **Fetch and verify the Inferno source:**
    ```
-   cp-script-fetch $ACCESS_TOKEN $SCRIPT_HASH
+   cp-script-fetch $SCRIPT_HASH
    ```
    Read the Inferno source to confirm it does the same thing as the old script. Pay special attention to the return expression (scalar vs record — see step 6).
 
@@ -66,7 +66,7 @@ If no reference LJ is available, check the common scripts table in `SKILL.md` as
 For every script hash you plan to use, fetch the source and confirm behavioral equivalence:
 
 ```
-cp-script-fetch $ACCESS_TOKEN $SCRIPT_HASH
+cp-script-fetch $SCRIPT_HASH
 ```
 
 Read the Inferno source and compare to the old script. Document:

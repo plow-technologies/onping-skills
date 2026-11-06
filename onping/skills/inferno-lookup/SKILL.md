@@ -42,7 +42,7 @@ cat ~/.claude/skills/inferno-lookup/docs/inferno-control-vs-virtual.md
 To update the cached documentation:
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/inferno-lookup/scripts/fetch_docs.py "$ACCESS_TOKEN"
+  uv run ~/.claude/skills/inferno-lookup/scripts/fetch_docs.py
 ```
 
 ## When to Use

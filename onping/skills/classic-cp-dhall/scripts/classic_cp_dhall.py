@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 
 import requests
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source  # noqa: E402
 
 BASE_URL = "https://onping.plowtech.net"
 
@@ -137,20 +139,18 @@ def main() -> None:
     p_import = subparsers.add_parser(
         "import", help="Import a Dhall CP file into OnPing"
     )
-    p_import.add_argument("access_token", help="OnPing OAuth2 access token")
     p_import.add_argument("--input", required=True, help="Dhall file to import")
 
     # export
     p_export = subparsers.add_parser(
         "export", help="Export classic CPs from OnPing by CPID"
     )
-    p_export.add_argument("access_token", help="OnPing OAuth2 access token")
     p_export.add_argument(
         "--cpids", nargs="+", type=int, required=True, help="CPID(s) to export"
     )
     p_export.add_argument("--output", help="Output file path (also prints to stdout)")
 
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, subcommands={'import', 'export'})
 
     if args.command == "disable-all":
         disable_all(args.input, args.output)

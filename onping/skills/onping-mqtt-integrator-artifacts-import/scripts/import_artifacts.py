@@ -65,6 +65,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 try:
     from openpyxl import load_workbook
@@ -107,8 +108,7 @@ def main() -> None:
             "record, which suppresses future creation. Mutates only with --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument("spreadsheet", help="path to the artifacts XLSX to upload")
     p.add_argument(
         "--skip-live-check",
@@ -121,7 +121,7 @@ def main() -> None:
         help="validate and preview; never POST (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the upload")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     path = Path(args.spreadsheet)
     if not path.is_file():
@@ -265,7 +265,7 @@ def main() -> None:
         print(f"\nNot uploaded ({why}). Re-run with --yes to apply.")
         print(
             "Back up losslessly first: onping-mqtt-integrator-artifacts-export "
-            f"<token> {args.serial} --json"
+            f"{args.serial} --json"
         )
         return
 

@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from _driver_export_routes.download import download_export
 from _driver_export_routes.routes import ROUTES
+from _token_input import shapes, token_source
 
 DRIVER = "micrologix"
 
@@ -25,12 +26,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=f"Download OnPing {DRIVER} tag export as XLSX.",
     )
-    parser.add_argument("access_token", help="OnPing OAuth bearer token")
-    parser.add_argument("location_id", nargs="?", help="path-param int (LocationIdRef, or LJSerial for sparkplug-bridge)")
+    parser.add_argument("location_id", nargs="?", help="path-param int (LocationIdRef, or LJSerial for sparkplug-bridge)", type=shapes.int_arg)
     parser.add_argument("filename", nargs="?", default="tags.xlsx", help="path-param string forwarded to OnPing (default: tags.xlsx)")
     parser.add_argument("--output", help="local output path (default: ./<driver>-<id>-<UTC>.xlsx)")
 
-    args = parser.parse_args()
+    args = token_source.parse(parser, None, is_id=shapes.is_int)
 
     entry = ROUTES[DRIVER]
     variant_key = None
@@ -44,13 +44,14 @@ def main() -> None:
     needs_id = "{location_id}" in endpoint or "{lumberjack_serial}" in endpoint
     needs_filename = "{filename}" in endpoint
 
-    if needs_id and not args.location_id:
+    if needs_id and args.location_id is None:
         parser.error("location_id (or lumberjack_serial) is required for this route")
 
     # Compose URL path from endpoint pattern. Endpoint is "GET /path/..."; strip the method.
     path = endpoint.split(" ", 1)[1]
-    path = path.replace("{location_id}", args.location_id or "")
-    path = path.replace("{lumberjack_serial}", args.location_id or "")
+    loc = "" if args.location_id is None else str(args.location_id)
+    path = path.replace("{location_id}", loc)
+    path = path.replace("{lumberjack_serial}", loc)
     path = path.replace("{filename}", args.filename or "tags.xlsx")
 
     if args.output:

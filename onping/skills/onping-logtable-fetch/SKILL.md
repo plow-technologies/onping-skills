@@ -27,12 +27,14 @@ the trigger PID is still updating.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 S=~/.claude/skills/onping-logtable-fetch/scripts/fetch_logtable.py
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --limit 1                     # is it recording?
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --since "2026-01-01" --until "2026-01-02 06:00"
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --version 3 --json
+uv run $S <LJ> <table-uuid> --limit 1                     # is it recording?
+uv run $S <LJ> <table-uuid> --since "2026-01-01" --until "2026-01-02 06:00"
+uv run $S <LJ> <table-uuid> --version 3 --json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

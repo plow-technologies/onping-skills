@@ -76,31 +76,33 @@ payloads against your selectors.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-reports/scripts/reports.py
 
 # Full history, newest first:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 
 # Just the last run:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --latest
+uv run "$SKILL" 1001 --latest
 
 # Only runs that failed — exits 1 if any exist:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --errors-only
+uv run "$SKILL" 1001 --errors-only
 
 # Trigger a run and read its report:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --execute --yes
+uv run "$SKILL" 1001 --execute --yes
 
 # Preview what a run would do:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --execute
+uv run "$SKILL" 1001 --execute
 
 # Clear the history:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --delete-all --yes
+uv run "$SKILL" 1001 --delete-all --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `--json` — raw report array
 - `--latest` / `--limit N` — trim the output

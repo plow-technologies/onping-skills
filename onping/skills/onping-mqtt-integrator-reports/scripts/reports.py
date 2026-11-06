@@ -61,6 +61,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 SOURCE_LABEL = {
     "ExecuteRulesManual": "manual",
@@ -68,7 +69,7 @@ SOURCE_LABEL = {
 }
 
 
-def fetch(token: str, serial: str) -> list:
+def fetch(token: str, serial: int) -> list:
     reports = get_json(token, endpoint("get_reports"), serial=serial)
     if not isinstance(reports, list):
         _fail(f"Expected a report array, got: {json.dumps(reports)[:400]}")
@@ -106,8 +107,7 @@ def main() -> None:
             "clears the history."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument("--json", action="store_true", help="emit the raw report array")
     p.add_argument(
         "--latest",
@@ -145,7 +145,7 @@ def main() -> None:
         help="report what --execute/--delete-all would do and stop (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the action")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     gated = args.execute or args.delete_all
 

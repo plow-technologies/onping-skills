@@ -80,31 +80,33 @@ selectors.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-delete/scripts/delete.py
 
 # See what each store holds:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target uncreated --list
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target stored --list
+uv run "$SKILL" 1001 --target uncreated --list
+uv run "$SKILL" 1001 --target stored --list
 
 # Drop one bad candidate and its PIDs (cascades):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target uncreated \
+uv run "$SKILL" 1001 --target uncreated \
   --location 'test-rig-01' --yes
 
 # Clear all candidates (they will regenerate):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target uncreated --all --yes
+uv run "$SKILL" 1001 --target uncreated --all --yes
 
 # Forget one created record — preview first, and read the warning:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target stored --location 'old-rig' 
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target stored --location 'old-rig' --yes
+uv run "$SKILL" 1001 --target stored --location 'old-rig' 
+uv run "$SKILL" 1001 --target stored --location 'old-rig' --yes
 
 # Clear the unprocessed queue:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --target unprocessed --all --yes
+uv run "$SKILL" 1001 --target unprocessed --all --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `--target {uncreated,stored,unprocessed}` — required
 - `--list` — show the target's contents with selectors, then exit

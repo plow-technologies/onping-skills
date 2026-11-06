@@ -1,12 +1,14 @@
 ---
 name: event-table-import
-description: Prepare OnPing event table Dhall configs for reward dashboard import. Use after output parameters are created.
+description: Prepare a Dhall event-table config file from a template, by hand, for a reward dashboard. It sends nothing to OnPing and does not change a live event table or dashboard. Use after output parameters are created; to read a live table use onping-event-table-export or -get.
 allowed-tools: Read
 ---
 
 # Event Table Import
 
 Prepare Dhall event table configuration artifacts for OnPing dashboard import. Event tables display per-cycle reward metrics and SAC recommendations in a dashboard view.
+
+This skill produces a file. It calls no OnPing route and edits no stored event table or dashboard: the file is uploaded by hand in the web application. To read what a live table holds, use `onping-event-table-export` or `onping-event-table-get`.
 
 ## Related Skills
 

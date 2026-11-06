@@ -26,10 +26,10 @@ any is missing, it rejects the whole import with
 export current  →  edit rows  →  re-import
 ```
 
-1. `onping-export-mqtt-json "$TOKEN" LOCATION_ID` — download the current sheet.
+1. `onping-export-mqtt-json LOCATION_ID` — download the current sheet.
 2. Edit rows in the sheet (change descriptions, selectors, topics, writeability;
    add new rows with a blank PID to create parameters).
-3. `onping-import-mqtt-json "$TOKEN" LOCATION_ID sheet.xlsx --yes` — upload.
+3. `onping-import-mqtt-json LOCATION_ID sheet.xlsx --yes` — upload.
 
 Within a row:
 - **Blank `PID` cell** → creates a new parameter (seeded from the location's
@@ -52,20 +52,22 @@ Within a row:
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # Preview (validate + coverage check, no write):
 uv run ~/.claude/skills/onping-import-mqtt-json/scripts/import_params.py \
-  "$ACCESS_TOKEN" LOCATION_ID sheet.xlsx --dry-run
+  LOCATION_ID sheet.xlsx --dry-run
 
 # Apply:
 uv run ~/.claude/skills/onping-import-mqtt-json/scripts/import_params.py \
-  "$ACCESS_TOKEN" LOCATION_ID sheet.xlsx --yes
+  LOCATION_ID sheet.xlsx --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `location_id` — int (LocationIdRef)
 - `spreadsheet` — path to the `.xlsx` to upload
 - `--dry-run` / `--yes` — see Safety

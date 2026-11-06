@@ -22,7 +22,7 @@ If the route changes, re-verify against the recorded handler location and update
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
   uv run ~/.claude/skills/onping-export-singlewell-manual/scripts/export_tags.py \
-    "$ACCESS_TOKEN" LOCATION_ID [FILENAME]
+    LOCATION_ID [FILENAME]
 ```
 
 ### Inputs

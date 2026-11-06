@@ -44,7 +44,8 @@ def run(monkeypatch, capsys, bodies: dict[int, list], argv_ids: list[int]):
         return FakeResponse(bodies[int(data)])
 
     monkeypatch.setattr(cpl.requests, "post", fake_post)
-    monkeypatch.setattr(sys, "argv", ["cp-list", "TOKEN", *map(str, argv_ids)])
+    monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
+    monkeypatch.setattr(sys, "argv", ["cp-list", *map(str, argv_ids)])
     code = 0
     try:
         cpl.main()

@@ -44,16 +44,18 @@ Posts the Dhall file body to `POST /cp/import`. This **creates or updates** clas
 
 ```bash
 uv run ~/.claude/skills/classic-cp-dhall/scripts/classic_cp_dhall.py \
-  import "$ACCESS_TOKEN" --input cps-off.dhall
+  import --input cps-off.dhall
 ```
 
 Pipeline login and import:
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
   uv run ~/.claude/skills/classic-cp-dhall/scripts/classic_cp_dhall.py \
-    import "$ACCESS_TOKEN" --input cps-off.dhall
+    import --input cps-off.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### export — Export classic CPs from OnPing by CPID
 
@@ -61,7 +63,7 @@ Fetches classic CPs from OnPing by CPID and writes the Dhall output. Useful for 
 
 ```bash
 uv run ~/.claude/skills/classic-cp-dhall/scripts/classic_cp_dhall.py \
-  export "$ACCESS_TOKEN" --cpids 12345 12346 12347 --output backup.dhall
+  export --cpids 12345 12346 12347 --output backup.dhall
 ```
 
 ## Typical Migration Workflow

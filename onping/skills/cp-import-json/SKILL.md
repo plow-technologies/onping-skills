@@ -46,15 +46,17 @@ uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py validate --stri
 Requires a valid access token and one or more Lumberjack IDs:
 
 ```bash
-uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize "$ACCESS_TOKEN" 1001
+uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize 1001
 ```
 
 Pipeline login and fetch-normalize:
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize "$ACCESS_TOKEN" 1001 1002
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
+  uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize 1001 1002
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Orphaned and Not-Readable CPs
 
@@ -72,12 +74,12 @@ ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
 
 ```bash
 # Keep orphans in the normalised document (default: omitted, listed on stderr)
-uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize "$ACCESS_TOKEN" 1001 --include-orphans
+uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py fetch-normalize 1001 --include-orphans
 
 # cp-list -> normalize -> preview the import (one Lumberjack: the output is an array)
-uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py "$ACCESS_TOKEN" 1001 > before.json
+uv run ~/.claude/skills/cp-list/scripts/list_control_parameters.py 1001 > before.json
 uv run ~/.claude/skills/cp-import-json/scripts/cp_import_json.py normalize --input before.json --output cps.json
-uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py "$ACCESS_TOKEN" --input cps.json --dry-run
+uv run ~/.claude/skills/inferno-cp-import/scripts/import_inferno_cp.py --input cps.json --dry-run
 ```
 
 With several Lumberjack IDs, `fetch-normalize` returns an object keyed by Lumberjack ID; import each array separately.
