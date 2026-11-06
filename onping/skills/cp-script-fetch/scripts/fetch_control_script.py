@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""Fetch a control parameter script by ID from OnPing - takes ACCESS_TOKEN and SCRIPT_ID.
+"""Fetch a control parameter script by ID from OnPing - takes SCRIPT_ID (token from $ONPING_ACCESS_TOKEN or --token-stdin).
 
 The script id is a base64-encoded SHA-256 digest and commonly ends in `=`, so it
 is percent-encoded before it goes in the URL path. Set ONPING_BASE_URL to target
@@ -14,23 +14,27 @@ belongs there. Note that GET /script/id/ mints an LSP session UUID server-side,
 so `POST /scripts/by-hash` is preferable for bulk or programmatic reads.
 """
 
+import argparse
 import json
 import os
 import sys
+from pathlib import Path
 from urllib.parse import quote
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
 
 BASE_URL = os.environ.get("ONPING_BASE_URL", "https://onping.plowtech.net").rstrip("/")
 
 
 def main() -> None:
-    if len(sys.argv) != 3:
-        print("Usage: fetch_control_script.py ACCESS_TOKEN SCRIPT_ID", file=sys.stderr)
-        sys.exit(1)
-
-    access_token = sys.argv[1]
-    script_id = sys.argv[2]
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("script_id", type=shapes.script_hash_arg, help="script id (43 URL-safe base64 characters and '=')")
+    args = token_source.parse(p, None, is_id=shapes.is_script_hash)
+    access_token = args.access_token
+    script_id = args.script_id
 
     # Script hashes are base64 and commonly end in '='. Without encoding, the
     # trailing '=' (and any '+') is mis-routed.

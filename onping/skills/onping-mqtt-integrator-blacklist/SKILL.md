@@ -90,31 +90,33 @@ and every already-created object, marking the ones already blacklisted.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-blacklist/scripts/blacklist.py
 
 # What is currently blocked:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 
 # What could be blocked, with exact selectors:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --list-candidates
+uv run "$SKILL" 1001 --list-candidates
 
 # Block a noisy location (preview, then apply):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --add-location 'test-rig-01'
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --add-location 'test-rig-01' --yes
+uv run "$SKILL" 1001 --add-location 'test-rig-01'
+uv run "$SKILL" 1001 --add-location 'test-rig-01' --yes
 
 # Block two PIDs:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 \
+uv run "$SKILL" 1001 \
   --add-pid 'rig-01::/rig/01/debug::.raw' \
   --add-pid 'rig-01::/rig/01/debug::.spare' --yes
 
 # Unblock:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --remove-location 'test-rig-01' --yes
+uv run "$SKILL" 1001 --remove-location 'test-rig-01' --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `--json` — raw `Blacklist` JSON
 - `--list-candidates` — uncreated candidates and created objects with selectors

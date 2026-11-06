@@ -104,8 +104,8 @@ Use that workbook as the reference shape for column order and parameter types.
    - Confirm all 36 parameters are created
 
 4. Verify creation using onping-parameters:
-   ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-     uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py "$ACCESS_TOKEN" <ML_LOCATION_ID>
+   export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+   uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py <ML_LOCATION_ID>
 ```
 
 ## Output

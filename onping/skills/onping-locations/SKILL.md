@@ -29,14 +29,14 @@ locations you must walk down this chain:
 Requires a valid access token and one or more numeric site IDs (the `refId` from onping-sites):
 
 ```bash
-uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py "$ACCESS_TOKEN" 3001
+uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py 3001
 ```
 
 Combined login + fetch pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py "$ACCESS_TOKEN" SITE_ID1 SITE_ID2
+  uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py SITE_ID1 SITE_ID2
 ```
 
 Replace `SITE_ID1`, `SITE_ID2`, etc. with numeric site IDs (`value.refId` from onping-sites output).
@@ -45,7 +45,7 @@ Full chain example — login, fetch sites for company 100, then fetch locations 
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py "$ACCESS_TOKEN" 3001
+  uv run ~/.claude/skills/onping-locations/scripts/fetch_locations.py 3001
 ```
 
 ## Output

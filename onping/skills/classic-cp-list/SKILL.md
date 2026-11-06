@@ -39,34 +39,36 @@ Requires a valid access token and one or more Lumberjack serial numbers.
 **List classic CPs for a single serial:**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Batch** (one `POST /cp/list/by-lj-ident-key` per serial):
 
 ```bash
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 20 21
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 20 21
 ```
 
 **Get just the CPIDs for piping into classic-cp-delete:**
 
 ```bash
-CPIDS=$(uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 --cpids-only)
+CPIDS=$(uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 --cpids-only)
 echo "Found CPIDs: $CPIDS"
-uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py "$ACCESS_TOKEN" $CPIDS --yes
+uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py $CPIDS --yes
 ```
 
 **Filter to enabled CPs only:**
 
 ```bash
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 --enabled-only
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 --enabled-only
 ```
 
 **Full JSON output:**
 
 ```bash
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 --json
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 --json
 ```
 
 ## Flags
@@ -107,25 +109,25 @@ The body is a **tagged identity key**, not a bare integer like `cpInferno/list`.
 ### Discover and delete classic CPs
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # 1. List classic CPs and see what's there
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19
 
 # 2. Back up the classic CPs first
-CPIDS=$(uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 --cpids-only)
+CPIDS=$(uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 --cpids-only)
 uv run ~/.claude/skills/classic-cp-dhall/scripts/classic_cp_dhall.py \
-  export "$ACCESS_TOKEN" --cpids $CPIDS --output classic-cps-backup.dhall
+  export --cpids $CPIDS --output classic-cps-backup.dhall
 
 # 3. Delete them
 uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py \
-  "$ACCESS_TOKEN" $CPIDS --yes
+  $CPIDS --yes
 ```
 
 ### Audit which classic CPs are still enabled
 
 ```bash
-uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py "$ACCESS_TOKEN" 19 --enabled-only
+uv run ~/.claude/skills/classic-cp-list/scripts/list_classic_cps.py 19 --enabled-only
 ```
 
 ## Implementation Notes

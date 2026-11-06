@@ -95,23 +95,25 @@ the logtable import, and singlewell-manual.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-artifacts-import/scripts/import_artifacts.py
 
 # 1. Lossless backup first:
 uv run ~/.claude/skills/onping-mqtt-integrator-artifacts-export/scripts/export_artifacts.py \
-  "$ACCESS_TOKEN" 1001 --json --out backup-1001.json
+  1001 --json --out backup-1001.json
 
 # 2. Preview the import:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 artifacts.xlsx
+uv run "$SKILL" 1001 artifacts.xlsx
 
 # 3. Apply:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 artifacts.xlsx --yes
+uv run "$SKILL" 1001 artifacts.xlsx --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `spreadsheet` — path to the artifacts XLSX
 - `--skip-live-check` — skip the new/overwritten comparison

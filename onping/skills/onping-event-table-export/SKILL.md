@@ -28,10 +28,12 @@ template use. For JSON and a bindings view, use `onping-event-table-get`.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/onping-event-table-export/scripts/export_event_table.py \
-  "$ACCESS_TOKEN" <uuid> --output table.dhall
+  <uuid> --output table.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

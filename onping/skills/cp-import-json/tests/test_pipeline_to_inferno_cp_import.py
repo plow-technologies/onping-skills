@@ -38,6 +38,7 @@ ici = load("import_inferno_cp_e2e", ICI_SCRIPT) if ICI_SCRIPT.exists() else None
 
 
 def run(monkeypatch, capsys, module, argv):
+    monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
     monkeypatch.setattr(sys, "argv", argv)
     with pytest.raises(SystemExit) as exc:
         module.main()
@@ -65,7 +66,7 @@ def normalize_then_dry_run(monkeypatch, capsys, tmp_path, cp_list_doc, *normaliz
     )
     assert code == 0
     code, out, err = run(
-        monkeypatch, capsys, ici, ["import_inferno_cp.py", "TOKEN", "--input", str(normalized), "--dry-run"]
+        monkeypatch, capsys, ici, ["import_inferno_cp.py", "--input", str(normalized), "--dry-run"]
     )
     return code, out, err, norm_err, json.loads(normalized.read_text())
 

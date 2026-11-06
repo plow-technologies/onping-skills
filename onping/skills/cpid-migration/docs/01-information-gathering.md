@@ -9,7 +9,7 @@ Discover the target pad's topology — every well, location, PID, and control pa
 Use `onping-login` to exchange the refresh token for an access token.
 
 ```
-ACCESS_TOKEN=$(onping-login)
+export ONPING_ACCESS_TOKEN=$(onping-login)
 ```
 
 All subsequent skills require this token as the first argument.
@@ -19,7 +19,7 @@ All subsequent skills require this token as the first argument.
 Use `onping-search` with the well name. This returns company ID, site ID(s), and location ID(s).
 
 ```
-onping-search $ACCESS_TOKEN "Well Name Here"
+onping-search "Well Name Here"
 ```
 
 Record the **company ID** (CID) and **primary site ID** from the results.
@@ -29,8 +29,8 @@ Record the **company ID** (CID) and **primary site ID** from the results.
 Fetch all sites under the company, then all locations under the target site(s).
 
 ```
-onping-sites   $ACCESS_TOKEN $COMPANY_ID
-onping-locations $ACCESS_TOKEN $SITE_ID
+onping-sites   $COMPANY_ID
+onping-locations $SITE_ID
 ```
 
 Build a location table with columns: Location Name, Location ID, IP Address, Slave ID.
@@ -53,7 +53,7 @@ Build a location table with columns: Location Name, Location ID, IP Address, Sla
 Use `lj-profile` with any location ID from the pad. The skill matches the location's IP against Lumberjack profile records.
 
 ```
-lj-profile $ACCESS_TOKEN $LOCATION_ID
+lj-profile $LOCATION_ID
 ```
 
 Record the Lumberjack ID from the `lumberjackId` field in the response.
@@ -67,7 +67,7 @@ Collect every `outputPID` and every entry in `inputPIDs` lists from the dhall fi
 Fetch parameters for each location discovered in steps 3-4:
 
 ```
-onping-parameters $ACCESS_TOKEN $LOCATION_ID_1 $LOCATION_ID_2 ...
+onping-parameters $LOCATION_ID_1 $LOCATION_ID_2 ...
 ```
 
 Match each extracted PID against the `tagInfo.parameterId` field in the results. If PIDs remain unresolved after fetching the target site's locations, fetch parameters from pad-mate sites (step 4) until all PIDs are accounted for.

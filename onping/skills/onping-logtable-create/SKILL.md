@@ -31,18 +31,20 @@ UUID.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 S=~/.claude/skills/onping-logtable-create/scripts/create_logtable.py
-uv run $S "$ACCESS_TOKEN" <LJ> --name "Well 7 Log" --event-pid 500001          # prints group hints, exit 2
-uv run $S "$ACCESS_TOKEN" <LJ> --name "Well 7 Log" --event-pid 500001 --group <group-id> \
+uv run $S <LJ> --name "Well 7 Log" --event-pid 500001          # prints group hints, exit 2
+uv run $S <LJ> --name "Well 7 Log" --event-pid 500001 --group <group-id> \
     --column "Casing=500002" --column "Tubing=500003" --column "Mode=7 VPID:unit"
-uv run $S "$ACCESS_TOKEN" <LJ> --name "Well 7 Log" --event-pid 500001 --group <group-id> \
+uv run $S <LJ> --name "Well 7 Log" --event-pid 500001 --group <group-id> \
     --column "Casing=500002" --column "Tubing=500003" --column "Mode=7 VPID:unit" --yes
 
 # copy another table's columns: export it, then create from the file
-uv run ~/.claude/skills/onping-logtable-export/scripts/export_logtable.py "$ACCESS_TOKEN" <LJ> <uuid> well7.xlsx
-uv run $S "$ACCESS_TOKEN" <LJ> --name "Well 8 Log" --group <group-id> --from well7.xlsx
+uv run ~/.claude/skills/onping-logtable-export/scripts/export_logtable.py <LJ> <uuid> well7.xlsx
+uv run $S <LJ> --name "Well 8 Log" --group <group-id> --from well7.xlsx
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

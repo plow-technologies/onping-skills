@@ -12,7 +12,7 @@ Generate a CSV report from OnPing historical data and get a download URL.
 
 ```bash
 uv run ~/.claude/skills/onping-report/scripts/generate_report.py \
-  ACCESS_TOKEN START_DATE END_DATE PID [PID ...] \
+  START_DATE END_DATE PID [PID ...] \
   [--step SECONDS] [--resolution N] [--title TITLE] [--vpid]
 ```
 
@@ -42,23 +42,25 @@ Prints a pre-signed S3 download URL to stdout. The URL points to a CSV file that
 
 Single PID, hourly step:
 ```bash
-TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/onping-report/scripts/generate_report.py \
-  "$TOKEN" "2026-02-24T06:00:00Z" "2026-02-25T06:00:00Z" 500019 \
+  "2026-02-24T06:00:00Z" "2026-02-25T06:00:00Z" 500019 \
   --step 3600 --resolution 8
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Multiple PIDs with custom title:
 ```bash
 uv run ~/.claude/skills/onping-report/scripts/generate_report.py \
-  "$TOKEN" "2026-02-22T06:00:00Z" "2026-02-25T06:00:00Z" 500019 500020 500021 \
+  "2026-02-22T06:00:00Z" "2026-02-25T06:00:00Z" 500019 500020 500021 \
   --step 3600 --resolution 8 --title "My Report"
 ```
 
 Virtual parameter IDs:
 ```bash
 uv run ~/.claude/skills/onping-report/scripts/generate_report.py \
-  "$TOKEN" "2026-02-22T06:00:00Z" "2026-02-25T06:00:00Z" 500112 --vpid
+  "2026-02-22T06:00:00Z" "2026-02-25T06:00:00Z" 500112 --vpid
 ```
 
 ## Notes

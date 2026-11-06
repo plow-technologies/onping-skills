@@ -23,6 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _event_table_routes.event_table_http import EventTableError, die, get_text
 from _event_table_routes.routes import ROUTES
+from _token_input import shapes, token_source
 
 
 def main() -> None:
@@ -30,10 +31,9 @@ def main() -> None:
         description="Export an OnPing event table as Dhall via "
         "GET /event/table/export/<file>?eventTableUUID=<uuid>. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("uuid", help="event-table UUID (from onping-event-table-list)")
+    p.add_argument("uuid", help="event-table UUID (from onping-event-table-list)", type=shapes.uuid_arg)
     p.add_argument("--output", required=True, help="Dhall file to write")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_uuid)
 
     out = Path(args.output)
     try:

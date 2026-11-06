@@ -30,6 +30,9 @@ import os
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
 
 try:
     from openpyxl import load_workbook
@@ -252,8 +255,7 @@ def main() -> None:
         description="Upload/round-trip a mqtt-json parameter spreadsheet to "
         "OnPing (bulk update). MUTATING — requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("location_id", type=int, help="location refId (LocationIdRef)")
+    p.add_argument("location_id", type=shapes.int_arg, help="location refId (LocationIdRef)")
     p.add_argument("spreadsheet", help="path to the .xlsx to upload")
     p.add_argument(
         "--dry-run",
@@ -265,7 +267,7 @@ def main() -> None:
         action="store_true",
         help="perform the upload (POST). Without it, preview only.",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     if not os.path.exists(args.spreadsheet):
         print(f"File not found: {args.spreadsheet}", file=sys.stderr)

@@ -2,20 +2,23 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""List all virtual parameter scripts from OnPing - takes ACCESS_TOKEN as CLI arg."""
+"""List all virtual parameter scripts from OnPing - (token from $ONPING_ACCESS_TOKEN or --token-stdin)."""
 
+import argparse
 import json
 import sys
+from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
+
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print("Usage: list_scripts.py ACCESS_TOKEN", file=sys.stderr)
-        sys.exit(1)
-
-    access_token = sys.argv[1]
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    args = token_source.parse(p, None)
+    access_token = args.access_token
 
     url = "https://onping.plowtech.net/scripts"
     headers = {"Accept": "application/json", "Authorization": f"Bearer {access_token}"}

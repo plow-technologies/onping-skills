@@ -63,6 +63,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source
 
 TARGETS = ("uncreated", "stored", "unprocessed")
 
@@ -107,8 +108,7 @@ def main() -> None:
             "OnPing or driver objects. Mutates with --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument(
         "--target",
         required=True,
@@ -149,7 +149,7 @@ def main() -> None:
         help="show what would be deleted and stop (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the delete")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     # Parse PID selectors BEFORE any network call so a malformed triple fails
     # immediately rather than after a round-trip.
@@ -196,7 +196,7 @@ def main() -> None:
             why = "--dry-run" if args.dry_run else "no --yes"
             print(
                 f"\nNothing deleted ({why}). Re-run with --all --yes.\n"
-                f"Back up first: onping-mqtt-integrator-unprocessed <token> "
+                f"Back up first: onping-mqtt-integrator-unprocessed "
                 f"{args.serial} --export pairs.json"
             )
             return
@@ -327,7 +327,7 @@ def main() -> None:
             "only what it has a record of, so a later run can create DUPLICATES of "
             "these objects.\n"
             "  Back up losslessly first: onping-mqtt-integrator-artifacts-export "
-            f"<token> {args.serial} --json"
+            f"{args.serial} --json"
         )
 
     if args.dry_run or not args.yes:

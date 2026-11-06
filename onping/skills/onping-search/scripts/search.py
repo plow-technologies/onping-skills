@@ -9,11 +9,13 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Search OnPing.")
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument("query", help="Search query string")
     parser.add_argument(
         "--size", type=int, default=10, help="Number of results to return (default: 10)"
@@ -21,7 +23,7 @@ def main() -> None:
     parser.add_argument(
         "--from", dest="from_offset", type=int, default=0, help="Result offset for pagination (default: 0)"
     )
-    args = parser.parse_args()
+    args = token_source.parse(parser, None)
 
     url = "https://onping.plowtech.net/search"
     headers = {

@@ -28,13 +28,13 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     upload_model_version,
     create_model,
 )
+from _token_input import token_source
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Manage OnPing Inferno ML models and local TorchScript versions."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     model_list = subparsers.add_parser("model-list", help="List available models")
@@ -130,7 +130,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         if args.command == "model-list":

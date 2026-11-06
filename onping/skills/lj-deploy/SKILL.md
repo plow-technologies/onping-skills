@@ -19,18 +19,24 @@ List available packages, query installed packages, install or update packages, a
 
 ## Commands
 
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin`. It is never a command-line argument: `ps` shows every argument to other local users. A token right after the subcommand (`update TOKEN 1001 ...`) still works but is deprecated and warns.
+
+```bash
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+```
+
 ### packages — List available packages
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  packages "$ACCESS_TOKEN"
+  packages
 ```
 
 Filter by name substring:
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  packages "$ACCESS_TOKEN" --filter control-parameters
+  packages --filter control-parameters
 ```
 
 Returns JSON array of packages with store paths, names, versions, architecture, and layer.
@@ -39,14 +45,14 @@ Returns JSON array of packages with store paths, names, versions, architecture, 
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  installed "$ACCESS_TOKEN" 1001
+  installed 1001
 ```
 
 Multiple serials:
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  installed "$ACCESS_TOKEN" 1001 1002 1003
+  installed 1001 1002 1003
 ```
 
 Returns the full package set for each serial, including package names, versions, and store paths.
@@ -63,14 +69,14 @@ Dry-run (default) — prints the KEEP count, ADD/UPDATE old→new pairs, the ful
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  update "$ACCESS_TOKEN" 1001 "/nix/store/path1" "/nix/store/path2"
+  update 1001 "/nix/store/path1" "/nix/store/path2"
 ```
 
 Confirm and apply with `--yes`:
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  update "$ACCESS_TOKEN" 1001 "/nix/store/path1" "/nix/store/path2" --yes
+  update 1001 "/nix/store/path1" "/nix/store/path2" --yes
 ```
 
 Idempotent: a path already installed verbatim is left in place unchanged.
@@ -78,9 +84,9 @@ Idempotent: a path already installed verbatim is left in place unchanged.
 Pipeline login and update (dry-run):
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-    update "$ACCESS_TOKEN" 1001 "/nix/store/path1" "/nix/store/path2"
+uv run ~/.claude/skills/onping-login/scripts/login.py | \
+  uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py --token-stdin \
+    update 1001 "/nix/store/path1" "/nix/store/path2"
 ```
 
 ### delete — Delete packages from a Lumberjack
@@ -93,14 +99,14 @@ Dry-run (default) — prints the KEEP count, the REMOVE list, the resulting `pac
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  delete "$ACCESS_TOKEN" 1001 "/nix/store/path-to-remove"
+  delete 1001 "/nix/store/path-to-remove"
 ```
 
 Confirm and apply with `--yes`:
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  delete "$ACCESS_TOKEN" 1001 "/nix/store/path-to-remove" --yes
+  delete 1001 "/nix/store/path-to-remove" --yes
 ```
 
 Set-replace is destructive-by-omission: anything not in the resulting `packages` array is uninstalled. The dry-run diff exists to let you confirm exactly what is being removed before passing `--yes`.
@@ -109,7 +115,7 @@ Set-replace is destructive-by-omission: anything not in the resulting `packages`
 
 ```bash
 uv run ~/.claude/skills/lj-deploy/scripts/lj_deploy.py \
-  status "$ACCESS_TOKEN" 1001
+  status 1001
 ```
 
 Returns installation progress, success, or failure:

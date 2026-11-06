@@ -53,6 +53,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _mqtt_integrator_routes import rules_sheet
 from _mqtt_integrator_routes.integrator_http import _fail, get_bytes, get_json
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source
 
 try:
     from openpyxl import load_workbook
@@ -94,8 +95,7 @@ def main() -> None:
             "record as XLSX (default) or JSON. Read-only."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument(
         "--out",
         help="local path to write (default: integrator-artifacts-<serial>.xlsx, "
@@ -128,7 +128,7 @@ def main() -> None:
         action="store_true",
         help="with --json, print to stdout instead of writing a file",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     # ── JSON path ───────────────────────────────────────────────────────────
     if args.json:

@@ -38,28 +38,30 @@ Use `ml-model-docs` for version metadata and card updates.
 Resolve commands relative to this skill directory.
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" model-list
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py model-list
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Parent models
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" model-create \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py model-create \
   --name "Alpha SAC Actor" \
   --gid "o00000000000000000000004d" \
   --visibility VCObjectPrivate
 ```
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" model-update \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py model-update \
   --model-id "<MODEL_UUID>" \
   --name "Alpha SAC Actor v2" \
   --visibility VCObjectPublic
 ```
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" model-delete \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py model-delete \
   --model-id "<MODEL_UUID>"
 ```
 
@@ -68,7 +70,7 @@ uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKE
 Local uploads only. The script enforces a `.pt` path.
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" version-upload \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py version-upload \
   --model-id "<MODEL_UUID>" \
   --file path/to/model.ts.pt \
   --version "v5.1.6" \
@@ -86,13 +88,13 @@ Optional card flags on upload:
 - `--card-base-model`
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" version-export \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py version-export \
   --version-id "<VERSION_UUID>" \
   --out exported-model.zip
 ```
 
 ```bash
-uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py "$ACCESS_TOKEN" version-delete \
+uv run ~/.claude/skills/ml-model-manage/scripts/ml_model_manage.py version-delete \
   --version-id "<VERSION_UUID>"
 ```
 

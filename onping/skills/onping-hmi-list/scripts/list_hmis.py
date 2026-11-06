@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _hmi_routes.hmi_args import parse
 from _hmi_routes.hmi_http import _fail, get_json
 from _hmi_routes.routes import ROUTES
 
@@ -34,11 +35,10 @@ def _truncate(s: str, n: int) -> str:
     return s if len(s) <= n else s[: n - 1] + "…"
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(
         description="List available OnPing HMIs via GET /hmi/list. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("--json", action="store_true", help="emit the raw JSON array")
     p.add_argument(
         "--uuids-only",
@@ -50,7 +50,7 @@ def main() -> None:
         action="store_true",
         help="only rows with a non-empty panel name",
     )
-    args = p.parse_args()
+    args = parse(p, argv)
 
     data = get_json(args.access_token, ROUTES["list"]["endpoint"])
     if not isinstance(data, list):

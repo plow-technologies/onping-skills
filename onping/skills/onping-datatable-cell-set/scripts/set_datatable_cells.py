@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import datatable as dt  # noqa: E402
-from _lj_table_routes.cli import base_parser, fail  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, fail  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die  # noqa: E402
 from _lj_table_routes.mutate import add_mutation_flags, should_post, write_backup  # noqa: E402
 from _lj_table_routes.pointers import TEXT_SELECTOR, Pointer, render_cell  # noqa: E402
@@ -47,7 +47,7 @@ def main() -> None:
     value.add_argument("--replace-vpid", type=int, nargs=2, metavar=("OLD", "NEW"),
                        help="rewrite every cell pointing at VPID OLD to VPID NEW")
     add_mutation_flags(p)
-    args = p.parse_args()
+    args = parse(p)
 
     replacing = args.replace_pid or args.replace_vpid
     single = any(v is not None and v is not False for v in (args.pid, args.vpid, args.text)) or args.clear

@@ -53,6 +53,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _mqtt_integrator_routes.integrator_http import _fail, post_json
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import token_source
 
 SUCCESS_TAG = "ParsedRulesSuccesfully"  # sic — misspelled server-side
 FAILURE_TAG = "FailedToParseRules"
@@ -93,13 +94,12 @@ def main() -> None:
         ),
         epilog=(
             "Examples:\n"
-            "  parse_rule.py $TOKEN '{topic|s#/([^/]*)/.*#\\1#}'\n"
-            "  parse_rule.py $TOKEN --jq-only '.temperature'\n"
-            "  parse_rule.py $TOKEN --file rules.txt   # one expression per line\n"
+            "  parse_rule.py '{topic|s#/([^/]*)/.*#\\1#}'\n"
+            "  parse_rule.py --jq-only '.temperature'\n"
+            "  parse_rule.py --file rules.txt   # one expression per line\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument(
         "rule",
         nargs="*",
@@ -125,7 +125,7 @@ def main() -> None:
         "Use for PID Time and PID Value.",
     )
     p.add_argument("--json", action="store_true", help="emit results as JSON")
-    args = p.parse_args()
+    args = token_source.parse(p, None)
 
     rules: list[str] = list(args.rule)
     if args.file:

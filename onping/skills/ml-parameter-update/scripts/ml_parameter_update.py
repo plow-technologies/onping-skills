@@ -29,6 +29,7 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     restore_inference_param_from_export,
     update_inference_param,
 )
+from _token_input import token_source
 
 
 def _filter_params(
@@ -170,7 +171,6 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="List, fetch, and update OnPing inference parameters."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument("--json", action="store_true", help="Machine-readable output")
 
     sub = parser.add_subparsers(dest="subcommand", required=True)
@@ -222,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
     p_restore.add_argument("--expect-current-width", type=int, help="Abort if live array width changed")
     p_restore.add_argument("--apply", action="store_true", help="Issue the PUT after fresh preflight")
 
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         if args.subcommand == "list":

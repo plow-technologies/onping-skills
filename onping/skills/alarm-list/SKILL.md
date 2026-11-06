@@ -13,32 +13,32 @@ List alarm configurations from OnPing, optionally filtered by site, location, or
 Requires a valid access token. Filters are optional — omitting all filters returns all alarms.
 
 ```bash
-uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py "$ACCESS_TOKEN"
+uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py
 ```
 
 Filter by site (uses MongoKey from `onping-sites` `key` field):
 
 ```bash
-uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py "$ACCESS_TOKEN" --site o00000000000000000000000c
+uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py --site o00000000000000000000000c
 ```
 
 Filter by location (uses MongoKey from `onping-locations` `key` field):
 
 ```bash
-uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py "$ACCESS_TOKEN" --location o000000000000000000000025
+uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py --location o000000000000000000000025
 ```
 
 Multiple filters can be combined, and each filter flag can be repeated:
 
 ```bash
-uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py "$ACCESS_TOKEN" --site o00000000000000000000000c --site o00000000000000000000000d
+uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py --site o00000000000000000000000c --site o00000000000000000000000d
 ```
 
 Combined login + list pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py "$ACCESS_TOKEN" --site o00000000000000000000000c
+  uv run ~/.claude/skills/alarm-list/scripts/list_alarms.py --site o00000000000000000000000c
 ```
 
 ## Inputs

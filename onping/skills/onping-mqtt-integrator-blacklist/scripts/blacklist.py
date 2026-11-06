@@ -56,6 +56,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 
 def pid_identifier(triple: tuple[str, str, str]) -> dict:
@@ -98,8 +99,7 @@ def main() -> None:
             "with --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument("--json", action="store_true", help="emit the raw Blacklist JSON")
     p.add_argument(
         "--list-candidates",
@@ -141,7 +141,7 @@ def main() -> None:
         help="show the operations that would be sent and stop (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually apply the changes")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     # Parse the PID selectors BEFORE any network call, so a malformed triple
     # fails immediately instead of after a round-trip.

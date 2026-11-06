@@ -36,12 +36,14 @@ latestValueLine, legendWithCurrentValue) as Dhall
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Print the Dhall to stdout
-uv run ~/.claude/skills/onping-line-graph-export/scripts/export_line_graph.py "$ACCESS_TOKEN" <widget-id>
+uv run ~/.claude/skills/onping-line-graph-export/scripts/export_line_graph.py <widget-id>
 # Save to a file (also printed to stdout; status line to stderr)
-uv run ~/.claude/skills/onping-line-graph-export/scripts/export_line_graph.py "$ACCESS_TOKEN" <widget-id> --output chart.dhall
+uv run ~/.claude/skills/onping-line-graph-export/scripts/export_line_graph.py <widget-id> --output chart.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

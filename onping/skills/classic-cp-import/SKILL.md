@@ -40,20 +40,22 @@ Requires a valid access token and a Dhall CP file (from `classic-cp-export` or h
 **Preview (default — makes no network call):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py "$ACCESS_TOKEN" --input cps.dhall
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py --input cps.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply (actually imports — overwrites matching outputPIDs):**
 
 ```bash
-uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py "$ACCESS_TOKEN" --input cps.dhall --yes
+uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py --input cps.dhall --yes
 ```
 
 **From stdin:**
 
 ```bash
-cat cps.dhall | uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py "$ACCESS_TOKEN" --yes
+cat cps.dhall | uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py --yes
 ```
 
 **Recommended round-trip — back up, then import an edit:**
@@ -61,10 +63,10 @@ cat cps.dhall | uv run ~/.claude/skills/classic-cp-import/scripts/import_classic
 ```bash
 # 1. Back up the CPs you're about to change (by their current CPIDs)
 uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
-  "$ACCESS_TOKEN" --cpids 10001 10002 --output before.dhall
+  --cpids 10001 10002 --output before.dhall
 # 2. Edit before.dhall as needed, then preview and import
-uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py "$ACCESS_TOKEN" --input before.dhall            # preview
-uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py "$ACCESS_TOKEN" --input before.dhall --yes      # apply
+uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py --input before.dhall            # preview
+uv run ~/.claude/skills/classic-cp-import/scripts/import_classic_cp.py --input before.dhall --yes      # apply
 ```
 
 ## Flags

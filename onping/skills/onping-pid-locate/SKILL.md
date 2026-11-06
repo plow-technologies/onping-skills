@@ -27,7 +27,7 @@ This is the PID-first lookup the rest of the catalog lacks. `onping-parameters` 
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py "$ACCESS_TOKEN" 500001
+  uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py 500001
 ```
 
 Token comes from `onping-login`.
@@ -203,29 +203,29 @@ tag is refused by the driver (verified: `400 Parameter is read only`), not by th
 Resolve several PIDs at once, with names:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py \
   500001 500002 500005 --names
 ```
 
 Feed a location refId into the driver resolver — the natural next step:
 
 ```bash
-LOC=$(uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py "$ACCESS_TOKEN" 500001 --json \
+LOC=$(uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py 500001 --json \
       | jq -r '.["500001"].location_id')
-uv run ~/.claude/skills/onping-driver-resolve/scripts/resolve_driver.py "$ACCESS_TOKEN" "$LOC"
+uv run ~/.claude/skills/onping-driver-resolve/scripts/resolve_driver.py "$LOC"
 ```
 
 Read a **virtual** parameter — note `--vp`, without which the id is asked for as a PID and comes back
 `NOT ADDRESSABLE`:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py "$ACCESS_TOKEN" 500109 500103 --vp
+uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py 500109 500103 --vp
 ```
 
 Which PIDs in a batch are visible to this token:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-pid-locate/scripts/locate_pid.py \
   500001 99999999 500002 --json | jq 'to_entries | map({pid: .key, found: .value.found})'
 ```
 

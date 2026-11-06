@@ -51,6 +51,7 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     model_history,
     scripts_by_hash,
 )
+from _token_input import token_source
 
 UUID_RE = re.compile(
     r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -447,7 +448,6 @@ def build_parser() -> argparse.ArgumentParser:
             "Read-only."
         ),
     )
-    parser.add_argument("access_token", help="OnPing bearer token (see onping-login)")
     parser.add_argument(
         "target",
         help=(
@@ -476,7 +476,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    args = build_parser().parse_args()
+    args = token_source.parse(build_parser(), None)
 
     if args.reverse and args.check_latest:
         print("--reverse and --check-latest are mutually exclusive.", file=sys.stderr)

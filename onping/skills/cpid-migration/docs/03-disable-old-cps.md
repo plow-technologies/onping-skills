@@ -7,7 +7,7 @@ Turn off the old classic control parameter engine before importing Inferno repla
 ### 1. Authenticate
 
 ```
-ACCESS_TOKEN=$(onping-login)
+export ONPING_ACCESS_TOKEN=$(onping-login)
 ```
 
 ### 2. Create the disabled Dhall file
@@ -28,10 +28,10 @@ This is a local file operation — nothing changes in OnPing yet.
 ### 3. Import the disabled Dhall into OnPing
 
 ```
-classic-cp-dhall import $ACCESS_TOKEN --input original-cps-off.dhall
+classic-cp-dhall import --input original-cps-off.dhall
 # or the standalone single-purpose skill (preview, then --yes):
-classic-cp-import $ACCESS_TOKEN --input original-cps-off.dhall            # preview affected outputPIDs
-classic-cp-import $ACCESS_TOKEN --input original-cps-off.dhall --yes      # apply
+classic-cp-import --input original-cps-off.dhall            # preview affected outputPIDs
+classic-cp-import --input original-cps-off.dhall --yes      # apply
 ```
 
 This calls `POST /cp/import` which **updates** existing classic CPs (matched by output PID). Each CP is set to `enabled = False`, which stops the old classic engine from executing them. (`classic-cp-import` also restores a `classic-cp-export` backup — the export↔import round-trip.)
@@ -58,8 +58,8 @@ When you reach that point, use **`classic-cp-delete`** to delete the old classic
 
 ```
 # Back up, then delete (only after Inferno is confirmed stable)
-classic-cp-export $ACCESS_TOKEN --cpids <CPID>... --output {project}-classic-cps-backup.dhall
-classic-cp-delete $ACCESS_TOKEN <CPID>... --yes
+classic-cp-export --cpids <CPID>... --output {project}-classic-cps-backup.dhall
+classic-cp-delete <CPID>... --yes
 ```
 
 ## Key Pitfalls

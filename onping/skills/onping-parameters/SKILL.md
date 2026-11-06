@@ -31,14 +31,14 @@ parameters you must walk down this chain:
 Requires a valid access token and one or more numeric location IDs (the `refId` from onping-locations):
 
 ```bash
-uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py "$ACCESS_TOKEN" 20003
+uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py 20003
 ```
 
 Combined login + fetch pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py "$ACCESS_TOKEN" LOCATION_ID1 LOCATION_ID2
+  uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py LOCATION_ID1 LOCATION_ID2
 ```
 
 Replace `LOCATION_ID1`, `LOCATION_ID2`, etc. with numeric location IDs (`value.refId` from onping-locations output).
@@ -47,7 +47,7 @@ Full chain example — login, fetch sites for company 100, fetch locations for s
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py "$ACCESS_TOKEN" 20003
+  uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py 20003
 ```
 
 ### Virtual Parameter Options
@@ -57,7 +57,7 @@ ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
 - `--exclude-pid` — exclude PID parameters
 
 ```bash
-uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py "$ACCESS_TOKEN" 20003 --vp --vp-calc
+uv run ~/.claude/skills/onping-parameters/scripts/fetch_parameters.py 20003 --vp --vp-calc
 ```
 
 ## Output

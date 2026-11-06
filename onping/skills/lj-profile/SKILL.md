@@ -28,20 +28,20 @@ Find the Lumberjack profile associated with an OnPing location by matching the l
 Requires a valid access token and one or more numeric location IDs:
 
 ```bash
-uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py "$ACCESS_TOKEN" 20004
+uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py 20004
 ```
 
 Run login and lookup in a single pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py "$ACCESS_TOKEN" 20004
+  uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py 20004
 ```
 
 Multiple location IDs:
 
 ```bash
-uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py "$ACCESS_TOKEN" 20004 20005
+uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py 20004 20005
 ```
 
 ## Output

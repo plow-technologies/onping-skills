@@ -41,10 +41,10 @@ Because of this, the only safe workflow is:
 export current  →  edit rows and/or append blank-Pid rows  →  re-import
 ```
 
-1. `onping-export-singlewell-manual "$TOKEN" LOCATION_ID` — download the sheet.
+1. `onping-export-singlewell-manual LOCATION_ID` — download the sheet.
 2. Edit existing rows (description / type / value) and/or append new rows with a
    **blank `Pid`** to create parameters. Keep every existing Pid row present.
-3. `onping-import-singlewell-manual "$TOKEN" LOCATION_ID sheet.xlsx --yes` — upload.
+3. `onping-import-singlewell-manual LOCATION_ID sheet.xlsx --yes` — upload.
 
 ## Safety
 
@@ -61,20 +61,22 @@ export current  →  edit rows and/or append blank-Pid rows  →  re-import
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # Preview (validate + coverage check, no write):
 uv run ~/.claude/skills/onping-import-singlewell-manual/scripts/import_params.py \
-  "$ACCESS_TOKEN" LOCATION_ID sheet.xlsx --dry-run
+  LOCATION_ID sheet.xlsx --dry-run
 
 # Apply:
 uv run ~/.claude/skills/onping-import-singlewell-manual/scripts/import_params.py \
-  "$ACCESS_TOKEN" LOCATION_ID sheet.xlsx --yes
+  LOCATION_ID sheet.xlsx --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `location_id` — int (LocationIdRef)
 - `spreadsheet` — path to the `.xlsx` to upload
 - `--dry-run` / `--yes` — see Safety

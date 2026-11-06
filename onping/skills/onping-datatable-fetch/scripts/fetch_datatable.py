@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import datatable as dt  # noqa: E402
-from _lj_table_routes.cli import base_parser, dump, pointer_args, pointer_from  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, dump, pointer_args, pointer_from  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die  # noqa: E402
 
 
@@ -40,7 +40,7 @@ def main() -> None:
     p.add_argument("--limit", type=int, default=20, help="rows to print by default (default 20)")
     p.add_argument("--offset", type=int, default=0, help="first row to print by default")
     p.add_argument("--json", action="store_true", help="print JSON")
-    args = p.parse_args()
+    args = parse(p)
     target = pointer_from(args)
     if args.row is not None and target is not None:
         p.error("give --row or --pid/--vpid, not both")

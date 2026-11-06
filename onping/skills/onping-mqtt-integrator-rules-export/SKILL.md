@@ -64,25 +64,27 @@ incomplete PID data`.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-rules-export/scripts/export_rules.py
 
 # Download the round-trip spreadsheet:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 # -> integrator-rules-1001.xlsx
 
 # Download and inspect how the import will group it:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --summary
+uv run "$SKILL" 1001 --summary
 
 # Download and check every row against the schema:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --validate
+uv run "$SKILL" 1001 --validate
 
 # Get the rule IDs (not in the sheet):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --json --stdout
+uv run "$SKILL" 1001 --json --stdout
 
 # Custom output path:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --out /tmp/before-edit.xlsx
+uv run "$SKILL" 1001 --out /tmp/before-edit.xlsx
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 

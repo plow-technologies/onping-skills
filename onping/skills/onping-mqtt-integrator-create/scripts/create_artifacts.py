@@ -66,6 +66,7 @@ from _mqtt_integrator_routes.routes import (
     DEFAULT_MQTT_JSON_PORT,
     endpoint,
 )
+from _token_input import shapes, token_source  # noqa: E402
 
 
 def loc_key(entry: dict, field: str) -> str:
@@ -104,8 +105,7 @@ def main() -> None:
             "there is no undo."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument(
         "--location-url",
         help="the Lumberjack's own URL (its lumberjackUrl), used as the driver "
@@ -152,7 +152,7 @@ def main() -> None:
     )
     p.add_argument("--yes", action="store_true", help="actually create the objects")
     p.add_argument("--json", action="store_true", help="emit the raw report JSON")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     # Parse PID selectors and check flag conflicts BEFORE any network call, so
     # a malformed triple fails immediately rather than after a round-trip.
@@ -369,8 +369,8 @@ def main() -> None:
     print(
         f"\nCreated successfully. Verify independently — the integrator's record is "
         f"one-way and never re-checked:\n"
-        f"  onping-pid-locate <token> <pid>\n"
-        f"  onping-export-mqtt-json <token> <location refId>"
+        f"  onping-pid-locate <pid>\n"
+        f"  onping-export-mqtt-json <location refId>"
     )
 
 

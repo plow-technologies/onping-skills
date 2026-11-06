@@ -37,20 +37,22 @@ Requires a valid access token, a target HMI UUID, and a Dhall `[DataImport]` fil
 **Preview (default — makes no network call):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py "$ACCESS_TOKEN" <uuid> --input hmi-data.dhall
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py <uuid> --input hmi-data.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns. This skill reads the Dhall from stdin when `--input` is absent, so `--token-stdin` needs `--input FILE` (otherwise it exits 2 before any request); with `$ONPING_ACCESS_TOKEN` the piped form works.
 
 **Apply (actually imports — replaces the HMI's data bindings):**
 
 ```bash
-uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py "$ACCESS_TOKEN" <uuid> --input hmi-data.dhall --yes
+uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py <uuid> --input hmi-data.dhall --yes
 ```
 
 **From stdin:**
 
 ```bash
-cat hmi-data.dhall | uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py "$ACCESS_TOKEN" <uuid> --yes
+cat hmi-data.dhall | uv run ~/.claude/skills/onping-hmi-import-data/scripts/import_hmi_data.py <uuid> --yes
 ```
 
 ## Flags

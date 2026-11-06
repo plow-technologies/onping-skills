@@ -49,6 +49,9 @@ import sys
 from typing import Iterable, List, Optional, Tuple
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source
 
 BASE_URL = "https://onping.plowtech.net"
 EXECUTE_PATH = "/massdelete/execute"
@@ -225,7 +228,6 @@ def main() -> None:
         description="Delete historian samples via OnPing's /massdelete/execute. "
         "MUTATING — requires --yes."
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("csv_path", help="path to the event-report CSV (1.0 sentinel)")
     p.add_argument(
         "--dry-run",
@@ -248,7 +250,7 @@ def main() -> None:
         action="store_true",
         help="print full JSON responses to stderr",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, legacy='refuse')
 
     try:
         pids, data_rows = _load_csv(args.csv_path)

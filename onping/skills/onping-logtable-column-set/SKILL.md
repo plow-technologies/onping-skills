@@ -31,12 +31,14 @@ allowed-tools: Bash(uv run *)
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 S=~/.claude/skills/onping-logtable-column-set/scripts/set_logtable_column.py
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --column-pid 500001 --pid 500002       # repoint
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --column 3 --selector Unit --name units
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --column 0 --pid 500003 --yes          # move the trigger
+uv run $S <LJ> <table-uuid> --column-pid 500001 --pid 500002       # repoint
+uv run $S <LJ> <table-uuid> --column 3 --selector Unit --name units
+uv run $S <LJ> <table-uuid> --column 0 --pid 500003 --yes          # move the trigger
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

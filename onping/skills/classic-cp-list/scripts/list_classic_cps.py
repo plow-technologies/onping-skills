@@ -27,6 +27,9 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source
 
 BASE_URL = "https://onping.plowtech.net"
 TIMEOUT_SECONDS = 30
@@ -198,8 +201,7 @@ def main() -> None:
         description="List classic (legacy, non-Inferno) OnPing control parameters "
         "by Lumberjack serial via POST /cp/list/by-lj-ident-key. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serials", nargs="+", type=int, help="one or more Lumberjack serial numbers")
+    p.add_argument("serials", nargs="+", type=shapes.int_arg, help="one or more Lumberjack serial numbers")
     p.add_argument("--json", action="store_true", help="emit JSON instead of a table")
     p.add_argument(
         "--cpids-only",
@@ -211,7 +213,7 @@ def main() -> None:
         action="store_true",
         help="filter to enabled CPs only",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     results = [_list_one(args.access_token, s) for s in args.serials]
 

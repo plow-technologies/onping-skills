@@ -54,18 +54,20 @@ id generation because widget ids are server-assigned Mongo `o…` ids).
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Preview server defaults, no network write
-uv run ~/.claude/skills/onping-line-graph-create/scripts/create_line_graph.py "$ACCESS_TOKEN"
+uv run ~/.claude/skills/onping-line-graph-create/scripts/create_line_graph.py
 # Mint (prints the new widget id on success)
-uv run ~/.claude/skills/onping-line-graph-create/scripts/create_line_graph.py "$ACCESS_TOKEN" --yes
+uv run ~/.claude/skills/onping-line-graph-create/scripts/create_line_graph.py --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Typical mint + populate flow (prefer `onping-line-graph-import --new` for atomicity):
 
 ```bash
-NEW_ID=$(uv run …/create_line_graph.py "$ACCESS_TOKEN" --yes)
-uv run …/onping-line-graph-import/scripts/import_line_graph.py "$ACCESS_TOKEN" --id "$NEW_ID" --input chart.dhall --yes
+NEW_ID=$(uv run …/create_line_graph.py --yes)
+uv run …/onping-line-graph-import/scripts/import_line_graph.py --id "$NEW_ID" --input chart.dhall --yes
 ```
 
 ## Flags

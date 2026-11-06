@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _event_table_routes.event_table_http import EventTableError, die, get_json, post_json
 from _event_table_routes.keys import describe, pid_matches
 from _event_table_routes.routes import ROUTES
+from _token_input import token_source
 
 _HEX24 = re.compile(r"^o?([0-9a-fA-F]{24})$")
 
@@ -117,7 +118,6 @@ def main() -> None:
     p = argparse.ArgumentParser(
         description="List OnPing event tables from dashboard JSON. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     src = p.add_mutually_exclusive_group(required=True)
     src.add_argument("--dashboard", action="append", metavar="KEY",
                      help="dashboard key `o…` from a /v3/dashboards/<KEY> URL (repeatable)")
@@ -125,7 +125,7 @@ def main() -> None:
     p.add_argument("--title", action="append", default=[], help="keep this widget title (repeatable)")
     p.add_argument("--references-pid", type=int, metavar="N", help="keep tables that bind PID N")
     p.add_argument("--json", action="store_true", help="emit records as JSON")
-    args = p.parse_args()
+    args = token_source.parse(p, None)
 
     try:
         dashes = dashboards(args.access_token, args)

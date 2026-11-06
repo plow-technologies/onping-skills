@@ -2,21 +2,25 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""Fetch a VP script by ID from OnPing - takes ACCESS_TOKEN and SCRIPT_ID as CLI args."""
+"""Fetch a VP script by ID from OnPing - takes SCRIPT_ID (token from $ONPING_ACCESS_TOKEN or --token-stdin)."""
 
+import argparse
 import json
 import sys
+from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
+
 
 def main() -> None:
-    if len(sys.argv) != 3:
-        print("Usage: fetch_script.py ACCESS_TOKEN SCRIPT_ID", file=sys.stderr)
-        sys.exit(1)
-
-    access_token = sys.argv[1]
-    script_id = sys.argv[2]
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("script_id", type=shapes.script_hash_arg, help="script id (43 URL-safe base64 characters and '=')")
+    args = token_source.parse(p, None, is_id=shapes.is_script_hash)
+    access_token = args.access_token
+    script_id = args.script_id
 
     url = f"https://onping.plowtech.net/script/id/{script_id}"
     headers = {"Accept": "application/json", "Authorization": f"Bearer {access_token}"}

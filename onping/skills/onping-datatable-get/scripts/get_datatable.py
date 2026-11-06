@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import datatable as dt  # noqa: E402
 from _lj_table_routes import filters  # noqa: E402
-from _lj_table_routes.cli import base_parser, dump, print_datatable_grid  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, dump, print_datatable_grid  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die  # noqa: E402
 
 
@@ -27,7 +27,7 @@ def main() -> None:
     p = base_parser(__doc__.splitlines()[0])
     p.add_argument("--json", action="store_true", help="print the raw TableSource JSON")
     p.add_argument("--output", metavar="PATH", help="write the raw JSON to PATH")
-    args = p.parse_args()
+    args = parse(p)
 
     try:
         src = dt.find_source(args.access_token, args.lj, args.table_uuid)

@@ -65,6 +65,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 try:
     from openpyxl import load_workbook
@@ -110,7 +111,7 @@ def location_key(row: list) -> tuple:
     )
 
 
-def live_rule_keys(token: str, serial: str) -> tuple[list[tuple], int]:
+def live_rule_keys(token: str, serial: int) -> tuple[list[tuple], int]:
     """(location keys currently stored, total PID-rule count)."""
     rules = get_json(token, endpoint("get_rules"), serial=serial)
     if not isinstance(rules, list):
@@ -138,8 +139,7 @@ def main() -> None:
             "THE ENTIRE RULE SET — mutates OnPing only with --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument("spreadsheet", help="path to the rules XLSX to upload")
     p.add_argument(
         "--execute",
@@ -160,7 +160,7 @@ def main() -> None:
         help="validate, diff, and preview; never POST (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the upload")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     path = Path(args.spreadsheet)
     if not path.is_file():
@@ -296,7 +296,7 @@ def main() -> None:
         if not args.skip_live_check:
             print(
                 "Back up first if you have not: "
-                "onping-mqtt-integrator-rules-export <token> "
+                "onping-mqtt-integrator-rules-export "
                 f"{args.serial} --out before-import.xlsx"
             )
         return
@@ -322,14 +322,14 @@ def main() -> None:
         report_write(ex, what=f"rule execution on LJ {args.serial}")
         print(
             "Execution finished. Read the result with:\n"
-            f"  onping-mqtt-integrator-reports <token> {args.serial} --latest"
+            f"  onping-mqtt-integrator-reports {args.serial} --latest"
         )
     else:
         print(
             "\nThe new rules are stored but have not run. They will fire on the "
             "next message if auto-execute is on; otherwise trigger them with "
             f"--execute or:\n"
-            f"  onping-mqtt-integrator-reports <token> {args.serial} --execute --yes"
+            f"  onping-mqtt-integrator-reports {args.serial} --execute --yes"
         )
 
 

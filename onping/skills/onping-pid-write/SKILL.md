@@ -25,14 +25,16 @@ for the UI and makes no HTTP call.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # dry run first — prints the resolved location NAME and the mask verdict
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500005 --value 42
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500005 --value 42
 
 # then commit
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500005 --value 42 --verify --yes
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500005 --value 42 --verify --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -227,41 +229,41 @@ text is always shown:
 Dry run — always do this first; it names the location so a human can sanity-check it:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500005 --value 42 --names
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500005 --value 42 --names
 ```
 
 Set a numeric setpoint and confirm it landed:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500005 \
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500005 \
   --value 42 --verify --yes
 ```
 
 Write an operator note (text — no masking):
 
 ```bash
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500001 \
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500001 \
   --text "Good arrivals for this well should be sub 50 mins." --yes
 ```
 
 A string to a TotalFlow parameter — the one case that needs the HMI route:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" <tflow-pid> \
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py <tflow-pid> \
   --text "STATUS OK" --via-hmi --yes
 ```
 
 Slow link or a busy server — wait longer for confirmation:
 
 ```bash
-uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py "$ACCESS_TOKEN" 500005 \
+uv run ~/.claude/skills/onping-pid-write/scripts/write_pid.py 500005 \
   --value 42 --verify --verify-timeout 45 --yes
 ```
 
 Review what you just did:
 
 ```bash
-uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py "$ACCESS_TOKEN" \
+uv run ~/.claude/skills/onping-audit-pull/scripts/audit_pull.py \
   --type manual --terms 500005 --since 2026-08-21T00:00:00Z
 ```
 

@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _lj_table_routes import logtable as lt  # noqa: E402
-from _lj_table_routes.cli import base_parser, dump, pointer_args, pointer_from  # noqa: E402
+from _lj_table_routes.cli import base_parser, parse, dump, pointer_args, pointer_from  # noqa: E402
 from _lj_table_routes.lj_http import LJTableError, die  # noqa: E402
 
 
@@ -30,7 +30,7 @@ def main() -> None:
                    help="keep tables whose name contains TEXT (case-insensitive; repeatable)")
     pointer_args(p, prefix="references-", what="keep tables with a column keyed by")
     p.add_argument("--json", action="store_true", help="print JSON records")
-    args = p.parse_args()
+    args = parse(p)
     if (args.lj is None) == (not args.all):
         p.error("give an LJ serial or --all (not both)")
 

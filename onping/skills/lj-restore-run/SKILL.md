@@ -44,8 +44,8 @@ uv run ~/.claude/skills/lj-restore-run/scripts/restore.py 192.0.2.10 "lumberJack
 Discover the device IP via OnPing, then restore:
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py "$ACCESS_TOKEN" 20004
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/lj-profile/scripts/lj_profile.py 20004
 # Note the lumberjackUrl field from the output, then:
 uv run ~/.claude/skills/lj-restore-list/scripts/list_lumberjacks.py 192.0.2.10
 uv run ~/.claude/skills/lj-restore-backups/scripts/list_backups.py 192.0.2.10 1001

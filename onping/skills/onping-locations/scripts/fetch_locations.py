@@ -2,28 +2,25 @@
 # requires-python = ">=3.10"
 # dependencies = ["requests"]
 # ///
-"""Fetch OnPing locations for given sites - takes ACCESS_TOKEN and one or more site IDs as CLI args."""
+"""Fetch OnPing locations for given sites - takes one or more site IDs (token from $ONPING_ACCESS_TOKEN or --token-stdin)."""
 
+import argparse
 import json
 import sys
+from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import shapes, token_source  # noqa: E402
+
 
 def main() -> None:
-    if len(sys.argv) < 3:
-        print(
-            "Usage: fetch_locations.py ACCESS_TOKEN SITE_ID1 [SITE_ID2 ...]",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    access_token = sys.argv[1]
-    try:
-        site_ids = [int(arg) for arg in sys.argv[2:]]
-    except ValueError as e:
-        print(f"Site IDs must be integers: {e}", file=sys.stderr)
-        sys.exit(1)
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("site_ids", nargs="+", type=shapes.int_arg, help="site ids")
+    args = token_source.parse(p, None, is_id=shapes.is_int)
+    access_token = args.access_token
+    site_ids = args.site_ids
 
     url = "https://onping.plowtech.net/json/listers/locationLister"
     headers = {"Accept": "application/json", "Authorization": f"Bearer {access_token}"}

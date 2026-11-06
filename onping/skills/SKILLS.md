@@ -21,7 +21,7 @@ Exchanges a stored refresh token for an access token via OAuth2. The refresh tok
 Fetches the list of sites belonging to a company.
 
 - **Script:** `onping-sites/scripts/fetch_sites.py`
-- **Input:** `ACCESS_TOKEN COMPANY_ID`
+- **Input:** `COMPANY_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON array of site objects (`name`, `refId`, `cid`, `pull`, `delete`)
 
 ### onping-locations
@@ -29,7 +29,7 @@ Fetches the list of sites belonging to a company.
 Fetches locations belonging to one or more sites.
 
 - **Script:** `onping-locations/scripts/fetch_locations.py`
-- **Input:** `ACCESS_TOKEN SITE_ID [SITE_ID ...]`
+- **Input:** `SITE_ID [SITE_ID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON array of location objects (`name`, `refId`, `site`, `company`, `url`, `slaveId`, `delete`)
 
 ### onping-parameters
@@ -37,7 +37,7 @@ Fetches locations belonging to one or more sites.
 Fetches parameters belonging to one or more locations. This is the final step in the hierarchy and returns live tag data including current values, descriptions, and writeability.
 
 - **Script:** `onping-parameters/scripts/fetch_parameters.py`
-- **Input:** `ACCESS_TOKEN LOCATION_ID [LOCATION_ID ...]`
+- **Input:** `LOCATION_ID [LOCATION_ID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--vp` — Include virtual parameters
   - `--vp-calc` — Include virtual parameters with calculated values
@@ -49,7 +49,7 @@ Fetches parameters belonging to one or more locations. This is the final step in
 Resolves a bare **PID** to its location, site, company, driver source, unit, writeability, and current value via `POST /json/listers/v3/parameters`. **Read-only.** This is the PID-first lookup the rest of the catalog lacks — `onping-parameters` needs a location *before* it can list parameters, and `onping-driver-resolve` needs a location refId, so this is usually the step that comes first when you start from an alarm, an audit record, or a control parameter's input/output PID. Also reads **virtual** parameters with `--vp`.
 
 - **Script:** `onping-pid-locate/scripts/locate_pid.py`
-- **Input:** `ACCESS_TOKEN PID [PID ...]` (batched; one request for PIDs, two for VPIDs)
+- **Input:** `PID [PID ...]` (batched; one request for PIDs, two for VPIDs) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--vp` — **Treat the given ids as VPIDs.** Sends tagged `VPID` keys, since a bare integer means PID and cannot address a virtual parameter, and fetches values from the location-scoped route (one extra request)
   - `--names` — Resolve site and company refs to names (2 extra calls)
@@ -64,7 +64,7 @@ Resolves a bare **PID** to its location, site, company, driver source, unit, wri
 Searches across all OnPing entities (sites, locations, parameters, etc.) by keyword. Useful for finding resources when you don't know exact IDs.
 
 - **Script:** `onping-search/scripts/search.py`
-- **Input:** `ACCESS_TOKEN QUERY`
+- **Input:** `QUERY` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--size N` — Number of results (default: 10)
   - `--from N` — Result offset for pagination (default: 0)
@@ -77,7 +77,7 @@ Searches across all OnPing entities (sites, locations, parameters, etc.) by keyw
 List alarm configurations from OnPing, optionally filtered by site, location, or company. Returns full alarm details including call order config, timing, and monitored parameter info.
 
 - **Script:** `alarm-list/scripts/list_alarms.py`
-- **Input:** `ACCESS_TOKEN [--site MONGO_KEY] [--location MONGO_KEY] [--company MONGO_KEY]`
+- **Input:** `[--site MONGO_KEY] [--location MONGO_KEY] [--company MONGO_KEY]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON array of alarm objects (unwrapped from `Right` Either values)
 
 #### alarm-call-order
@@ -85,7 +85,7 @@ List alarm configurations from OnPing, optionally filtered by site, location, or
 List alarm call orders from OnPing (read-only), grouping alarms by their call order assignment. Shows which alarms belong to which notification group and who the recipients are, read from `callOrderConfig.orderEntries` (onping #16132).
 
 - **Script:** `alarm-call-order/scripts/list_call_orders.py`
-- **Input:** `ACCESS_TOKEN [--site MONGO_KEY] [--location MONGO_KEY] [--company MONGO_KEY]`
+- **Input:** `[--site MONGO_KEY] [--location MONGO_KEY] [--company MONGO_KEY]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON object with `callOrders` (grouped by call order ID with `orderName`, `entries` of `{userId, userName, repeatCount, notificationFlags}`, the derived `userNames` / `repeatCounts`, and `alarms`), `totalAlarms`, and `errors` (the `Left` alarm lookup errors, plus a `CallOrderConflict` for each alarm whose copy of its call order differs)
 - **Exit codes:** 0 ok; 1 HTTP, auth or permission failure (one attempt; a permission 403 does not point at onping-login) or `{"error"}` body; 3 unrecognised shape, including a non-JSON body, the pre-#16132 `userNames` shape and a malformed `Left`, with nothing on stdout; 4 full listing printed, but alarms disagree on one call order
 - **Environment:** `ONPING_BASE_URL` (default `https://onping.plowtech.net`)
@@ -97,7 +97,7 @@ List alarm call orders from OnPing (read-only), grouping alarms by their call or
 List control parameters for one or more Lumberjack IDs. Returns control parameter configuration including trigger mode, inputs, outputs, and script ID. Note: each output parameter ID is exclusive to a single control parameter.
 
 - **Script:** `cp-list/scripts/list_control_parameters.py`
-- **Input:** `ACCESS_TOKEN LUMBERJACK_ID [LUMBERJACK_ID ...]`
+- **Input:** `LUMBERJACK_ID [LUMBERJACK_ID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Raw JSON from `cpInferno/list` (single ID) or JSON object keyed by Lumberjack ID (multiple IDs). Elements are tagged: `ReadableControlParameterInferno`, `OrphanedControlParameterInferno` (an output PID was deleted; `contents` is `[cp, [missing PID]]`), `ProhibitedReadControlParameterInferno`, `FailedToReadControlParameterInfernoPermissions`. Any non-readable or unknown element is summarised on stderr (counts per tag, orphan cpIds with missing PIDs, prohibited/failed CPIDs); stdout stays unchanged and the exit code 0.
 
 #### cp-script-fetch
@@ -105,7 +105,7 @@ List control parameters for one or more Lumberjack IDs. Returns control paramete
 Fetch Inferno script payload for a control parameter script ID.
 
 - **Script:** `cp-script-fetch/scripts/fetch_control_script.py`
-- **Input:** `ACCESS_TOKEN SCRIPT_ID` (script ID is a base64-encoded string)
+- **Input:** `SCRIPT_ID` (script ID is a base64-encoded string) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Raw JSON from `/script/id/{SCRIPT_ID}` with script source/history metadata
 
 #### cp-import-json
@@ -113,7 +113,7 @@ Fetch Inferno script payload for a control parameter script ID.
 Format and validate control-parameter JSON import payloads. Supports deterministic normalization (friendly JSON), expansion (explicit defaults), validation, and optional fetch+normalize by Lumberjack ID.
 
 - **Script:** `cp-import-json/scripts/cp_import_json.py`
-- **Input:** JSON via `--input` or stdin, or `ACCESS_TOKEN LUMBERJACK_ID [LUMBERJACK_ID ...]` for `fetch-normalize`
+- **Input:** JSON via `--input` or stdin, or `LUMBERJACK_ID [LUMBERJACK_ID ...]` for `fetch-normalize` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Subcommands:** `normalize`, `expand`, `validate`, `fetch-normalize`
 - **Options:** `--include-orphans` (`normalize`, `fetch-normalize`) — keep `OrphanedControlParameterInferno` CPs; by default they are omitted and listed on stderr
 - **Output:** Transformed JSON or machine-readable validation report (`ok`, `errors`, `warnings`, `stats`). `normalize` / `fetch-normalize` turn `cp-list` output into a `{cpId, cpData}` import array for `inferno-cp-import` (readable CPs unwrapped; the default trigger omitted on creates and updates, as the server's friendly export does; orphans omitted by default; not-readable and unknown-tag elements dropped and removed, never left as `null`; malformed elements dropped with exit 1; a dropped root element becomes `[]` with exit 1; each listed on stderr). `validate` reports `orphaned_cp`, `not_readable`, `unknown_tag` and `malformed_element`
@@ -124,7 +124,7 @@ Format and validate control-parameter JSON import payloads. Supports determinist
 Import **Inferno** control parameters from a JSON array file via `POST /cpInferno/import` (the `cpInferno/*` engine — the write path for `cp-list` / `cp-import-json`, **not** the classic `/cp/import` used by `classic-cp-import`). Mirrors the v3 UI import on `/v3/inferno/control-parameters`: a JSON array of CP objects as the body (`Content-Type: text/plain;charset=UTF-8`). **Mutating — addOrUpdate keyed by `cpId`**: an entry whose `cpId` matches an existing Inferno CP **overwrites** it. No network call happens without `--yes`; the default and `--dry-run` only preview the affected cpIds grouped by `ljSerial` (the `{ljSerial}-{uuid}` prefix). Confirm current state with `cp-list` and capture the prior definition before overwriting.
 
 - **Script:** `inferno-cp-import/scripts/import_inferno_cp.py`
-- **Input:** `ACCESS_TOKEN`, JSON CP-array via `--input PATH` or stdin
+- **Input:** none, JSON CP-array via `--input PATH` or stdin (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--yes` — Perform the import (required for any network call)
   - `--dry-run` — Explicit preview (same as no flag; no request; wins over `--yes`)
@@ -136,7 +136,7 @@ Import **Inferno** control parameters from a JSON array file via `POST /cpInfern
 Export one Inferno script (VP, CP, or ML inference) as a single `ExportedScript` JSON object via `GET /script/export/{hash}`. **Read-only.** The file is exactly what `inferno-script-import` accepts. This differs from `vp-script-fetch` / `cp-script-fetch`, which return the `/script/id` editor view.
 
 - **Script:** `inferno-script-export/scripts/export_inferno_script.py`
-- **Input:** `ACCESS_TOKEN SCRIPT_HASH`
+- **Input:** `SCRIPT_HASH` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--output PATH` — Write to a file instead of stdout
   - `--force` — Overwrite an existing `--output`
@@ -154,7 +154,7 @@ Import one Inferno script from an `ExportedScript` file, via `POST /script/vp/im
 - **Preview first:** No request is sent without `--yes`.
 
 - **Script:** `inferno-script-import/scripts/import_inferno_script.py`
-- **Input:** `ACCESS_TOKEN --kind {vp,cp,ml}`, ExportedScript JSON via `--input PATH` or stdin
+- **Input:** `--kind {vp,cp,ml}`, ExportedScript JSON via `--input PATH` or stdin (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--as-new` — Send `hash: null` (always create)
   - `--ml-input NAME[=r|w|rw]` — `--kind ml` only, repeatable: set `inputs` to these names, and `outputs` to every other non-model argument
@@ -173,8 +173,8 @@ Import, export, and modify classic (legacy, non-Inferno) control parameters in D
 - **Input:** Varies by subcommand
 - **Subcommands:**
   - `disable-all --input file.dhall --output file-off.dhall` — Create disabled copy (local only)
-  - `import ACCESS_TOKEN --input file.dhall` — Import Dhall into OnPing (`POST /cp/import`)
-  - `export ACCESS_TOKEN --cpids CPID... [--output file.dhall]` — Export CPs from OnPing (`POST /cp/export`)
+  - `import --input file.dhall` — Import Dhall into OnPing (`POST /cp/import`)
+  - `export --cpids CPID... [--output file.dhall]` — Export CPs from OnPing (`POST /cp/export`)
 - **Output:** JSON summary (disable-all), JSON import response (import), Dhall text (export)
 
 #### classic-cp-delete
@@ -182,7 +182,7 @@ Import, export, and modify classic (legacy, non-Inferno) control parameters in D
 Delete **classic** (legacy, non-Inferno) control parameters by CPID via `POST /cp/delete` (the same `/cp/*` engine as `classic-cp-dhall`, **not** the Inferno CP system used by `cp-list` / `cp-import-json`). Mirrors the web UI delete action: bare CPID integer as the JSON body, one request per CPID. **Deletion is irreversible** — no network call happens without `--yes`; the default and `--dry-run` only preview. Back up first with `classic-cp-export`. If you only have outputPIDs (e.g. from a classic-CP Dhall file), resolve them to CPIDs with `classic-cp-by-pid`; to discover a Lumberjack's classic CPIDs, use `classic-cp-list`.
 
 - **Script:** `classic-cp-delete/scripts/delete_classic_cp.py`
-- **Input:** `ACCESS_TOKEN CPID [CPID ...]`
+- **Input:** `CPID [CPID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--yes` — Perform the deletion (required for any network call)
   - `--dry-run` — Explicit preview (same as no flag; no request)
@@ -194,7 +194,7 @@ Delete **classic** (legacy, non-Inferno) control parameters by CPID via `POST /c
 List the **classic** (legacy, non-Inferno) control parameters on a Lumberjack via `POST /cp/list/by-lj-ident-key` (the `/cp/*` engine, **not** the Inferno `cp-list` / `cpInferno/*`). Read-only. Note the request contract differs from `cp-list`: the body is a **tagged identity key** (`{"tag":"IdentityKeySerialNum","contents":<serial>}`), not a bare Lumberjack ID — and the "serial" this endpoint wants may differ from the numeric Lumberjack ID used by `cp-list`/`lj-profile`. Each record carries both CPID and outputPID, so this is the discovery entry point that feeds `classic-cp-delete` (CPIDs) and complements `classic-cp-by-pid` (outputPID↔CPID).
 
 - **Script:** `classic-cp-list/scripts/list_classic_cps.py`
-- **Input:** `ACCESS_TOKEN SERIAL [SERIAL ...]`
+- **Input:** `SERIAL [SERIAL ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--json` — Full per-CP records (object keyed by serial for a batch)
   - `--cpids-only` — Just the CPIDs, space-separated (pipe into `classic-cp-delete`)
@@ -206,7 +206,7 @@ List the **classic** (legacy, non-Inferno) control parameters on a Lumberjack vi
 Resolve a **classic** control parameter's **outputPID → CPID** via `POST /cp/by-pid` (the `/cp/*` engine, **not** Inferno). Read-only. Classic-CP Dhall exports (from `classic-cp-dhall export`) are keyed by `outputPID`, but `classic-cp-delete` needs the **CPID** — these are two distinct id spaces. This skill bridges them: give it the outputPIDs from a Dhall file and it returns the CPIDs to delete.
 
 - **Script:** `classic-cp-by-pid/scripts/lookup_cp_by_pid.py`
-- **Input:** `ACCESS_TOKEN OUTPUT_PID [OUTPUT_PID ...]`
+- **Input:** `OUTPUT_PID [OUTPUT_PID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--json` — Object mapping each outputPID to `{cpid, enabled, ...}` or a not-found marker
   - `--cpids-only` — Just the resolved CPIDs, space-separated (pipe into `classic-cp-delete`)
@@ -217,7 +217,7 @@ Resolve a **classic** control parameter's **outputPID → CPID** via `POST /cp/b
 Export/back up **classic** control parameters to a Dhall file via `POST /cp/export` (the `/cp/*` engine, **not** Inferno). Read-only (no `--yes` gate). The **request is keyed by CPID**, but the returned **Dhall is keyed by `outputPID`** — resolve between them with `classic-cp-by-pid`. This is the recommended backup step before `classic-cp-delete`.
 
 - **Script:** `classic-cp-export/scripts/export_classic_cp.py`
-- **Input:** `ACCESS_TOKEN --cpids CPID [CPID ...]`
+- **Input:** `--cpids CPID [CPID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--output PATH` — Write the Dhall to this file (also printed to stdout; status line to stderr)
 - **Output:** Dhall CP file (a `List` of records keyed by outputPID); the file is written only after a confirmed 200, so a failure never clobbers an existing backup
@@ -228,7 +228,7 @@ Export/back up **classic** control parameters to a Dhall file via `POST /cp/expo
 Import **classic** (legacy, non-Inferno) control parameters from a Dhall file via `POST /cp/import` (the `/cp/*` engine, **not** the Inferno `cp-import-json` / `cpInferno/*`). The write-back inverse of `classic-cp-export` and the restore counterpart to `classic-cp-delete`. **Mutating — addOrUpdate keyed by `outputPID`**: an entry whose outputPID matches an existing classic CP **overwrites** it. No network call happens without `--yes`; the default and `--dry-run` only preview the affected outputPIDs. Output PIDs can be reused across lumberjacks, so an import may overwrite a CP on a different lumberjack — confirm with `classic-cp-by-pid` / `classic-cp-list` and back up with `classic-cp-export` first.
 
 - **Script:** `classic-cp-import/scripts/import_classic_cp.py`
-- **Input:** `ACCESS_TOKEN --input PATH` (or Dhall on stdin)
+- **Input:** `--input PATH` (or Dhall on stdin) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--yes` — Perform the import (required for any network call)
   - `--dry-run` — Explicit preview (same as no flag; lists affected outputPIDs, no request)
@@ -237,18 +237,18 @@ Import **classic** (legacy, non-Inferno) control parameters from a Dhall file vi
 
 ### HMI
 
-Skills for backing up, restoring, cloning, and bulk-editing OnPing **HMI dashboards** via the `/hmi/*` routes, backed by the shared `_hmi_routes` module (route table + bearer-auth HTTP helpers with the same auth-redirect / HTML-fallthrough hardening as the driver families). All accept an access token from `onping-login`.
+Skills for backing up, restoring, cloning, and bulk-editing OnPing **HMI dashboards** via the `/hmi/*` routes, backed by the shared `_hmi_routes` module (route table + bearer-auth HTTP helpers with the same auth-redirect / HTML-fallthrough hardening as the driver families). The access token does not go on the command line (`ps` shows arguments): export it as `ONPING_ACCESS_TOKEN` from `onping-login`, or pipe it in with `--token-stdin` (the shared `_token_input` helper reads it). A token as the first argument is deprecated and warns. `import` and `import-data` read the Dhall from stdin when `--input` is absent, so `--token-stdin` there needs `--input`. The UUID argument must be UUID-shaped; a malformed one exits 2 before any request.
 
 **Round-trip:** `onping-hmi-list` finds a UUID → `onping-hmi-export` backs it up to Dhall → `onping-hmi-import` restores or clones it. Data-only variants (`onping-hmi-export-data` / `onping-hmi-import-data`) move just the OnPing-parameter bindings, not the layout.
 
-**Safety model:** the three read-only skills (`list`, `export`, `export-data`) have no `--yes` gate. The three mutating skills (`import`, `import-data`, `delete`) default to a preview and require `--yes` to write; `--dry-run` wins if both are passed. There is **no `/hmi/copy` route** — `onping-hmi-import --new` clones by parsing the Dhall to JSON, swapping `dashId` for a fresh UUID, and upserting. `delete` is a **soft** delete (sets `dashDeleted=true`). `/hmi/list` is scoped to HMIs on dashboard panels, so a freshly-upserted (e.g. `--new`) HMI is retrieved by its UUID, not listed.
+**Safety model:** the three read-only skills (`list`, `export`, `export-data`) have no `--yes` gate. The three mutating skills (`import`, `import-data`, `delete`) default to a preview and require `--yes` to write; `--dry-run` wins if both are passed. There is **no `/hmi/copy` route** — `onping-hmi-import --new` clones by parsing the Dhall to JSON, swapping `dashId` for a fresh UUID, and upserting. `delete` is a **soft** delete (sets `dashDeleted=true`). `/hmi/list` is scoped to HMIs on dashboard panels, so a freshly-upserted (e.g. `--new`) HMI is retrieved by its UUID, not listed. The import prints and can record that UUID (`--record-new`).
 
 #### onping-hmi-list
 
 List the HMIs available to the user via `GET /hmi/list`. Read-only; the UUID discovery entry point for the other HMI skills.
 
 - **Script:** `onping-hmi-list/scripts/list_hmis.py`
-- **Input:** `ACCESS_TOKEN`
+- **Input:** none (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--json` (raw array), `--uuids-only` (space-separated UUIDs, pipe into export/delete), `--panel-only`
 - **Output:** Table of `UUID | NAME | PANEL | DASHBOARD` with a count on stderr; empty list exits 0
 
@@ -257,7 +257,7 @@ List the HMIs available to the user via `GET /hmi/list`. Read-only; the UUID dis
 Export/back up a **full** HMI dashboard (layout, components, settings, alerts) to Dhall via `GET /hmi/export/{uuid}`. Read-only; requires **Write** permission on the HMI. Written only after a confirmed 200 so a failure never clobbers a backup.
 
 - **Script:** `onping-hmi-export/scripts/export_hmi.py`
-- **Input:** `ACCESS_TOKEN UUID`
+- **Input:** `UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH` (also prints to stdout; status line to stderr)
 - **Output:** Dhall `HmiDashboard`; round-trips back through `onping-hmi-import`
 
@@ -266,17 +266,17 @@ Export/back up a **full** HMI dashboard (layout, components, settings, alerts) t
 Export only an HMI's **data-binding mappings** (`[DataImport]`) to Dhall via `GET /hmi/export-data/{uuid}` — the OnPing parameters it reads, not the layout. Read-only; requires **Write**.
 
 - **Script:** `onping-hmi-export-data/scripts/export_hmi_data.py`
-- **Input:** `ACCESS_TOKEN UUID`
+- **Input:** `UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH`
 - **Output:** Dhall `[DataImport]`; round-trips back through `onping-hmi-import-data`
 
 #### onping-hmi-import
 
-Import a **full** HMI dashboard from an `onping-hmi-export` Dhall file. Because there is no `/hmi/copy` route, it does `POST /hmi/parse` (Dhall → JSON, read-only validation) then `POST /hmi/upsert` (raw JSON `HmiDashboard`). **Mutating** — overwrites the HMI whose `dashId` is in the file by default; `--new` generates a fresh `dashId` to create a copy (source untouched). No upsert without `--yes`; the default/`--dry-run` still make the one read-only `/hmi/parse` call to validate and preview the target `dashId`.
+Import a **full** HMI dashboard from an `onping-hmi-export` Dhall file. Because there is no `/hmi/copy` route, it does `POST /hmi/parse` (Dhall → JSON, read-only validation) then `POST /hmi/upsert` (raw JSON `HmiDashboard`). **Mutating** — overwrites the HMI whose `dashId` is in the file by default; `--new` generates a fresh `dashId` to create a copy (source untouched). No upsert without `--yes`; the default/`--dry-run` still make the one read-only `/hmi/parse` call to validate and preview the target `dashId`. On an overwrite `--yes` it first reads the stored `dashLastUpdate` and stamps it (the upsert is optimistic concurrency and otherwise answers a stale value with HTTP 400 "Internal Server Error"); a `--new` copy is panel-less and invisible to `onping-hmi-list`, so its UUID is printed as `NEW HMI UUID: ...` and `--record-new` appends it to a file.
 
 - **Script:** `onping-hmi-import/scripts/import_hmi.py`
-- **Input:** `ACCESS_TOKEN`, HMI Dhall via `--input PATH` or stdin
-- **Options:** `--new` (clone under a fresh `dashId`), `--yes` (required to write), `--dry-run` (preview; wins over `--yes`), `--json`
+- **Input:** HMI Dhall via `--input PATH` or stdin (token from `$ONPING_ACCESS_TOKEN`; `--token-stdin` needs `--input`)
+- **Options:** `--new` (clone under a fresh `dashId`), `--yes` (required to write), `--dry-run` (preview; wins over `--yes`), `--concurrency-stamp N` / `--no-concurrency-stamp` (overwrite only), `--record-new PATH` (with `--new`), `--json`
 - **Output:** Preview of source/target `dashId` + overwrite-vs-create (default), or the created/updated `HmiDashboard` JSON with `--yes` (exit non-zero on failure)
 
 #### onping-hmi-import-data
@@ -284,7 +284,7 @@ Import a **full** HMI dashboard from an `onping-hmi-export` Dhall file. Because 
 Import **data-binding mappings** into an existing HMI from a Dhall `[DataImport]` file via `POST /hmi/import-data/{uuid}` — re-points which OnPing parameters the target HMI reads, without changing layout. **Mutating**; no request without `--yes`; the default/`--dry-run` preview only (no network call).
 
 - **Script:** `onping-hmi-import-data/scripts/import_hmi_data.py`
-- **Input:** `ACCESS_TOKEN UUID`, Dhall via `--input PATH` or stdin
+- **Input:** `UUID`, Dhall via `--input PATH` or stdin (token from `$ONPING_ACCESS_TOKEN`; `--token-stdin` needs `--input`)
 - **Options:** `--yes`, `--dry-run` (wins over `--yes`), `--json`
 - **Output:** Preview of the target UUID + binding count (default), or the updated `HmiDashboard` JSON with `--yes`
 
@@ -293,9 +293,192 @@ Import **data-binding mappings** into an existing HMI from a Dhall `[DataImport]
 Delete an HMI dashboard via `DELETE /hmi/delete/{uuid}`. **Soft** delete (sets `dashDeleted=true`; still GET-able). Requires **Delete** permission. **Mutating**; no delete without `--yes`; the default/`--dry-run` probe the HMI via `GET /hmi/{uuid}` to preview. Back up first with `onping-hmi-export`.
 
 - **Script:** `onping-hmi-delete/scripts/delete_hmi.py`
-- **Input:** `ACCESS_TOKEN UUID`
+- **Input:** `UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run` (wins over `--yes`), `--json`
 - **Output:** Preview of the target (default), or a soft-delete confirmation with `--yes` (exit non-zero on failure)
+
+### Dashboards
+
+List, create, read and delete OnPing **dashboards** via the `/data/dashboard*` and `/save/dashboard` routes, backed by two shared helpers: `_dashboard_routes/` (route table, bearer-auth transport with the auth-redirect / HTML-fallthrough hardening, the ten-key dashboard model that keeps unknown keys, the create-response check and the group guard) and `_dashboard_edit_routes/` (the by-id read, the default-dashboard read, the delete and update routes, the whole-document save, the cascade walk, the panel-tree edits, and the private-backup writer). The access token does not go on the command line (`ps` shows arguments): export it as `ONPING_ACCESS_TOKEN` from `onping-login`, or pipe it in with `--token-stdin`. A token as the first argument is deprecated and warns. The older repo tools (`alarm-list`, `cp-list` and similar) take the token as a positional `ACCESS_TOKEN` argument and their examples use a shell variable of that name; the dashboard skills read the environment variable `ONPING_ACCESS_TOKEN`, so exporting `ACCESS_TOKEN` does not authenticate them.
+
+**Round-trip:** `onping-dashboard-list` finds an id → `onping-dashboard-get` reads or backs it up → `onping-dashboard-create` makes a new empty one → `onping-dashboard-copy` duplicates one → `onping-dashboard-rename` renames one → `onping-dashboard-delete` removes one for good. `onping-dashboard-panel-add`, `-panel-delete` and `-panel-reorder` edit the panel list of one dashboard. Every whole-document panel skill (panel-add, -panel-delete, -panel-retitle, -panel-move-content, -panel-reorder, and card-add and card-retitle) refuses with exit 2 a save whose document names an event table, line graph, HMI or **Data Table** widget that belongs to another dashboard (or, for a Data Table widget, whose owner cannot be read), because the server copies such a widget on save; `--allow-copy` accepts the copy. Every one of these skills prints `FAILURE: unexpected widget or view duplication` and exits 4 when the post-save read-back finds a widget or view duplicated that the preview did not name. Only `card-add --type data-table` accepts a named copy and exits 0 (see below); the other panel and card skills still exit 4 on an allowed Data Table copy. The HMI check is an approximation (no route reads an HMI's dashboard key) and the other table types are not checked. `create`, `copy`, `rename`, `delete` and the panel skills are the mutating skills here: preview by default, `--yes` to send, `--dry-run` wins. The create route answers HTTP 200 even when it refuses, so success means the answer carries a `dashboardId`, and the skill then reads the dashboard back through the **list** route. Exit codes for `create` (see each skill below for its own): 0 preview or verified; 1 request failed or no dashboard id; 2 usage; 3 refused; 4 read-back differs.
+
+**Which skill changes which field of a dashboard.**
+
+A dashboard is one stored document. Find the field you want to change in the first column, then use the skill in the second. A field with no skill is changed in the web application; a skill never edits a field it does not name.
+
+| To change | Use | Notes |
+|---|---|---|
+| A new dashboard's name, group, permissions, notes | `onping-dashboard-create` | Makes a new empty dashboard. |
+| A new dashboard from an existing one | `onping-dashboard-copy` | Copies panels, notes and header as read; the copy is unowned and not the default. |
+| An existing dashboard's name | `onping-dashboard-rename` | Sends the six fields the update route stores, all as read except the name. |
+| An existing dashboard's notes, group, permissions, default flag | none (web application) | `rename` and the panel skills send these as read and verify they are unchanged. |
+| Add a panel (a link to another dashboard, or an existing HMI) | `onping-dashboard-panel-add` | Whole-document write; backs up first. |
+| Remove a panel and its nested panels | `onping-dashboard-panel-delete` | The preview counts the nested panels and every content item that goes. The widgets themselves are not deleted. |
+| Reorder the panels | `onping-dashboard-panel-reorder` | Changes list order only; `branch` values are kept. |
+| A panel's title | `onping-dashboard-panel-retitle` | Link and Folder panels only; also sets the link item's title on a link panel. |
+| Move one content item from one panel to another | `onping-dashboard-panel-move-content` | Link panels only; the item is moved unchanged to the end of the target. |
+| Set or clear the dashboard header | `onping-dashboard-header-edit` | Stores the three header values as given; clearing stores null. |
+| The title of one card inside a panel | `onping-dashboard-card-retitle` | Link panels only; sets that card's `title` and nothing else. A link panel's first card is retitled with `onping-dashboard-panel-retitle`. |
+| Add an existing widget card (event table, line graph, HMI) to a panel | `onping-dashboard-card-add` | Link panels only; refuses a widget the save would copy (a Data Table widget owned by another dashboard, or with an unreadable owner, exits 5 without `--allow-copy`). Creates no widget. |
+| Edit a card's other fields (height, size, icon) | none (web application) | Not covered by a skill. |
+| Which points each widget on a dashboard binds | `onping-dashboard-bindings` | Read-only; `--plan FILE` checks the points and the dashboard structure against a plan. |
+| The configuration of a widget inside a panel | the widget's own skills: `onping-hmi-import`, `onping-line-graph-import`, `onping-logtable-column-add` / `-set` / `-delete`, `onping-datatable-column-add` / `-delete` / `onping-datatable-cell-set`, `onping-ctable-import` | These edit the widget, not the dashboard document. |
+| An event table | `onping-event-table-create` mints one, `onping-event-table-upload` fills it from Dhall, `onping-event-table-rebind-pids` swaps its points, `onping-event-table-delete` removes it; `event-table-import` prepares the Dhall file; `onping-event-table-export` reads a live table | The write routes check no per-table permission. Place the table on a dashboard with `onping-dashboard-card-add`. |
+| Remove a whole dashboard and everything it holds | `onping-dashboard-delete` | Permanent; cascades to the widgets it names. |
+
+#### onping-dashboard-list
+
+List the dashboards in your owned and member groups via `GET /data/dashboard/list`. Read-only. A dashboard with no group is in no list; the answer is large on a big tenant, so filter.
+
+- **Script:** `onping-dashboard-list/scripts/list_dashboards.py`
+- **Input:** no arguments
+- **Options:** `--group GID`, `--name-contains TEXT` (case-insensitive), `--json`
+- **Output:** `id | default | panels | group | name` with a count on stderr; an empty result exits 0
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-create
+
+Create one empty dashboard via `POST /save/dashboard` (no `dashId`), owned by you, in a group you own or belong to. **Mutating**; no request without `--yes`. The caller chooses `--gperm`, which every member of the group receives, so it has no default. `dflt` is always sent false (the new dashboard never becomes your default) and `owner` is never sent. A name already used in the group is refused unless `--allow-duplicate`; a send is never retried.
+
+- **Script:** `onping-dashboard-create/scripts/create_dashboard.py`
+- **Input:** `--name`, `--group GID`, `--gperm PERM` (repeatable; Read, Write, Edit, Delete, All)
+- **Options:** `--notes`, `--allow-duplicate`, `--yes`, `--dry-run`
+- **Refuses (exit 3):** a group outside your owned and member groups, a failed group read, a duplicate name
+- **Output:** the planned dashboard (default), or the new id and a read-back result with `--yes`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-get
+
+Read one dashboard by id via `GET /data/dashboard?dashId=`. Read-only. `--output FILE` saves the dashboard JSON (mode 0600), unknown keys included, as a backup. An existing `--output` file is never overwritten; an unwritable one exits 3.
+
+- **Script:** `onping-dashboard-get/scripts/get_dashboard.py`
+- **Input:** `DASHBOARD_ID`
+- **Options:** `--output FILE`
+- **Output:** the dashboard JSON; `Document hash: <sha256>` on stderr (the `--expect-hash` value)
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-delete
+
+Permanently delete one dashboard via `POST /delete/dashboard`. **Mutating and irreversible**: the server also deletes the location, multi-location, alarm and custom tables, HMIs, line graphs and data/log table widgets inside it, and the JSON backup cannot restore them. Previews by default (the cascade by type and id); a delete needs `--yes` **and** `--confirm-name` equal to the exact dashboard name. Only dashboards in your list can be targeted. Your default dashboard is refused without `--force-default`. The route answers HTTP 200 for failures, so success means the answer is the dashboard id and the list no longer holds it; the cascade is reported "not verified". The dashboard is read by id: the preview prints its hash, `--expect-hash` pins a later `--yes` run to exactly that cascade, and a second read just before the send exits 5 if anything changed. Sent once, never retried.
+
+- **Script:** `onping-dashboard-delete/scripts/delete_dashboard.py`
+- **Input:** `DASHBOARD_ID`
+- **Options:** `--yes`, `--confirm-name NAME`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--force-default`, `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 request failed or answer was not the id; 2 usage or id not in your list; 3 refused (a read failed, name, default dashboard, backup, including an existing backup file); 4 still listed; 5 dashboard changed since the preview
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-rename
+
+Rename one dashboard via `POST /update/dashboard`. **Mutating**; previews the field diff by default, `--yes` to send. The route stores owner, group id, group, group permissions, name and the default flag from the body and stores an omitted key as empty, so the skill sends all six as read with only the name changed, and builds nothing if one is missing. Refuses a dashboard whose owner, group id or group permissions are empty. Writes a 0600 backup, re-reads just before the write (a changed field exits 5 and sends nothing), then reads back and requires every other field, panels included, to be unchanged. The preview warns when the update would make this your default dashboard and names the link panels in your list that the server will retitle. Sent once, never retried.
+
+- **Script:** `onping-dashboard-rename/scripts/rename_dashboard.py`
+- **Input:** `DASHBOARD_ID --name NAME`
+- **Options:** `--yes`, `--dry-run`, `--backup PATH`, `--allow-duplicate`
+- **Exit codes:** 0 preview or verified; 1 request failed or refused; 2 usage, not in your list, name already used in the group, or empty owner/group fields; 3 read or backup failed; 4 read-back differs; 5 changed between reads
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-copy
+
+Copy one dashboard via `POST /save/dashboard` (no `dashId`), owned by you, with the name `Copy of <name>` unless `--name`. **Mutating**; previews by default, `--yes` to send. Panels, notes and header are copied as read; the default flag is sent false and no owner is sent. The server copies the widgets and HMIs the panels name, and the skill requires that none of their ids is shared with the source. A different `--group` needs `--gperm` and must be a group you own or belong to; a name already used in the target group is refused unless `--allow-duplicate`. A partial or wrong copy is reported with its id (remove it with `onping-dashboard-delete`). Sent once, never retried.
+
+- **Script:** `onping-dashboard-copy/scripts/copy_dashboard.py`
+- **Input:** `SOURCE_DASHBOARD_ID`
+- **Options:** `--name`, `--group GID`, `--gperm PERM` (repeatable), `--allow-duplicate`, `--backup PATH` (source document as read, mode 0600), `--expect-hash SHA256`, `--yes`, `--dry-run`
+- **Exit codes:** 0 preview or verified; 1 request failed or no dashboard id; 2 usage or not in your list or missing `--gperm`; 3 refused (group, name, read); 4 read-back differs, a widget id is shared, or a copied HMI has fewer parts than the source; 5 source changed since `--expect-hash`
+- The preview prints the source hash, lists the widget cards by type and id, and states that the copies keep the source well's points. Data Table cards add one paced view read each to the preview (10 s apart). Exit 4 prints `FAILURE: unexpected widget or view duplication` first.
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-panel-add
+
+Add one top-level panel to a dashboard via `POST /save/dashboard` with its `dashId` (a whole-document replace with no version check; the skill re-reads just before writing and exits 5 on a change, but a save by someone else in the milliseconds between that read and the write would be lost). **Mutating**; previews the panel outline by default, `--yes` to send. `--link DASHID` adds a link panel to another dashboard in your list; `--hmi HMI_ID` (the HMI's `hmiDashboardUuid`) clones the panel of an existing HMI found in a dashboard in your list. No widget or HMI is created; if the server copies the HMI the read-back exits 4. The new panel gets the next `branch`; others are not renumbered. Sent once, never retried.
+
+- **Script:** `onping-dashboard-panel-add/scripts/panel_add.py`
+- **Input:** `DASHBOARD_ID (--link DASHID | --hmi HMI_ID)`
+- **Options:** `--allow-copy`, `--title`, `--at N`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the edit cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-panel-delete
+
+Remove one panel (and any panels nested in it) from a dashboard via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the outline by default, `--yes` to send. Pick the panel by outline position or by an id it names (an id named by several panels is refused). The preview counts the nested panels and every content item (widget, HMI, table, link) that leaves the dashboard, by type and id. **The widget, HMI, table or dashboard the panel pointed at is not deleted.** Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-panel-delete/scripts/panel_delete.py`
+- **Input:** `DASHBOARD_ID (--panel POS | --panel-id ID)`
+- **Options:** `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the edit cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-panel-reorder
+
+Move one panel (with its nested panels) to a new place among its siblings via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the outline by default, `--yes` to send. Only the order of the panel list changes; each panel's `branch` is left as it was. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-panel-reorder/scripts/panel_reorder.py`
+- **Input:** `DASHBOARD_ID --move POS --to N`
+- **Options:** `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the edit cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-panel-retitle
+
+Set the title of one existing panel (top level or nested) via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the outline by default, `--yes` to send. Pick the panel by outline position or by an id it names (an id named by several panels is refused). Only `Link` and `Folder` panels are retitled; a static-route panel is refused because its title is its route key. On a link panel the title of its link item is set to the same text. A title that is empty, padded with spaces, holds a control character or `?`, equals the current title, or is one a sibling already has (unless `--allow-duplicate`) is refused. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-panel-retitle/scripts/panel_retitle.py`
+- **Input:** `DASHBOARD_ID (--panel POS | --panel-id ID) --title TEXT`
+- **Options:** `--allow-copy`, `--allow-duplicate`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the edit cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-panel-move-content
+
+Move one content item (a widget or a link) from one panel to the end of another via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the outline by default, `--yes` to send. Pick the item by its place in the source panel or by an id it names (an id named by several items is refused). Both panels must be `Link` panels; a link or static-route panel is refused. The item is moved unchanged, so widget ids and settings stay as they were and nothing is created or deleted; a target that already holds the same id is refused. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-panel-move-content/scripts/panel_move_content.py`
+- **Input:** `DASHBOARD_ID --from POS (--item N | --item-id ID) --to POS`
+- **Options:** `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the move cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-card-retitle
+
+Set the title of one card (a content item: widget or link) inside a panel, `panels[i].carr.arr[j].title`, via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the panel's cards before and after by default, `--yes` to send. Pick the panel by outline position and the card by its place in it (`--card N`, counting from 1) or by an id it names (`--card-id`; an id named by none or several cards is refused). Only `Link` panels are edited; a link panel (`Folder`) is refused because its first card's title is kept equal to the panel title, so use `onping-dashboard-panel-retitle` there. A title that is empty, padded with spaces, holds a control character, or equals the current one is refused; a `?` is allowed. Only that one `title` changes. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-card-retitle/scripts/card_retitle.py`
+- **Input:** `DASHBOARD_ID --panel POS (--card N | --card-id ID) --title TEXT`
+- **Options:** `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, or the edit cannot be made; 3 read or backup failed; 4 read-back differs; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+
+#### onping-dashboard-card-add
+
+Add one existing widget card (an event table, a line graph or an HMI) to a `Link` content panel, `panels[i].carr.arr`, via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the panel's cards with the new one marked by default, `--yes` to send. Pick the panel by outline position (`--panel`), the widget by `--type` and `--widget-id`, and the place with `--at` (default: the end). **It creates no widget.** The server copies an embedded widget whose stored dashboard key differs from the dashboard being saved, so the skill reads the widget's own dashboard key first and refuses (exit 2) when it differs, unless `--allow-copy`. A `Folder` panel, an id that does not resolve, a position out of range and a widget already on the panel are refused. Card fields come from an existing card of the same type, or built-in defaults the output flags as unverified. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`. Sent once, never retried.
+
+- **Script:** `onping-dashboard-card-add/scripts/card_add.py`
+- **Input:** `DASHBOARD_ID --panel POS --type {event-table,line-graph,hmi,data-table} --widget-id ID`
+- **Options:** `--at N`, `--title TEXT`, `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or refused; 2 usage, not in your list, empty owner/group fields, a Folder panel, a widget that does not resolve or belongs to another dashboard, or the edit cannot be made (a Data Table card already on the dashboard owned elsewhere, or with an unreadable owner, also exits 2 without `--allow-copy`); 3 read (including the widget read) or backup failed; 4 read-back differs, or a widget or view was duplicated (`FAILURE: unexpected widget or view duplication`); 5 changed between reads or since `--expect-hash`, or, for `--type data-table`, a widget owned by another dashboard or with an unreadable owner
+- **Data Table cards (`--type data-table`).** Place a widget made by `onping-datatable-view-create`. The widget's own dashboard key is read first; a foreign or unreadable owner exits 5 without `--allow-copy`. With `--allow-copy` the skill exits 0 only for the single copy the preview named (new widget, new view, owner = this dashboard, original untouched) and fails closed with exit 4, naming the condition, on anything it cannot verify. It cannot detect a copy whose view is held by a widget it never saw when source, name and Lumberjack also match. The server's `view/create` clears a widget's owner, so a view created into an already placed widget is later claimed in place by whichever dashboard saves it next.
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review; the Data Table path is also HELD with the Data Table set (no live run).
+
+#### onping-dashboard-bindings
+
+List every widget card on a dashboard (panel position, card number, type, id) and the points each binds, read with GET requests only: event tables through the export route, line graphs through `export-data-only`, HMIs through `/hmi/export-data` (needs Write on the HMI). Other widget types, and any widget that cannot be read, are listed as `NOT READ` with the reason, never skipped. `--plan FILE` (JSON `{"widgets": [{"type", "id", "points"}]}`) compares the bound points with a plan and exits 1 on any extra or missing point, naming widget and point; the plan can also pin the dashboard structure (`name`, `group`, `panel_count`, `panels` with titles and Folder link targets), and the skill then prints one line per differing field. Use it after a dashboard copy to prove no point of the source well is left.
+
+- **Script:** `onping-dashboard-bindings/scripts/bindings.py`
+- **Input:** `DASHBOARD_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
+- **Options:** `--plan FILE`
+- **Exit codes:** 0 read (and the plan is met); 1 the plan is not met; 2 usage or a bad plan file; 3 the dashboard could not be read
+- Data Table cards are listed with their widget, view and source, read by GET and one 10 s paced view read per distinct widget (a dashboard with twelve Data Table cards spends about two minutes).
+
+#### onping-dashboard-header-edit
+
+Set or clear a dashboard's `header` via `POST /save/dashboard` with its `dashId`. **Mutating**; previews the header now and after by default, `--yes` to send. The header is null or `{route: {route, string}, hme}`: `--logo-route`, `--logo-string` and `--menu` each set one field and keep the others; a dashboard with no header needs all three; `--clear` stores null. Giving the values already stored, or clearing an absent header, is refused. The values are stored as given and what they do in the web application is not established. Same whole-document write, backup, freshness check and read-back as `onping-dashboard-panel-add`; only the header differs. Sent once, never retried.
+
+- **Script:** `onping-dashboard-header-edit/scripts/header_edit.py`
+- **Input:** `DASHBOARD_ID (--clear | [--logo-route TEXT] [--logo-string TEXT] [--menu TEXT])`
+- **Options:** `--allow-copy`, `--yes`, `--dry-run`, `--backup PATH` (default `./dashboard-<id>-<UTC>.backup.json`, mode 0600), `--expect-hash SHA256`
+- **Exit codes:** 0 preview or verified; 1 save failed or the answer did not carry the dashboard id; 2 usage, not in your list, empty owner/group fields, a Data Table card already on the dashboard that is owned elsewhere or has an unreadable owner (without `--allow-copy`), or the edit cannot be made; 3 read or backup failed; 4 read-back differs or a widget or view was duplicated; 5 changed between reads or since `--expect-hash`
+- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 ### Line Graph Widgets
 
@@ -320,7 +503,7 @@ Skills for reading, backing up, minting, restoring, cloning, and pid-remapping O
 Read a line-graph widget as JSON via `GET /content/widgets/line-graph/widget/{id}`. Read-only; the fast inspection path. Wire-level `pid` is a bare integer (Dhall's `{type, value}` record is flattened on JSON serialization).
 
 - **Script:** `onping-line-graph-get/scripts/get_line_graph.py`
-- **Input:** `ACCESS_TOKEN WIDGET_ID`
+- **Input:** `WIDGET_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH`, `--pretty` (2-space indent, sorted keys)
 - **Output:** JSON `LineGraphWidget`
 
@@ -329,7 +512,7 @@ Read a line-graph widget as JSON via `GET /content/widgets/line-graph/widget/{id
 Export a full line-graph widget to Dhall via `GET /content/widgets/line-graph/export/{id}` — a round-trip-friendly backup usable as `onping-line-graph-import` input.
 
 - **Script:** `onping-line-graph-export/scripts/export_line_graph.py`
-- **Input:** `ACCESS_TOKEN WIDGET_ID`
+- **Input:** `WIDGET_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH`
 - **Output:** Dhall `ExportedLineGraphWidget`
 
@@ -338,7 +521,7 @@ Export a full line-graph widget to Dhall via `GET /content/widgets/line-graph/ex
 Export a widget's pid bindings only as a Dhall `[Field]` list via `GET /content/widgets/line-graph/export-data-only/{id}` — a compact remap input for `onping-line-graph-import-data`. Distinct shape from `-export` (do not feed to `/import`).
 
 - **Script:** `onping-line-graph-export-data/scripts/export_line_graph_data.py`
-- **Input:** `ACCESS_TOKEN WIDGET_ID`
+- **Input:** `WIDGET_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH`
 - **Output:** Dhall `[Field]`
 
@@ -347,7 +530,7 @@ Export a widget's pid bindings only as a Dhall `[Field]` list via `GET /content/
 Mint a fresh empty line-graph widget via `POST /content/widgets/line-graph/config`. Returns the new Mongo `o…` id. **Mutating**; no mint without `--yes`. The resulting widget is orphaned (not attached to a dashboard) — pair with `onping-line-graph-import` (or use `-import --new` directly) to populate.
 
 - **Script:** `onping-line-graph-create/scripts/create_line_graph.py`
-- **Input:** `ACCESS_TOKEN`
+- **Input:** none (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run` (wins over `--yes`)
 - **Output:** Preview of server defaults (default), or the new `LineGraphWidgetId` with `--yes`
 
@@ -356,7 +539,7 @@ Mint a fresh empty line-graph widget via `POST /content/widgets/line-graph/confi
 Import a full line-graph widget from `.dhall` (passthrough) / `.json` / `.yaml` (friendly formats compiled to Dhall) via `POST /content/widgets/line-graph/import/{id}`. **Mutating** — overwrites the target widget in place; `--new` mints a fresh id via `POST /config` first and populates it (source untouched). `--dry-run` runs entirely locally (no `/parse` endpoint exists on line-graph widgets, unlike HMI) — validates the record shape and surfaces the pid list the server will permission-check.
 
 - **Script:** `onping-line-graph-import/scripts/import_line_graph.py`
-- **Input:** `ACCESS_TOKEN`, chart via `--input PATH` or stdin; `--id <widget-id>` OR `--new`
+- **Input:** none, chart via `--input PATH` or stdin; `--id <widget-id>` OR `--new` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--id`, `--new`, `--input`, `--input-format {dhall,json,yaml}`, `--yes` (required to write), `--dry-run` (wins over `--yes`), `--json`
 - **Output:** Preview + pid list (default); the new id on `--new --yes`, or a status line on overwrite `--yes`. Exit 2 on shape errors in preview, exit 1 on server errors under `--yes`
 
@@ -365,26 +548,26 @@ Import a full line-graph widget from `.dhall` (passthrough) / `.json` / `.yaml` 
 Rewrite pid bindings on a line-graph widget via `POST /content/widgets/line-graph/import-data-only/{id}` — accepts a Dhall `[Field]` list (typically an edited `-export-data` output). **Mutating**; only pids on `yAxes`/`eventParameters` are updated, every other field is preserved. Unknown `from` keys are no-ops server-side.
 
 - **Script:** `onping-line-graph-import-data/scripts/import_line_graph_data.py`
-- **Input:** `ACCESS_TOKEN --id WIDGET_ID`, Dhall via `--input PATH` or stdin
+- **Input:** `--id WIDGET_ID`, Dhall via `--input PATH` or stdin (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run` (wins over `--yes`), `--json`
 - **Output:** Preview from→to mapping table (default), or a status line with `--yes`
 
 ### Event Table Widgets
 
-Read-only skills for OnPing **event tables** (the per-event row tables on dashboards, such as per-cycle reward and arrival tables) via the `/event/table/*` routes, backed by the shared `_event_table_routes` module (route table, bearer-auth HTTP helpers with the family's auth-redirect / HTML-fallthrough hardening, and the `OnpingKey` parser). All accept an access token from `onping-login`. To build a new table from a template, see `event-table-import` under Deployment Artifacts.
+Skills for OnPing **event tables** (the per-event row tables on dashboards, such as per-cycle reward and arrival tables) via the `/event/table/*` routes, backed by the shared `_event_table_routes` module (route table, bearer-auth HTTP helpers with the family's auth-redirect / HTML-fallthrough hardening, and the `OnpingKey` parser). All accept an access token from `onping-login`. To build a new table from a template, see `event-table-import` under Deployment Artifacts.
 
-**Finding a table:** a dashboard holds only a pointer to the table, and the widget's title lives in the dashboard JSON. `onping-event-table-list` walks the dashboard (sub-panels included) to get from a title to a UUID, which the other three skills take.
+**Finding a table:** a dashboard holds only a pointer to the table, and the widget's title lives in the dashboard JSON. `onping-event-table-list` walks the dashboard (sub-panels included) to get from a title to a UUID, which the other skills take.
 
 **Auditing a PID:** `onping-event-table-list --dashboard <o-key> --references-pid N` names every table and column on a dashboard that reads PID N. `onping-event-table-fetch` then shows whether a table still renders: a dead key fails the whole table with HTTP 500 naming the first dead key.
 
-**⚠️ No per-table permission.** Any authenticated user can read, update, or delete any event table by UUID, and no route validates PIDs. These skills only read.
+**⚠️ No per-table permission.** Any authenticated user can read, update, or delete any event table by UUID, and no route validates PIDs. `list`, `get`, `export` and `fetch` only read. `create`, `upload`, `rebind-pids` and `delete` write and are held back from the public export for this reason; they share `_event_table_write_routes` and each previews by default.
 
 #### onping-event-table-list
 
 List event tables from dashboard JSON, with an optional reverse lookup from a PID to the tables that read it. Checks a `--dashboard` key against `GET /data/dashboard/values` first, because `GET /data/dashboard` silently returns the default dashboard for a key it cannot parse.
 
 - **Script:** `onping-event-table-list/scripts/list_event_tables.py`
-- **Input:** `ACCESS_TOKEN` plus `--dashboard KEY` (repeatable) or `--all`
+- **Input:** `--dashboard KEY` (repeatable) or `--all` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--title TEXT` (repeatable), `--references-pid N`, `--json`
 - **Output:** one record per table — title, UUID, dashboard, panel; with `--references-pid`, `REFERENCED` with the binding or `UNCHECKED` with the error (exit 1)
 
@@ -393,7 +576,7 @@ List event tables from dashboard JSON, with an optional reverse lookup from a PI
 Read one event table's configuration as JSON via `POST /event/table/config`.
 
 - **Script:** `onping-event-table-get/scripts/get_event_table.py`
-- **Input:** `ACCESS_TOKEN UUID`
+- **Input:** `UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--bindings`, `--pid N` (`REFERENCED` / `NOT REFERENCED`, both exit 0), `--output PATH`, `--pretty`
 - **Output:** JSON `EventTableConfiguration`, or the bindings view or PID answer
 
@@ -402,7 +585,7 @@ Read one event table's configuration as JSON via `POST /event/table/config`.
 Export one event table as Dhall via `GET /event/table/export/<file>.dhall?eventTableUUID=<uuid>`.
 
 - **Script:** `onping-event-table-export/scripts/export_event_table.py`
-- **Input:** `ACCESS_TOKEN UUID --output PATH`
+- **Input:** `UUID --output PATH` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Dhall `EventTableConfiguration`, written only on success
 
 #### onping-event-table-fetch
@@ -410,9 +593,45 @@ Export one event table as Dhall via `GET /event/table/export/<file>.dhall?eventT
 Render an event table's rows at a given time via `POST /event/table/fetch`, and name the dead key when one stops the table rendering.
 
 - **Script:** `onping-event-table-fetch/scripts/fetch_event_table.py`
-- **Input:** `ACCESS_TOKEN UUID`
+- **Input:** `UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--at TIME`, `--pretty`
 - **Output:** JSON rows; on a dead key, `TABLE DOES NOT RENDER` with the key and next steps (exit 1)
+
+#### onping-event-table-create
+
+Mint one empty event table via `POST /content/event/table/config` with the target dashboard id as a JSON string. **Mutating**; previews by default, `--yes` to send. The table inherits the dashboard's group; the answer is the new UUID, read back to confirm. It does not place the table on the dashboard (`onping-dashboard-card-add`) or fill it (`onping-event-table-upload`).
+
+- **Script:** `onping-event-table-create/scripts/create_event_table.py`
+- **Input:** `DASHBOARD_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
+- **Options:** `--yes`, `--dry-run`
+- **Exit codes:** 0 preview or verified; 1 the mint failed or answered no UUID; 2 usage or the dashboard is not in your list or has no group; 3 a read failed; 4 read-back differs
+
+#### onping-event-table-upload
+
+Replace an event table's configuration from a Dhall file via `POST /event/table/import` (multipart `f1` file, `f2` table UUID, `f3` dashboard id). **Mutating**; checks the file locally, previews the key changes against the current export, backs the export up (mode 0600), re-reads before the write, uploads once and exports back; exit 4 when the stored table differs from the file. No point id is validated by the server.
+
+- **Script:** `onping-event-table-upload/scripts/upload_event_table.py`
+- **Input:** `UUID --file PATH`
+- **Options:** `--dashboard-id DASHID`, `--backup PATH`, `--expect-hash SHA256`, `--yes`, `--dry-run`
+- **Exit codes:** 0 preview or verified; 1 upload failed; 2 usage, a file that fails the local checks, or a missing or deleted table; 3 read or backup failed; 4 read-back differs; 5 changed since the preview
+
+#### onping-event-table-rebind-pids
+
+Swap the point ids an event table binds from a JSON mapping (`{"PID 1": "PID 2"}`), through export and the checked upload above. **Mutating**; lists every swap and every unmapped point, refuses unmapped points (exit 2) unless `--allow-unmapped`, and confirms with a second export that the table binds exactly the rebound keys.
+
+- **Script:** `onping-event-table-rebind-pids/scripts/rebind_pids.py`
+- **Input:** `UUID --map FILE`
+- **Options:** `--allow-unmapped`, `--backup PATH`, `--expect-hash SHA256`, `--yes`, `--dry-run`
+- **Exit codes:** as `onping-event-table-upload`; 2 also for unmapped points and for a mapping that names none of the table's points
+
+#### onping-event-table-delete
+
+Soft-delete an event table via `POST /event/table/delete`. **Mutating**; refuses while a listed dashboard still holds a card for the table unless `--allow-referenced`, exports the table to a backup first, then confirms the config read answers 404 or `eventTableDeleted: true`. Nothing removes the cards that name the table.
+
+- **Script:** `onping-event-table-delete/scripts/delete_event_table.py`
+- **Input:** `UUID`
+- **Options:** `--allow-referenced`, `--backup PATH`, `--yes`, `--dry-run`
+- **Exit codes:** 0 preview or verified; 1 the delete failed; 2 usage, a missing or already deleted table, or a card still names it; 3 a read or the backup failed; 4 the table still resolves
 
 ### Lumberjack Data Tables
 
@@ -420,12 +639,14 @@ Primitive skills for Lumberjack **data tables** — the `/datatable/<LJ>/source/
 
 **Safety model:** `list`, `get`, and `fetch` are read-only. `column-add`, `column-delete`, and `cell-set` preview by default, POST only with `--yes` (`--dry-run` wins), write a JSON backup first, then re-read and exit non-zero on any mismatch. **`column-delete` destroys the column's cells** (DROP COLUMN); its backup keeps every row's pointers. Writes need the table's group in your owned groups; `Permission Denied` is HTTP 500.
 
+**Source skills (HELD).** `create`, `rename`, `delete`, `rows-add`, `rows-delete`, `import` and `export` complete the source lifecycle, and six `view-*` skills manage Data Table **widgets and views** (the thing a dashboard card shows). All 13 are held back from the public export (see each entry); none has had a live run. Common rules: writers preview by default and POST only with `--yes` (`--dry-run` wins), back up first, and read back; the token comes from `$ONPING_ACCESS_TOKEN` or `--token-stdin`, never argv; writes are paced at 10 s apart and an HTTP 429 is never resent (exit 6). **Never called by any skill: the clear-all-rows route** (`delete/by/table` with a false flag wipes every row; the helper refuses it by route name and by final URL). Exit codes shared by the set: 0 ok or preview; 1 request or backup failure; 2 usage or refusal; 4 read-back mismatch, duplication or "may have been applied"; 5 guard refusal; 6 HTTP 429. Row writes leave no audit entry, and a source delete cannot be undone: the skills' backup files are the only trail. **View filters are preserved unchanged and cannot be edited in v1** (see the `add-onping-datatable-view-filter-editing` change).
+
 #### onping-datatable-list
 
 List data tables on one LJ or every LJ, and find the tables with a cell pointing at a PID or VPID.
 
 - **Script:** `onping-datatable-list/scripts/list_datatables.py`
-- **Input:** `ACCESS_TOKEN` plus `LJ` or `--all`
+- **Input:** `LJ` or `--all` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--name TEXT` (repeatable), `--references-pid N` / `--references-vpid N`, `--json`
 - **Output:** LJ, UUID, column count, group, name; with `--references-*`, `REFERENCED` cells or `UNCHECKED` (exit 1)
 
@@ -434,7 +655,7 @@ List data tables on one LJ or every LJ, and find the tables with a cell pointing
 Read one data table's TableSource: columns (position, UUID, selector, hidden, name), pagination, order, filters.
 
 - **Script:** `onping-datatable-get/scripts/get_datatable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID`
+- **Input:** `LJ TABLE_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--json`, `--output PATH`
 - **Output:** header and column grid, or the raw JSON
 
@@ -443,7 +664,7 @@ Read one data table's TableSource: columns (position, UUID, selector, hidden, na
 Read a data table's rows with each cell's stored pointer and rendered value, joined on `tableRowId`; stored filters are ignored.
 
 - **Script:** `onping-datatable-fetch/scripts/fetch_datatable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID`
+- **Input:** `LJ TABLE_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--row ID`, `--pid N` / `--vpid N`, `--limit N` (default 20), `--offset N`, `--json`
 - **Output:** row count and rows (`pointer = value` per cell), one row in full, or every cell pointing at a PID/VPID
 
@@ -452,7 +673,7 @@ Read a data table's rows with each cell's stored pointer and rendered value, joi
 Add an empty column (name, selector, optional position) via `POST /datatable/<LJ>/source/metadata/update`. **Mutating.**
 
 - **Script:** `onping-datatable-column-add/scripts/add_datatable_column.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID --name NAME`
+- **Input:** `LJ TABLE_UUID --name NAME` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--selector S` (default Result), `--at POS`, `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** BEFORE/AFTER grids; on `--yes`, backup path, POST result, read-back check
 
@@ -461,7 +682,7 @@ Add an empty column (name, selector, optional position) via `POST /datatable/<LJ
 Delete a column via `metadata/update` (the server drops it and its cells). **Mutating, destructive.** A stored filter on the column blocks it unless `--drop-filters`.
 
 - **Script:** `onping-datatable-column-delete/scripts/delete_datatable_column.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID --column POS|UUID|NAME`
+- **Input:** `LJ TABLE_UUID --column POS|UUID|NAME` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--drop-filters`, `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** BEFORE/AFTER grids and a `DATA LOSS` count; on `--yes`, backup (TableSource + every row's pointers), POST result, read-back check
 
@@ -470,9 +691,135 @@ Delete a column via `metadata/update` (the server drops it and its cells). **Mut
 Set one cell's PID/VPID/text, or rewrite every cell pointing at a PID or VPID, via `POST /datatable/<LJ>/source/content/update` (each changed row sent in full). **Mutating.** Refuses tables with an `Invalid` column.
 
 - **Script:** `onping-datatable-cell-set/scripts/set_datatable_cells.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID` plus `--row ID --column REF (--pid N | --vpid N | --text T | --clear)` or `--replace-pid OLD NEW` / `--replace-vpid OLD NEW [--column REF]`
+- **Input:** `LJ TABLE_UUID` plus `--row ID --column REF (--pid N | --vpid N | --text T | --clear)` or `--replace-pid OLD NEW` / `--replace-vpid OLD NEW [--column REF]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** each changed cell `old -> new`; on `--yes`, backup of the edited rows, POST result, read-back check
+
+#### onping-datatable-create
+
+Create an **empty** data table (no columns) via `POST /datatable/<LJ>/source/create`; add columns with `onping-datatable-column-add`. **Mutating**; previews by default. `--column` is rejected (columns at creation are deferred). Without `--group` it lists the groups in use on the LJ (a hint: no route lists the groups you own; a wrong group is HTTP 500 Permission Denied).
+
+- **Script:** `onping-datatable-create/scripts/create_datatable.py`
+- **Input:** `LJ --name NAME` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
+- **Options:** `--group GROUP_ID`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request failed; 2 usage or name already used; 4 read-back differs; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-rename
+
+Rename a data table (`tableName` only) via `source/metadata/update`. **Mutating**; previews by default. The read-back is strict (a recursive diff of the whole source), so a server that normalises any other field makes it exit 4 even when the rename worked.
+
+- **Script:** `onping-datatable-rename/scripts/rename_datatable.py`
+- **Input:** `LJ TABLE_UUID --name NAME`
+- **Options:** `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request failed; 2 usage or name already used; 4 read-back differs; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-delete
+
+Delete a data table and its rows via `source/delete`. **Mutating, irreversible.** `--confirm-name` must equal the table's exact name. It dumps the table to `.xlsx` and writes a JSON backup first, then refuses (exit 5) while any live view names the source, unless `--ignore-views`; `view/all` shows only views in groups you own or belong to, so the preview always prints that blind spot. It never calls the clear-all-rows route.
+
+- **Script:** `onping-datatable-delete/scripts/delete_datatable.py`
+- **Input:** `LJ TABLE_UUID --confirm-name NAME`
+- **Options:** `--ignore-views`, `--dump PATH`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified gone; 1 request refused (table still listed) or backup failed; 2 usage or wrong `--confirm-name`; 4 the table is still listed after a timeout (MAY have been applied; do not resend); 5 a live view names the source; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-rows-add
+
+Append rows from a CSV or JSON file via `source/content/add`, **100 rows per request at most** (`--batch-size`), resumable without duplicating rows. **Mutating**; previews by default. A header is required for every table column. A checkpoint file is written before the first send and around every batch; a timeout is treated as "may have applied" and the table is read before any resend. A re-run without `--resume` or `--restart` while a checkpoint exists for the same table exits 5 and names it; `--resume` and `--restart` exit 5 if the table's columns changed since the checkpoint. A row identical to one of ours written by someone else is counted as ours on resume.
+
+- **Script:** `onping-datatable-rows-add/scripts/add_rows.py`
+- **Input:** `LJ TABLE_UUID (--csv FILE | --json FILE)`
+- **Options:** `--batch-size N` (at most 100), `--skip-existing-by COLUMN`, `--resume` / `--restart`, `--checkpoint-dir DIR`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage or a column without a header; 4 read-back differs or a batch may have been applied; 5 checkpoint refusal (existing, changed columns, unreadable); 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-rows-delete
+
+Delete chosen rows by row id (`--id`, or `--where COLUMN=VALUE`) via `source/content/delete`, in one request for the whole selection. **Mutating, destructive**; previews the selection and its hash by default. No `--all`: a selection that is every row exits 5. The backup is a JSON list of objects keyed by column name (`onping-datatable-rows-add` can restore it); it carries no row ids.
+
+- **Script:** `onping-datatable-rows-delete/scripts/delete_rows.py`
+- **Input:** `LJ TABLE_UUID` plus `--id ROW_ID` or `--where COLUMN=VALUE` (repeatable)
+- **Options:** `--expect-hash HASH`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview, nothing matched, or verified; 1 request or backup failed; 2 usage or an unknown `--id`; 4 read-back differs; 5 the selection is every row, or `--expect-hash` moved; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-import
+
+Append the rows of an `.xlsx` (`Sheet1`, header in row 1) via `source/import`. **Mutating**; previews by default. `--template` keeps the table's columns (row 1 = one YAML `name:`/`tag:` cell per visible column). A plain import **replaces the header** (new column ids; filters, hidden columns and order cleared), so into a table that already has columns it needs `--allow-header-change` (otherwise exit 5 before any dump or upload). The whole file goes in **one request** with no batching or resume; this departs from the 100-rows ruling and awaits the owner's decision. After an upload error it reads the table and reports applied, nothing landed, or partial.
+
+- **Script:** `onping-datatable-import/scripts/import_datatable.py`
+- **Input:** `LJ TABLE_UUID --file PATH`
+- **Options:** `--template`, `--allow-header-change`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage or an unreadable file; 4 read-back differs or the upload may have landed; 5 header guard or an untrusted table read; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-export
+
+Download a data table as an `.xlsx` (the dump: YAML header cells for all columns, hidden ones included, plus all rows) or, with `--template`, the server's fixed generic example workbook (not this table's headers). Read-only; never overwrites without `--force`.
+
+- **Script:** `onping-datatable-export/scripts/export_datatable.py`
+- **Input:** `LJ TABLE_UUID --out PATH`
+- **Options:** `--template`, `--force`
+- **Exit codes:** 0 written; 1 request failed; 2 usage or `--out` exists; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-list
+
+List Data Table views (id, source, LJ, group, name), filtered locally by `--lj`, `--source` or `--name`. Read-only.
+
+- **Script:** `onping-datatable-view-list/scripts/view_list.py`
+- **Options:** `--lj SERIAL`, `--source UUID`, `--name TEXT`, `--all` (include deleted), `--json`
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-get
+
+Show one widget and its view (widget -> view -> source), optionally some rows. An empty widget is reported. Read-only.
+
+- **Script:** `onping-datatable-view-get/scripts/view_get.py`
+- **Input:** `--widget ID` or `LJ VIEW_UUID`
+- **Options:** `--rows N`, `--json`
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-create
+
+Create a widget and a view of a source (`--source LJ SOURCE_UUID`). **Mutating**; previews by default. The widget is on no dashboard (place it with `onping-dashboard-card-add --type data-table`). It lists the source's views before and after and reads the widget back: any unexpected or changed view prints `FAILURE: unexpected widget or view duplication` and exits 4. It cannot see an extra widget that has no view (no widget list route).
+
+- **Script:** `onping-datatable-view-create/scripts/view_create.py`
+- **Options:** `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage or unknown source; 4 read-back differs or duplication; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-update
+
+Change how a view looks: hide or show columns, display order (`--order`, columns first in the order given; sort order untouched), page size, frozen column. **Mutating**; previews by default. The column set and stored filters are preserved and read back; there is no filter option.
+
+- **Script:** `onping-datatable-view-update/scripts/view_update.py`
+- **Input:** `--widget ID` or `LJ VIEW_UUID`
+- **Options:** `--hide COL`, `--show COL`, `--order COL`, `--page-size N`, `--freeze-column COL` / `--unfreeze`, `--expect-hash H`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage or unknown column; 4 read-back differs; 5 `--expect-hash` moved or deprecated view; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-sync
+
+Show whether a view is in sync with its source and sync an unsynced one via `view/sync`. **Mutating**; previews by default. It refuses (exit 5) whenever a filter names a deleted or updated column or the source's filters differ from the view's, and it is not known whether the server keeps stored filters on sync, so it may refuse often until that is measured. The owner may defer it from v1.
+
+- **Script:** `onping-datatable-view-sync/scripts/view_sync.py`
+- **Input:** `--widget ID` or `LJ VIEW_UUID`
+- **Options:** `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage; 4 read-back differs or filters differ after; 5 a filter is at risk; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
+
+#### onping-datatable-view-delete
+
+Delete a widget and soft-delete its view. **Mutating**; previews by default. A widget owned by a dashboard is refused (exit 5) unless `--allow-placed` (its card will then name a deleted widget). Note that the server's `view/create` route clears a widget's dashboard owner, so never create a view into a widget that is already placed.
+
+- **Script:** `onping-datatable-view-delete/scripts/view_delete.py`
+- **Input:** `--widget ID`
+- **Options:** `--allow-placed`, `--yes`, `--dry-run`, `--backup PATH`
+- **Exit codes:** 0 preview or verified; 1 request or backup failed; 2 usage or unknown widget; 4 read-back differs; 5 placed widget; 6 HTTP 429
+- Held back from the `plow-technologies/onping-skills` export by owner decision (HELD): automated tests and independent review are done, no live run exists; see `docs/public-readiness.md`.
 
 ### Lumberjack Log Tables
 
@@ -487,7 +834,7 @@ Skills for Lumberjack **log tables** (`/logtable/<LJ>/source/*`). A log table re
 List log tables on one LJ or every LJ (`--all` returns only tables with a schema and is slow), and find the tables recording a PID or VPID.
 
 - **Script:** `onping-logtable-list/scripts/list_logtables.py`
-- **Input:** `ACCESS_TOKEN` plus `LJ` or `--all`
+- **Input:** `LJ` or `--all` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--name TEXT` (repeatable), `--references-pid N` / `--references-vpid N`, `--json`
 - **Output:** LJ, UUID, version, column count, event PID, name; `REFERENCED` columns with `--references-*`
 
@@ -496,7 +843,7 @@ List log tables on one LJ or every LJ (`--all` returns only tables with a schema
 Read one log table's schema (current or `--version N`): position, UUID, key, selector, event marker, hidden, name; versions and schema problems.
 
 - **Script:** `onping-logtable-get/scripts/get_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID`
+- **Input:** `LJ TABLE_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--version N`, `--json`, `--output PATH`
 - **Output:** header and column grid, or the raw JSON
 
@@ -505,7 +852,7 @@ Read one log table's schema (current or `--version N`): position, UUID, key, sel
 Read recorded rows newest first, with the count and the newest event time and age, via `POST /logtable/<LJ>/source/content/query/v2`.
 
 - **Script:** `onping-logtable-fetch/scripts/fetch_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID`
+- **Input:** `LJ TABLE_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--limit N` (default 10), `--offset N`, `--since UTC`, `--until UTC` (inclusive, minute precision), `--version N`, `--json`
 - **Output:** count, newest event, rows
 
@@ -514,7 +861,7 @@ Read recorded rows newest first, with the count and the newest event time and ag
 Create a log table with all its columns in one step: `source/create`, then one version-1 `schema/upgrade` holding the event column keyed by the trigger PID plus every declared column. Columns come from `--column NAME=SOURCE[:TAG]` or from an `onping-logtable-export` XLSX (`--from`, which copies the visible columns but not hidden columns, layout or rows). Columns are checked before any request. **Mutating.** Names any orphaned version-0 source if the second step fails. No dashboard is needed.
 
 - **Script:** `onping-logtable-create/scripts/create_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ --name NAME (--event-pid N | --from FILE.xlsx) --group ID` (without `--group`: hints, exit 2)
+- **Input:** `LJ --name NAME (--event-pid N | --from FILE.xlsx) --group ID` (without `--group`: hints, exit 2) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--column NAME=SOURCE[:TAG]` (repeatable; SOURCE `<n>` or `<n> VPID`, TAG default `result`), `--event-name NAME` (not with `--from`), `--yes`, `--dry-run`
 - **Output:** the version-1 grid; on `--yes`, the new UUID and read-back check
 
@@ -523,7 +870,7 @@ Create a log table with all its columns in one step: `source/create`, then one v
 Add a column recording a PID or VPID, as schema version v+1. **Mutating.**
 
 - **Script:** `onping-logtable-column-add/scripts/add_logtable_column.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID (--pid N | --vpid N) --name NAME`
+- **Input:** `LJ TABLE_UUID (--pid N | --vpid N) --name NAME` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--selector S` (default Result), `--at POS`, `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** BEFORE/AFTER grids and the empty-version warning; on `--yes`, backup, POST result, read-back check
 
@@ -532,7 +879,7 @@ Add a column recording a PID or VPID, as schema version v+1. **Mutating.**
 Remove a column (not the event column) as schema version v+1. **Mutating.**
 
 - **Script:** `onping-logtable-column-delete/scripts/delete_logtable_column.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID (--column REF | --pid N | --vpid N)`
+- **Input:** `LJ TABLE_UUID (--column REF | --pid N | --vpid N)` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--drop-filters`, `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** as column-add
 
@@ -541,7 +888,7 @@ Remove a column (not the event column) as schema version v+1. **Mutating.**
 Repoint a column to another PID/VPID, change its selector, and/or rename it, keeping its UUID, as schema version v+1. Repointing the event column moves the trigger (PID only). **Mutating.**
 
 - **Script:** `onping-logtable-column-set/scripts/set_logtable_column.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID (--column REF | --column-pid N | --column-vpid N)` plus any of `--pid N` / `--vpid N`, `--selector S`, `--name NAME`
+- **Input:** `LJ TABLE_UUID (--column REF | --column-pid N | --column-vpid N)` plus any of `--pid N` / `--vpid N`, `--selector S`, `--name NAME` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** as column-add, with a `NOTE` when the trigger moves
 
@@ -550,7 +897,7 @@ Repoint a column to another PID/VPID, change its selector, and/or rename it, kee
 Soft-delete a log table via `POST /logtable/<LJ>/source/delete` (it stops recording and leaves the list; no undelete route). **Mutating.**
 
 - **Script:** `onping-logtable-delete/scripts/delete_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID`
+- **Input:** `LJ TABLE_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run`, `--backup PATH`
 - **Output:** the table, its versions and row count; on `--yes`, backup (the full LogTableSource), POST result, verified absence from the list
 
@@ -559,7 +906,7 @@ Soft-delete a log table via `POST /logtable/<LJ>/source/delete` (it stops record
 Download a log table as the multiple-rows-header XLSX template. Read-only.
 
 - **Script:** `onping-logtable-export/scripts/export_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID [FILENAME]`
+- **Input:** `LJ TABLE_UUID [FILENAME]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** the `.xlsx` path; nothing is written when the token is rejected
 
 #### onping-logtable-import
@@ -567,7 +914,7 @@ Download a log table as the multiple-rows-header XLSX template. Read-only.
 Upload a multiple-rows-header XLSX template to an existing log table (`source: <n>` or `source: <n> VPID`; the trigger must be a PID). **Mutating.**
 
 - **Script:** `onping-logtable-import/scripts/import_logtable.py`
-- **Input:** `ACCESS_TOKEN LJ TABLE_UUID SPREADSHEET`
+- **Input:** `LJ TABLE_UUID SPREADSHEET` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run`
 - **Output:** pre-flight result; on `--yes`, the TableId and saved column count
 
@@ -628,7 +975,7 @@ Shared audit-postgres access for `onping-ctable-audit-history`, `onping-ctable-a
 Export a custom-table widget as JSON via `GET /content/ctable/json?cTableId=…` — title, headers, every cell, type, zoom, and the parent dashboard id. Read-only; the backup step before any import. Written **only** after a confirmed non-null object, so a failure never clobbers an existing backup.
 
 - **Script:** `onping-ctable-export/scripts/export_ctable.py`
-- **Input:** `ACCESS_TOKEN CTABLE_ID`
+- **Input:** `CTABLE_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--output PATH`, `--indent N` (omit for the compact form that round-trips byte-identically)
 - **Output:** JSON `CustomTableWidget`; stderr summary of rows, columns, cells, dashboard id, bytes, and percent of the 8 MiB cap. A row-index gap is reported (indices are positional, so a gap renders as a blank row)
 - **Exits:** 2 on a malformed id (no request issued), 1 on a `null` body, an expired token, or a non-200. `GET /does/content/ctable/json/exist` answers the existence question more cheaply
@@ -663,7 +1010,7 @@ Pull one `custom_table_widget_audit` row and decode it into the shape `POST /con
 Write a `CustomTableWidget` back at an exact ObjectId via `POST /content/ctable/json` — a full-document mongo repsert (`DB.save` carrying an `_id`) and the only path that lets the caller choose the id. **MUTATING — requires `--yes`.** Also **audited**, recording `Create`/`Update` with your username, which the wiki's `mongo … custom.js` path is not.
 
 - **Script:** `onping-ctable-import/scripts/import_ctable.py`
-- **Input:** `ACCESS_TOKEN CTABLE_ID WIDGET_JSON` (a bare widget or a `{ctable, cid}` envelope — either is accepted)
+- **Input:** `CTABLE_ID WIDGET_JSON` (a bare widget or a `{ctable, cid}` envelope — either is accepted) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes` (required to write), `--dry-run` (**wins over `--yes`**), `--force` (permit a parent-dashboard change), `--verify-live`
 - **Why this route and no other:** a custom table is referenced **only** by its mongo `_id` — the panel stores `cTableId`, the widget stores the reverse pointer, and neither side carries a name or slug. `POST /content/ctable/config` mints a server-generated id, and the XLSX import at `/content/ctable/import` rewrites only headers and cells while dropping title, zoom, and sorting
 - **Four local refusals, each a way this route quietly ruins a widget:** a **null `customTableWidgetDashboard`** (permission is read from the dashboard the widget names, so a widget naming none becomes **permanently unwritable through the API** — one bad post is enough); a **differing dashboard** without `--force` (retargeting silently moves who can edit it); a **non-null `customTableSortingInformation`**; and an **oversize body**, measured locally rather than after uploading 8 MiB. Also checked: the four `.:`-parsed keys must be present, and every `cellDataRow`/`cellDataCol` must be a non-negative integer (a row gap warns, not refuses)
@@ -691,20 +1038,19 @@ List, install, update, and monitor packages on Lumberjack edge devices via the O
 Look up Lumberjack profiles by OnPing location ID. Matches the location's IP address against Lumberjack profile fields to find the associated profile (which contains the Lumberjack ID needed by `cp-list`).
 
 - **Script:** `lj-profile/scripts/lj_profile.py`
-- **Input:** `ACCESS_TOKEN LOCATION_ID [LOCATION_ID ...]`
+- **Input:** `LOCATION_ID [LOCATION_ID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Matched profile JSON (single ID) or JSON object keyed by location ID (multiple IDs)
 
 #### onping-pak-transport-link
 
 List, show, export, create, edit and delete the PAK transport Ticket Permissive link: the record that routes a PAK facility's ticket requests to one Lumberjack, with the LJ's host and port and a list of bay-to-lane mappings (`--map BAY=LANE`, repeatable; several bays may share a lane). Supports only the seven-field record; it refuses, writing nothing, if the server returns the older record. **Mutating:** `set` and `delete` preview by default, send with `--yes`, and `--dry-run` wins.
 
-- **Ownership.** It computes the LJs you own the way OnPing does (LAS profile group in `GET /permissions/groups/ownership`). `get`, `set --id` and `delete` find the link by id among the links on those LJs and refuse (exit 3) if it is not there; the target LJ must be yours too.
+- **Ownership.** It computes the LJs you own the way OnPing does (LAS profile group in `GET /permissions/groups/ownership`). `get`, `set --id` and `delete` find the link by id among the links on those LJs and refuse (exit 3) if it is not there; the target LJ must be yours too. The server checks the stored record's LJ (and, on a save, the request's LJ) before it writes; the skill checks first, so a refusal sends no write.
 - **Preflight.** It refuses (exit 3, nothing sent) empty mappings, a repeated bay, a bay in another link, a second link on the LJ, and an invalid host or port, by the cloud app's own rules.
-- **Writes.** A backup JSON is written before each write; the write is sent once, then read back. OnPing's HTTP 500 is unwrapped to the cloud app's status and message; a 502 means the switcher registration failed and nothing was saved. Each write prints its undo.
+- **Writes.** A backup JSON is written before each write; the write is sent once, then read back. OnPing's HTTP 500 is unwrapped to the cloud app's status and message; a 502 means a cloud call failed, usually the switcher registration, and the read-back decides whether anything was saved. Each write prints its undo.
 - **Script:** `onping-pak-transport-link/scripts/pak_link.py` (skill-local routes and checks in `scripts/pak_routes.py`)
 - **Subcommands:** `list (--serial N ... | --all-owned)`, `get --id UUID`, `export ... -o FILE`, `set [--id UUID] [--from FILE [--new-id]] [--serial N [--allow-move]] [--facility-id] [--facility-name] [--url] [--port] [--map BAY=LANE ...]`, `delete --id UUID`. Every subcommand takes `--json`.
 - **Exits:** 0 ok/preview/no-op, 1 request failure (nothing written), 2 usage or file, 3 guard or preflight refusal, 4 unknown outcome or read-back mismatch.
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 ### Lumberjack Dynamic Configs (LAS)
 
@@ -715,30 +1061,27 @@ Skills for a Lumberjack's **LAS dynamic configs**: the per-package editable keys
 List a Lumberjack's packages (monitor name, key count, YAML path) or one package's keys with types and values, plus the Lumberjack's name, whether you own it, and `is-storage-synced`. Read-only.
 
 - **Script:** `lj-config-list/scripts/lj_config_list.py`
-- **Input:** `ACCESS_TOKEN SERIAL [--package P] [--show-secrets] [--json]`, or `ACCESS_TOKEN --lumberjacks [--name SUBSTR] [--json]` (the Lumberjacks you own; `lumberjackPassword` is never printed)
+- **Input:** `SERIAL [--package P] [--show-secrets] [--json]`, or `--lumberjacks [--name SUBSTR] [--json]` (the Lumberjacks you own; `lumberjackPassword` is never printed) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Note:** `is-mqtt-bridge-up` answers `null` even for a live Lumberjack; it is shown as `unknown` and never used to decide
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 #### lj-config-export
 
 Write one package's config to a new local file: the flat `key: value` YAML from `GET configs/export` (Owner), or the `PackageConfig` JSON with `--json`.
 
 - **Script:** `lj-config-export/scripts/lj_config_export.py`
-- **Input:** `ACCESS_TOKEN SERIAL --package P [-o FILE | -o -] [--force] [--json]`
+- **Input:** `SERIAL --package P [-o FILE | -o -] [--force] [--json]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Rules:** owner precheck (exit 3); never overwrites without `--force` (exit 2); unmasked, mode 0600
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 #### lj-config-set
 
 Change values of existing keys in one package's config. **MUTATING — requires `--yes`; a real change restarts the package's service.**
 
 - **Script:** `lj-config-set/scripts/lj_config_set.py`
-- **Input:** `ACCESS_TOKEN SERIAL --package P KEY=VALUE | KEY:=JSON ... | --from-yaml FILE | --restore BACKUP`
+- **Input:** `SERIAL --package P KEY=VALUE | KEY:=JSON ... | --from-yaml FILE | --restore BACKUP` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--yes`, `--dry-run` (wins), `--backup PATH`, `--allow-noop`, `--allow-unsynced`, `--wait SECONDS`, `--show-secrets`
 - **Validation:** every value against its key's `ConfigType` (`CInteger`, `CPort` 0-65535, `CFloat` finite, `CBool`, `CText`, `CPassword`, `CURL` without whitespace, `CMaybe`, `CList`); unknown keys and unknown type tags refused; only values change, key order and types kept
 - **Flow:** owner precheck, refuse unless `is-storage-synced` (or `--allow-unsynced`), backup, re-read, POST the full `PackageConfig`, wait for the device to acknowledge, read back, print `undo:` (`--restore`)
 - **Exit codes:** 0 ok/preview/no-op, 1 failure or mismatch, 2 validation, 3 preflight refusal, 4 saved in the cloud but not acknowledged by the device (offline: it applies, with a restart, on reconnect)
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 ### Lumberjack Restore (`lumberjack-restore/`)
 
@@ -775,7 +1118,7 @@ Trigger a restore operation for a specific backup file. **Destructive:** stops s
 List all virtual parameter scripts in OnPing. This is the discovery entry point for browsing VP scripts.
 
 - **Script:** `vp-scripts/scripts/list_scripts.py`
-- **Input:** `ACCESS_TOKEN`
+- **Input:** none (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON array of all VP script objects
 
 #### vp-show
@@ -783,7 +1126,7 @@ List all virtual parameter scripts in OnPing. This is the discovery entry point 
 Show configuration details for a virtual parameter by ID, including name, inputs, and script reference.
 
 - **Script:** `vp-show/scripts/show_vp.py`
-- **Input:** `ACCESS_TOKEN VP_ID`
+- **Input:** `VP_ID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON object with VP configuration (name, inputs, script reference, etc.)
 
 #### vp-script-fetch
@@ -791,7 +1134,7 @@ Show configuration details for a virtual parameter by ID, including name, inputs
 Fetch the actual Inferno script code for a virtual parameter by its script ID.
 
 - **Script:** `vp-script-fetch/scripts/fetch_script.py`
-- **Input:** `ACCESS_TOKEN SCRIPT_ID` (script ID is a base64-encoded string)
+- **Input:** `SCRIPT_ID` (script ID is a base64-encoded string) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON object containing the Inferno script content
 
 ### Deployment Artifacts
@@ -803,7 +1146,7 @@ The `ml-*` skills share the `_inferno_ml_routes` module (the `/inferno/ml/*` API
 Export one or more OnPing inference (ml-) parameters as portable JSON via `POST /inferno/ml/inference/export`. Read-only despite being a POST — no `--yes`. Output is flat and import-shaped, and is the **only** route that returns `itype` (the `{device, cap}` EC2 instance sizing). Two gotchas documented in SKILL.md: the route **silently omits** ids it cannot serve (hence `--strict` by default, which fails and writes nothing rather than let a partial export pass as complete), and the flat export shape is NOT interchangeable with `ml-parameter-update get`'s nested runtime envelope.
 
 - **Script:** `ml-parameter-export/scripts/ml_parameter_export.py`
-- **Input:** `ACCESS_TOKEN UUID [UUID ...]` or `--stdin-ids`; flags `--output`, `--pretty`, `--unwrap-single`, `--strict` (default) / `--no-strict`
+- **Input:** `UUID [UUID ...]` or `--stdin-ids`; flags `--output`, `--pretty`, `--unwrap-single`, `--strict` (default) / `--no-strict` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON array of `ExportedInferenceParam` records (stdout or `--output`)
 
 #### ml-model-upload
@@ -814,7 +1157,7 @@ Create OnPing ML model records, upload TorchScript .pt versions with metadata, a
   - `ml-model-upload/scripts/ml_model_list.py` -- List models and versions
   - `ml-model-upload/scripts/ml_model_create.py` -- Create a model record
   - `ml-model-upload/scripts/ml_model_version_upload.py` -- Upload a TorchScript version
-- **Input:** `ACCESS_TOKEN` + subcommand-specific flags (see SKILL.md)
+- **Input:** none + subcommand-specific flags (see SKILL.md) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Model UUID (create), Version UUID (upload), or JSON model list
 
 #### ml-parameter-update
@@ -823,7 +1166,7 @@ Update a deployed OnPing inference (ml-) parameter: swap script hash, rewire inp
 
 - **Script:** `ml-parameter-update/scripts/ml_parameter_update.py`
 - **Subcommands:** `list`, `get`, `update`
-- **Input:** `ACCESS_TOKEN` + subcommand-specific flags (see SKILL.md)
+- **Input:** subcommand-specific flags (see SKILL.md) (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** Table of inference params (list), JSON envelope (get), or diff + optional PUT result (update)
 - **See also:** `ml-parameter-export` for a portable snapshot. `get` returns the nested runtime envelope (`active`, `param.terminated`) and omits `itype`; export returns a flat import-shaped record including `itype`.
 
@@ -843,7 +1186,7 @@ Create, list and delete non-live test copies of one inference (ml-) parameter, s
 
 - **Script:** `ml-parameter-test-copy/scripts/ml_parameter_test_copy.py` (skill-local single-attempt routes in `scripts/copy_routes.py`)
 - **Subcommands:** `create`, `delete`, `list`
-- **Input:** `ACCESS_TOKEN create --from UUID --outputs-map JSON|@FILE [--gid GID] [--company N] [--itype DEVICE/CAP] [--name TEXT] [--description TEXT] [--yes] [--dry-run]`; `delete --param UUID [--yes] [--dry-run]`; `list [--source UUID] [--json]`
+- **Input:** `create --from UUID --outputs-map JSON|@FILE [--gid GID] [--company N] [--itype DEVICE/CAP] [--name TEXT] [--description TEXT] [--yes] [--dry-run]`; `delete --param UUID [--yes] [--dry-run]`; `list [--source UUID] [--json]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Output:** JSON preview with the exact request body; after `create --yes`, the new uuid, instance id, readback and a ready `delete_command`; exit 4 on an unknown outcome or a readback mismatch
 - Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
@@ -857,7 +1200,7 @@ Prepare the combined ML parameter xlsx template for creating OnPing output param
 
 #### event-table-import
 
-Prepare Dhall event table configs for OnPing reward dashboard import. Event tables display per-cycle reward metrics and SAC recommendations. Use after output parameters are created via `parameter-import`.
+Prepare a Dhall event table config file from a template, by hand, for a reward dashboard. It produces a file only: it calls no OnPing route and does not change a live event table or dashboard, upload the file with `onping-event-table-upload`. Event tables display per-cycle reward metrics and SAC recommendations. Use after output parameters are created via `parameter-import`; to read a live table use `onping-event-table-export` or `onping-event-table-get`.
 
 - **Template:** `event-table-import/templates/ExampleEventTableAsTemplate.dhall`
 - **Input:** None (manual Dhall adaptation and upload)
@@ -870,7 +1213,7 @@ Prepare Dhall event table configs for OnPing reward dashboard import. Event tabl
 Generate a CSV report from OnPing historical data via the `/tachdb/report` endpoint. Posts a report request with Bearer auth and returns a pre-signed S3 download URL.
 
 - **Script:** `onping-report/scripts/generate_report.py`
-- **Input:** `ACCESS_TOKEN START_DATE END_DATE PID [PID ...]`
+- **Input:** `START_DATE END_DATE PID [PID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--step N` — Step size in seconds (default: 60)
   - `--resolution N` — Resolution exponent (default: 8)
@@ -888,7 +1231,7 @@ RTU Manager write audits, the OnPing authentication server). Paginates for you, 
 hardcoded to 10 server-side.
 
 - **Script:** `onping-audit-pull/scripts/audit_pull.py`
-- **Input:** `ACCESS_TOKEN --type NAME [--type NAME ...]`
+- **Input:** `--type NAME [--type NAME ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
   - `--since ISO` / `--until ISO` — Bound `edited-on` (timezone required)
   - `--terms STR` — Relevance search terms, passed through verbatim
@@ -921,7 +1264,7 @@ Recover prior state for **any** audited OnPing model by querying its `<model>_au
 Write a typed value to a PID. **MUTATING — requires `--yes`.** This is the only skill in the catalog that writes a **live value to physical equipment**; every other mutating OnPing skill changes configuration. Defaults to `POST /source/param/write-onping-result`, which resolves the location and driver source **server-side** from the PID.
 
 - **Script:** `onping-pid-write/scripts/write_pid.py`
-- **Input:** `ACCESS_TOKEN PID` + exactly one value flag
+- **Input:** `PID` + exactly one value flag (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Value flags (mutually exclusive, one required):**
   - `--value F` — `OnPingDouble` (**write-masked**)
   - `--int N` — `OnPingInt` (**write-masked**)
@@ -955,14 +1298,14 @@ List masks, show each PID's default read and write mask, and assign or remove a 
 
 Skills for **generic-SWD kiosks**: the saltwater-disposal offload kiosks, including Ticket Permissive kiosks. A kiosk configuration has a name, **lanes** (a read PID with an optional mask script, a write PID and a waiting-to-start value) and a **status map** from masked read values to `Available`, `WaitingToStart`, `Pumping` or `Disabled(<message>)`. All three skills share `_generic_swd_routes` and take an access token from `onping-login`.
 
-**Safety model:** `list` and `get` are read-only and only reach kiosks in groups you own or belong to. `update` needs ownership of the kiosk's group, and every new or changed lane PID must pass OnPing's PID-write rule (its location has exactly one permission group, and you own it; a changed write PID must be writeable). It validates the whole configuration, previews by default, writes with `--yes` (`--dry-run` wins), saves a backup, refuses if the configuration changed since it was read, sends one write, and confirms it by read-back and a live lane read. None of the skills starts an offload or creates, moves or deletes a kiosk.
+**Safety model:** `list` and `get` are read-only and only reach kiosks in groups you own or belong to. `update` needs ownership of the kiosk's group, and every new or changed lane PID must pass OnPing's PID-write rule (its location has exactly one permission group, and you own it; a changed write PID must be writeable). It validates the whole configuration, previews by default, writes with `--yes` (`--dry-run` wins), saves a backup, refuses if the configuration changed since it was read, sends one write, and confirms it by read-back and a live lane read. The server also checks the caller's group access on every kiosk route (HTTP 403 otherwise); the skill's own guard runs first and is stricter for writes (ownership, not membership). None of the skills starts an offload or creates, moves or deletes a kiosk.
 
 #### onping-generic-swd-list
 
 List the kiosks in your owned and member groups, marked `owned` or `member`.
 
 - **Script:** `onping-generic-swd-list/scripts/list_generic_swd.py`
-- **Input:** `ACCESS_TOKEN`
+- **Input:** none (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--group GID` (repeatable; must be one of your groups), `--owned-only`, `--json`
 - **Output:** UUID, name, group, owned or member, address
 
@@ -971,7 +1314,7 @@ List the kiosks in your owned and member groups, marked `owned` or `member`.
 Show one kiosk's name, lanes (with each read PID's reported raw value, masked value and status) and status map, and list any validation problems in the stored configuration.
 
 - **Script:** `onping-generic-swd-get/scripts/get_generic_swd.py`
-- **Input:** `ACCESS_TOKEN KIOSK_UUID`
+- **Input:** `KIOSK_UUID` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--live` (the live lane states; about half a second per lane, and one failing lane fails the read), `--tickets N` (1-100), `--output FILE` (a backup that `update ... replace --from` restores), `--json`
 - **Exits:** 0 ok, 1 a read failed, 2 usage, 3 refused
 
@@ -980,12 +1323,11 @@ Show one kiosk's name, lanes (with each read PID's reported raw value, masked va
 Change one kiosk's configuration. **Mutating:** it previews by default, sends with `--yes`, and `--dry-run` wins.
 
 - **Script:** `onping-generic-swd-update/scripts/update_generic_swd.py`
-- **Input:** `ACCESS_TOKEN KIOSK_UUID SUBCOMMAND`
+- **Input:** `KIOSK_UUID SUBCOMMAND` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Subcommands:** `name-set`, `lane-set`, `lane-add`, `lane-delete`, `status-set` (`--status NAME` or `--disabled MESSAGE`), `status-delete`, `replace --from FILE` (restore)
 - **Options:** `--yes`, `--dry-run`, `--backup PATH`, `--no-live-check`, `--json`
 - **Output:** the diff, the PIDs the change sets, the guard result, the backup path and the `restore:` command; after a write, the read-back result
 - **Exits:** 0 preview/no change/written and confirmed, 1 a read failed or the write was rejected with nothing changed, 2 usage, 3 guard, validation, concurrent-edit or backup refusal, 4 unknown or unconfirmed outcome
-- Held back from the `plow-technologies/onping-skills` export, with `list` and `get`, pending a public-readiness review.
 
 ### Imports
 
@@ -1007,7 +1349,7 @@ Build a validated OnPing mass-write CSV from user-supplied timestamp+value point
 Upload/round-trip an mqtt-json parameter spreadsheet to `POST /mqtt/json/param/import` (a multipart form: `File` = the XLSX, `Location` = the location refId int). The write counterpart to `onping-export-mqtt-json`. This is a **bulk UPDATE, not authoring**: the server reconciles the location's entire parameter set from the sheet and rejects the import unless every existing PID is present (`existingPids ⊆ importedPids`), so the workflow is **export → edit → re-import**. A blank `PID` cell creates a parameter; a populated one updates it (preserving stored value). **Mutating** — no POST without `--yes`; the default and `--dry-run` validate the file, fetch the live location to reproduce the PID-coverage check locally, and preview only. The SKILL.md is also the authoritative **mqtt-json parameter-format reference**: the 8 columns, value types, time formats, writeability, and the supported JQ selector subset (incl. `select(...)` semantics).
 
 - **Script:** `onping-import-mqtt-json/scripts/import_params.py`
-- **Inputs:** `access_token`, `location_id` (int), `spreadsheet` (path)
+- **Inputs:** `location_id` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`) (int), `spreadsheet` (path)
 - **Options:**
   - `--dry-run` — validate + coverage check + preview, never POST (wins over `--yes`)
   - `--yes` — perform the upload (required for the mutating POST)
@@ -1019,7 +1361,7 @@ Upload/round-trip an mqtt-json parameter spreadsheet to `POST /mqtt/json/param/i
 Upload/round-trip a singlewell-manual parameter spreadsheet to `POST /v2/singlewellmanual/import/params` (a multipart form: `f1` = the XLSX, `f2` = the location refId int). The write counterpart to `onping-export-singlewell-manual`. Unlike mqtt-json, this endpoint **creates AND updates**: a blank `Pid` cell creates a new parameter (server-assigned Pid), a populated one updates it. It **cannot delete** — the server requires every existing Pid to still be present (blank-Pid rows are excluded from the check), so the workflow is **export → edit/append → re-import**. **Mutating** — no POST without `--yes`; the default and `--dry-run` validate the file, fetch the live location to reproduce the Pid-coverage and duplicate-`Parameter ID` checks locally, and preview only. The SKILL.md is also the authoritative **singlewell-manual parameter-format reference**: the 5 columns and the six value-type tags (`DoubleTag`, `NaNTag`, `Ascii24Tag`, `Utf8_24Tag`, `Utf8_40Tag`, `Utf8_184Tag`) with their byte caps.
 
 - **Script:** `onping-import-singlewell-manual/scripts/import_params.py`
-- **Inputs:** `access_token`, `location_id` (int), `spreadsheet` (path)
+- **Inputs:** `location_id` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`) (int), `spreadsheet` (path)
 - **Options:**
   - `--dry-run` — validate + coverage check + preview, never POST (wins over `--yes`)
   - `--yes` — perform the upload (required for the mutating POST)
@@ -1028,10 +1370,10 @@ Upload/round-trip a singlewell-manual parameter spreadsheet to `POST /v2/singlew
 
 #### onping-import-modbus-flexible
 
-Import an edited modbus-flexible tag spreadsheet into one location via `POST /modbus/flexible/import/params` (a multipart form: `f1` = the XLSX, `f2` = the location refId int). The write counterpart to `onping-export-modbus-flexible`. The server's one check on the sheet is that its populated PIDs equal the location's current PIDs, then **rebuilds every tag from the Index column**, so a tag's identity is its Index: a row on a current Index with that tag's PID updates it, a blank-PID row with a new Index creates a tag, and a populated row whose Index changed moves the tag to a different PID (the old PID leaves the location). The skill reproduces the server's parse and coverage rules locally, compares Index values as canonical JSON, and refuses a duplicate Index (the server would drop a row silently), a duplicate PID, a blank-PID row on a current Index, and `IdecMicroSmartIndex` rows. **Mutating** — no POST without `--yes`; with `--yes` it saves the pre-import export as a backup, uploads, and reads the result back by re-export. The SKILL.md is also the **modbus-flexible tag-sheet reference**: the 7 columns, the 24 Index families, the 13 data types, and what an import clears.
+Import an edited modbus-flexible tag spreadsheet into one location via `POST /modbus/flexible/import/params` (a multipart form: `f1` = the XLSX, `f2` = the location refId int). The write counterpart to `onping-export-modbus-flexible`. The server refuses with HTTP 403 unless the caller owns one of the location's groups (the skill does not check this itself and exits 1), then requires that the sheet's populated PIDs equal the location's current PIDs, then **rebuilds every tag from the Index column**, so a tag's identity is its Index: a row on a current Index with that tag's PID updates it, a blank-PID row with a new Index creates a tag, and a populated row whose Index changed moves the tag to a different PID (the old PID leaves the location). The skill reproduces the server's parse and coverage rules locally, compares Index values as canonical JSON, and refuses a duplicate Index (the server would drop a row silently), a duplicate PID, a blank-PID row on a current Index, and `IdecMicroSmartIndex` rows. **Mutating** — no POST without `--yes`; with `--yes` it saves the pre-import export as a backup, uploads, and reads the result back by re-export. The SKILL.md is also the **modbus-flexible tag-sheet reference**: the 7 columns, the 24 Index families, the 13 data types, and what an import clears.
 
 - **Script:** `onping-import-modbus-flexible/scripts/import_params.py`
-- **Inputs:** `access_token`, `location_id` (int), `spreadsheet` (path)
+- **Inputs:** `location_id` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`) (int), `spreadsheet` (path)
 - **Options:**
   - `--dry-run` — validate + plan + preview, never POST (wins over `--yes`)
   - `--yes` — perform the upload (required for the mutating POST)
@@ -1039,34 +1381,29 @@ Import an edited modbus-flexible tag spreadsheet into one location via `POST /mo
   - `--backup PATH` — where `--yes` saves the pre-import export
 - **Exit codes:** 0 on a clean preview or a matching read-back; 1 when a check blocks, the server refuses (its message is printed as it came), or the read-back differs.
 - **Note:** every tag's cached value is cleared until the next poll. `Data Type` is used only by `IdecMicroSmartIndex`; other families derive it from the Index.
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 ### Singlewell Manual Locations
 
-Create and delete one singlewell-manual **location** at a time (the parameter sheet is `onping-import-singlewell-manual` / `onping-export-singlewell-manual`; field edits are `onping-update-singlewell-manual`). Both skills are **mutating**: preview by default, `--yes` to write, `--dry-run` wins. Both refuse a group the caller does not own (`GET /permissions/groups/ownership`). Both send one request, never retried, and decide the outcome from a read-back of `POST /singlewellmanual/get/loc` plus the site listing `POST /singlewellmanual/locations`. Shared helper: `_singlewell_manual_routes/` (`routes.py`, `swm_http.py`). Exit codes: 0 preview or verified; 1 request failed before any write; 2 usage; 3 refusal; 4 partial, unknown or read-back mismatch.
+Create and delete one singlewell-manual **location** at a time (the parameter sheet is `onping-import-singlewell-manual` / `onping-export-singlewell-manual`; field edits are `onping-update-singlewell-manual`). Both skills are **mutating**: preview by default, `--yes` to write, `--dry-run` wins. Both check first that the caller owns the group (`GET /permissions/groups/ownership`, exit 3); a server with the 2026.11.5.1 fix checks again and answers 403. Both send one request, never retried, and decide the outcome from a read-back of `POST /singlewellmanual/get/loc` plus the site listing `POST /singlewellmanual/locations`. Shared helper: `_singlewell_manual_routes/` (`routes.py`, `swm_http.py`). Exit codes: 0 preview or verified; 1 request failed before any write; 2 usage; 3 refusal; 4 partial, unknown or read-back mismatch.
 
 #### onping-create-singlewell-manual
 
-Create one location via `POST /singlewellmanual/location/add`, with no parameters. The add route is **not transactional** (MySQL row, switcher index, Step 1 manual record, Step 2 Mongo location, Step 3 extras record, Step 4 group join); a 500 naming a step is reported with its location id and the records it left.
+Create one location via `POST /singlewellmanual/location/add`, with no parameters. The add route is **not transactional** (MySQL row, switcher index, Step 1 manual record, Step 2 Mongo location, Step 3 extras record, Step 4 group join); a 500 naming a step is reported with its location id and the records it left. A 403 from a fixed server prints `UNKNOWN`, searches the listing and exits 4.
 
 - **Script:** `onping-create-singlewell-manual/scripts/create_location.py`
 - **Inputs:** `access_token`, `--lj SERIAL` (the URL comes from the LAS profile's `lumberjackUrl`), `--company`, `--site`, `--group` (owned), `--name`
 - **Options:** `--port` (default 13001), `--notes`, `--yes`, `--dry-run`, `--json`
 - **Refuses:** an LJ with no URL, a group you do not own, a site outside the company, a name already used at the site
 - **Output:** the body, the checks, the new id, the field-by-field read-back, and the delete command that undoes it
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
 
 #### onping-delete-singlewell-manual
 
-Delete one location via `POST /singlewellmanual/delete [id]`. The route **always answers HTTP 200**, so gone means `get/loc` answers `failed to find single well manual location by id` and the site listing no longer has the id. **No undo**: the backup is a record, and re-creating gives a new id.
+Delete one location via `POST /singlewellmanual/delete [id]`. Servers before the 2026.11.5.1 fix answered HTTP 200 for every outcome, so the skill ignores the status and body and reads back: gone means `get/loc` answers `failed to find single well manual location by id` and the site listing no longer has the id. On a fixed server a delete that worked can still end in exit 4 `UNKNOWN`, because the read-back answers 403; the backup is kept, nothing is retried, and `onping-locations` confirms. **No undo**: the backup is a record, and re-creating gives a new id.
 
 - **Script:** `onping-delete-singlewell-manual/scripts/delete_location.py`
-- **Inputs:** `access_token`, `location_id`
+- **Inputs:** `location_id` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:** `--allow-parameters` (otherwise a location with parameters is refused), `--backup PATH`, `--yes`, `--dry-run`, `--json`
-- **Leaves behind:** the MySQL location row, the extras record, the group join, the switcher index, and any parameters' MySQL rows. No route removes them; the output names them.
-
-Both skills and the helper are held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
-- Held back from the `plow-technologies/onping-skills` export pending a public-readiness review.
+- **Leaves behind:** the MySQL location row, the extras record, and any parameters' MySQL rows; servers before the fix also left the group join and the switcher index. No route removes them; the output names them.
 
 ### MQTT JSON Integrator
 
@@ -1170,9 +1507,9 @@ Documentation files:
 Each skill is invoked the same way (preview, then apply):
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-update-<driver>/scripts/update_location.py "$ACCESS_TOKEN" REF_ID --poll-time 5 --dry-run
-uv run ~/.claude/skills/onping-update-<driver>/scripts/update_location.py "$ACCESS_TOKEN" REF_ID --poll-time 5 --yes
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-update-<driver>/scripts/update_location.py REF_ID --poll-time 5 --dry-run
+uv run ~/.claude/skills/onping-update-<driver>/scripts/update_location.py REF_ID --poll-time 5 --yes
 ```
 
 ### Driver Add Schemas
@@ -1218,9 +1555,8 @@ Drivers without an export route — bristol, unico, lufkin, osi-integration, haz
 Common usage pattern (replace `<driver>` and IDs as needed):
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/onping-export-<driver>/scripts/export_tags.py \
-    "$ACCESS_TOKEN" LOCATION_ID tags.xlsx
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-export-<driver>/scripts/export_tags.py LOCATION_ID tags.xlsx
 ```
 
 - **onping-export-micrologix** — `/micrologix/export/params/{location_id}/{filename}`

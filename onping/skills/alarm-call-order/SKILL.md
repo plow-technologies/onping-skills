@@ -16,13 +16,13 @@ Requires a valid access token. Filter by site, location, or company. The server'
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/alarm-call-order/scripts/list_call_orders.py "$ACCESS_TOKEN" --site o00000000000000000000000c
+  uv run ~/.claude/skills/alarm-call-order/scripts/list_call_orders.py --site o00000000000000000000000c
 ```
 
 Filter by location:
 
 ```bash
-uv run ~/.claude/skills/alarm-call-order/scripts/list_call_orders.py "$ACCESS_TOKEN" --location o00000000000000000000000d
+uv run ~/.claude/skills/alarm-call-order/scripts/list_call_orders.py --location o00000000000000000000000d
 ```
 
 ## Inputs

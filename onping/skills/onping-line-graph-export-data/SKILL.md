@@ -41,23 +41,25 @@ y-axis parameter and event parameter that has a set pid.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Print the Dhall list to stdout
-uv run ~/.claude/skills/onping-line-graph-export-data/scripts/export_line_graph_data.py "$ACCESS_TOKEN" <widget-id>
+uv run ~/.claude/skills/onping-line-graph-export-data/scripts/export_line_graph_data.py <widget-id>
 # Save to a file
-uv run ~/.claude/skills/onping-line-graph-export-data/scripts/export_line_graph_data.py "$ACCESS_TOKEN" <widget-id> --output chart-data.dhall
+uv run ~/.claude/skills/onping-line-graph-export-data/scripts/export_line_graph_data.py <widget-id> --output chart-data.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 Round-trip pid remap:
 
 ```bash
 # 1. Export current bindings
-uv run …/export_line_graph_data.py "$ACCESS_TOKEN" <widget-id> --output data.dhall
+uv run …/export_line_graph_data.py <widget-id> --output data.dhall
 # 2. Hand-edit `to = Some { type = "PID", value = +<new-pid> }` lines
 $EDITOR data.dhall
 # 3. Preview + apply the remap
-uv run …/onping-line-graph-import-data/scripts/import_line_graph_data.py "$ACCESS_TOKEN" --id <widget-id> --input data.dhall
-uv run …/onping-line-graph-import-data/scripts/import_line_graph_data.py "$ACCESS_TOKEN" --id <widget-id> --input data.dhall --yes
+uv run …/onping-line-graph-import-data/scripts/import_line_graph_data.py --id <widget-id> --input data.dhall
+uv run …/onping-line-graph-import-data/scripts/import_line_graph_data.py --id <widget-id> --input data.dhall --yes
 ```
 
 ## Flags

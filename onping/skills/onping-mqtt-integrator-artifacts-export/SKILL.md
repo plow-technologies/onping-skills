@@ -51,24 +51,26 @@ the spreadsheet only when you intend to edit and re-import, accepting that loss.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-artifacts-export/scripts/export_artifacts.py
 
 # Faithful backup (do this before any artifacts-import):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --json
+uv run "$SKILL" 1001 --json
 
 # The editable spreadsheet:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 
 # What is recorded, per location:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --json --summary
+uv run "$SKILL" 1001 --json --summary
 
 # Schema-check the sheet:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --validate
+uv run "$SKILL" 1001 --validate
 
 # Print JSON without writing a file:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --json --stdout
+uv run "$SKILL" 1001 --json --stdout
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 

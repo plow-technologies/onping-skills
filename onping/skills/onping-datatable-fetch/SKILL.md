@@ -26,11 +26,13 @@ selector. This skill shows both.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py "$ACCESS_TOKEN" <LJ> <table-uuid> --limit 5
-uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py "$ACCESS_TOKEN" <LJ> <table-uuid> --row 12
-uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py "$ACCESS_TOKEN" <LJ> <table-uuid> --pid 500001
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py <LJ> <table-uuid> --limit 5
+uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py <LJ> <table-uuid> --row 12
+uv run ~/.claude/skills/onping-datatable-fetch/scripts/fetch_datatable.py <LJ> <table-uuid> --pid 500001
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

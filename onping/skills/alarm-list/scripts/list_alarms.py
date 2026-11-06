@@ -9,13 +9,15 @@ import json
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="List alarm configurations from OnPing."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     parser.add_argument(
         "--site",
         action="append",
@@ -34,7 +36,7 @@ def main() -> None:
         dest="company_ids",
         help="Company MongoKey to filter by (can be repeated)",
     )
-    args = parser.parse_args()
+    args = token_source.parse(parser, None)
 
     url = "https://onping.plowtech.net/alarmmix/lister"
     headers = {"Accept": "application/json", "Authorization": f"Bearer {args.access_token}"}

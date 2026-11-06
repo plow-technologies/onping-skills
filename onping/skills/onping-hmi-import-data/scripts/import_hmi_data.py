@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _hmi_routes.hmi_args import parse
 from _hmi_routes.hmi_http import _fail, post_dhall
 from _hmi_routes.routes import ROUTES
 
@@ -62,12 +63,11 @@ def _import_data(token: str, uuid: str, dhall: str) -> dict:
     return {"imported": True, "response": parsed if parsed is not None else resp.text[:1000]}
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(
         description="Import data-binding mappings into an existing OnPing HMI "
         "from a Dhall file via POST /hmi/import-data/{uuid}. Mutating; requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("uuid", help="target HMI dashboard UUID whose data bindings to replace")
     p.add_argument("--input", help="Dhall [DataImport] file (default: stdin)")
     p.add_argument(
@@ -81,7 +81,7 @@ def main() -> None:
         help="actually import (required for any network call)",
     )
     p.add_argument("--json", action="store_true", help="emit JSON instead of text")
-    args = p.parse_args()
+    args = parse(p, argv, uuid=True, reads_stdin=True)
 
     dhall = _read_input(args.input)
     n_bindings = len(_FROM_RE.findall(dhall))

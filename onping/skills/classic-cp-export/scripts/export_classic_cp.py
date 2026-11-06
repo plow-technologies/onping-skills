@@ -25,6 +25,8 @@ import sys
 from pathlib import Path
 
 import requests
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source
 
 BASE_URL = "https://onping.plowtech.net"
 TIMEOUT_SECONDS = 30
@@ -88,7 +90,6 @@ def main() -> None:
         description="Export classic (legacy, non-Inferno) OnPing control "
         "parameters by CPID via POST /cp/export. Returns a Dhall control-parameter file.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument(
         "--cpids",
         nargs="+",
@@ -100,7 +101,7 @@ def main() -> None:
         "--output",
         help="output file path (also prints to stdout)",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None)
 
     # Export the CPs in a single request
     dhall_text = _export_classic_cps(args.access_token, args.cpids)

@@ -34,14 +34,16 @@ input), use `onping-line-graph-export`.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 # Compact JSON to stdout
-uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py "$ACCESS_TOKEN" <widget-id>
+uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py <widget-id>
 # Pretty-print (2-space indent, sorted keys)
-uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py "$ACCESS_TOKEN" <widget-id> --pretty
+uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py <widget-id> --pretty
 # Save to file (also printed to stdout; status line to stderr)
-uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py "$ACCESS_TOKEN" <widget-id> --output widget.json
+uv run ~/.claude/skills/onping-line-graph-get/scripts/get_line_graph.py <widget-id> --output widget.json
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

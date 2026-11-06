@@ -39,6 +39,7 @@ from _line_graph_routes.line_graph_http import (
     post_empty,
 )
 from _line_graph_routes.routes import ROUTES
+from _token_input import token_source  # noqa: E402
 
 
 # ─── DisplayNameConfig Dhall union type (used verbatim by every parameter) ───
@@ -385,7 +386,6 @@ def main() -> None:
         description="Import a full OnPing line-graph widget from a Dhall/JSON/YAML file "
         "via POST /content/widgets/line-graph/import/{id}. MUTATING; requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("--id", dest="widget_id", help="LineGraphWidgetId to overwrite (required unless --new)")
     p.add_argument(
         "--new",
@@ -405,7 +405,7 @@ def main() -> None:
         help="explicit preview (default when --yes is not passed); wins over --yes",
     )
     p.add_argument("--json", dest="emit_json", action="store_true", help="emit the imported widget JSON on success")
-    args = p.parse_args()
+    args = token_source.parse(p, None, stdin_busy=lambda a: not a.input_path)
 
     if not args.widget_id and not args.new:
         _fail("Either --id <widget-id> or --new is required.")

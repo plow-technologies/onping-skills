@@ -47,6 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from _pid_routes.pid_http import fail, lookup_one, post_json, resolve_names  # noqa: E402
 from _pid_routes.routes import ROUTES, VALUE_TAGS, translate_error  # noqa: E402
+from _token_input import shapes, token_source
 
 
 # ───────────────────────────── value construction ─────────────────────────────
@@ -183,8 +184,7 @@ def main() -> None:
             f"({ROUTES['write_hmi']['handler']})"
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token (from onping-login)")
-    p.add_argument("pid", help="the numeric PID to write")
+    p.add_argument("pid", help="the numeric PID to write", type=shapes.int_arg)
 
     value_group = p.add_mutually_exclusive_group(required=True)
     value_group.add_argument("--value", type=float, help="write an OnPingDouble (masked)")
@@ -221,13 +221,9 @@ def main() -> None:
     p.add_argument("--names", action="store_true", help="resolve site/company names for the report")
     p.add_argument("--json", action="store_true", help="emit a JSON report")
     p.add_argument("--yes", action="store_true", help="actually perform the write")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
-    try:
-        pid = int(args.pid)
-    except ValueError:
-        print(f"PID must be an integer, got {args.pid!r}", file=sys.stderr)
-        sys.exit(1)
+    pid = args.pid
 
     value, masked = _build_value(args)
     route_key = "write_hmi" if args.via_hmi else "write"

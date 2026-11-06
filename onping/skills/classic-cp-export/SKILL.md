@@ -41,23 +41,25 @@ Requires a valid access token and one or more numeric classic CPIDs.
 **Export to a file:**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
-  "$ACCESS_TOKEN" --cpids 10001 --output backup.dhall
+  --cpids 10001 --output backup.dhall
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Export multiple CPs (batched in a single request):**
 
 ```bash
 uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
-  "$ACCESS_TOKEN" --cpids 10001 10002 10003 --output classic-cps-backup.dhall
+  --cpids 10001 10002 10003 --output classic-cps-backup.dhall
 ```
 
 **Print to stdout only (no file):**
 
 ```bash
 uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
-  "$ACCESS_TOKEN" --cpids 10001
+  --cpids 10001
 ```
 
 **Recommended migration flow — export, then delete:**
@@ -65,11 +67,11 @@ uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
 ```bash
 # 1. Export the classic CPs as a backup
 uv run ~/.claude/skills/classic-cp-export/scripts/export_classic_cp.py \
-  "$ACCESS_TOKEN" --cpids 10001 10002 10003 --output classic-cps-backup.dhall
+  --cpids 10001 10002 10003 --output classic-cps-backup.dhall
 
 # 2. Delete them (irreversible)
 uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py \
-  "$ACCESS_TOKEN" 10001 10002 10003 --yes
+  10001 10002 10003 --yes
 ```
 
 ## Flags

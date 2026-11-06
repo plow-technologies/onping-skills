@@ -30,6 +30,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
 from _line_graph_routes.line_graph_http import _fail, extract_error, post_empty
 from _line_graph_routes.routes import ROUTES
+from _token_input import token_source  # noqa: E402
 
 
 DEFAULTS = """\
@@ -58,14 +59,13 @@ def main() -> None:
         description="Mint a fresh empty OnPing line-graph widget via "
         "POST /content/widgets/line-graph/config. MUTATING; requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("--yes", action="store_true", help="perform the mint (required to write)")
     p.add_argument(
         "--dry-run",
         action="store_true",
         help="explicit preview (default when --yes is not passed); wins over --yes",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None)
 
     if args.dry_run or not args.yes:
         print("PREVIEW — would mint a fresh line-graph widget.")

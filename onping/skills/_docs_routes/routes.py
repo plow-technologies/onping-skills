@@ -112,7 +112,7 @@ REST_ROUTES: dict[str, dict] = {
 # The roster is a function of the API key's grants: `docs` is granted
 # find/create and NOT update, so there is no `updateDocs` and a body edit must go
 # through `updateDocWithMarkdown`; `media` is absent from the grants entirely, so
-# no upload tool exists. the onping-doc trash change removed `deleteDocs` and
+# no upload tool exists. The onping-doc trash change removed `deleteDocs` and
 # `deleteCategories`: the only delete over MCP is `moveToTrash`, a soft delete of
 # ONE id in `docs` or `categories`. Call `docs_http.list_tools()` for truth.
 KNOWN_TOOLS: tuple[str, ...] = (

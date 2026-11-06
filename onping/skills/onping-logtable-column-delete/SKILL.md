@@ -27,11 +27,13 @@ allowed-tools: Bash(uv run *)
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 S=~/.claude/skills/onping-logtable-column-delete/scripts/delete_logtable_column.py
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --column flowRate          # preview
-uv run $S "$ACCESS_TOKEN" <LJ> <table-uuid> --pid 500002 --yes         # apply
+uv run $S <LJ> <table-uuid> --column flowRate          # preview
+uv run $S <LJ> <table-uuid> --pid 500002 --yes         # apply
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ## Flags
 

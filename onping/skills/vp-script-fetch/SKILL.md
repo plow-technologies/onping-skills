@@ -31,7 +31,7 @@ Requires a valid access token and a script ID (base64-encoded string). Run login
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/vp-script-fetch/scripts/fetch_script.py "$ACCESS_TOKEN" "SCRIPT_ID"
+  uv run ~/.claude/skills/vp-script-fetch/scripts/fetch_script.py "SCRIPT_ID"
 ```
 
 Replace `SCRIPT_ID` with the base64-encoded script ID (e.g. `"JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ="`).

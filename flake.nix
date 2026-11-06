@@ -294,6 +294,16 @@
               mkdir -p "$out"
               touch "$out/ok"
             '';
+          # No OnPing skill may take the access token as an argument.
+          token-argv = pkgs.runCommand "token-argv" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+            python3 ${self}/scripts/check-token-argv.py ${self}/onping ${self}/onping-charts
+            touch "$out"
+          '';
+          # Every script that imports a shared _helper carries the one canonical sys.path line (every provider with helpers).
+          skill-bootstrap = pkgs.runCommand "skill-bootstrap" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+            python3 ${self}/scripts/check-skill-bootstrap.py
+            touch "$out"
+          '';
         } // pkgs.lib.optionalAttrs (onpingAllowlist != null) {
           # Evaluating the allowlist runs its fail-closed asserts: every OnPing
           # skill classified, no unknown or duplicate IDs, helper closure. The

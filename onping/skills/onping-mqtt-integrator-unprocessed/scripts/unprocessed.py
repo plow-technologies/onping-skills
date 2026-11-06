@@ -58,6 +58,7 @@ from _mqtt_integrator_routes.integrator_http import (
     report_write,
 )
 from _mqtt_integrator_routes.routes import endpoint
+from _token_input import shapes, token_source  # noqa: E402
 
 
 def _topic_of(entry) -> str:
@@ -86,8 +87,7 @@ def main() -> None:
             "requires --clear --yes."
         ),
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator")
+    p.add_argument("serial", help="LJSerial of the Lumberjack running the integrator", type=shapes.int_arg)
     p.add_argument(
         "--json", action="store_true", help="emit the raw UnprocessedData JSON"
     )
@@ -126,7 +126,7 @@ def main() -> None:
         help="with --clear, report what would be deleted and stop (wins over --yes)",
     )
     p.add_argument("--yes", action="store_true", help="actually perform the clear")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     data = get_json(
         args.access_token, endpoint("get_unprocessed"), serial=args.serial

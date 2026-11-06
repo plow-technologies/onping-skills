@@ -71,31 +71,33 @@ them manually. Rule execution is blocking and single-threaded server-side.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-config/scripts/integrator_config.py
 
 # Read the current config:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001
+uv run "$SKILL" 1001
 
 # Raw JSON:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --json
+uv run "$SKILL" 1001 --json
 
 # Preview a topic change (no write):
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --topic 'example/production/#'
+uv run "$SKILL" 1001 --topic 'example/production/#'
 
 # Apply it:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --topic 'example/production/#' --yes
+uv run "$SKILL" 1001 --topic 'example/production/#' --yes
 
 # Turn off auto-execute and cap the queue at 5000:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --no-auto-execute --queue-cap 5000 --yes
+uv run "$SKILL" 1001 --no-auto-execute --queue-cap 5000 --yes
 
 # Remove the cap:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 --no-queue-cap --yes
+uv run "$SKILL" 1001 --no-queue-cap --yes
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running `mqtt-json-integrator-server`
 - `--broker URI` / `--topic FILTER` — connection settings
 - `--auto-execute` / `--no-auto-execute` — the on-message rule trigger

@@ -56,21 +56,23 @@ when any expression fails so it can gate a pipeline.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 
 # Validate a location-match rule (full grammar):
 uv run ~/.claude/skills/onping-mqtt-integrator-rule-parse/scripts/parse_rule.py \
-  "$ACCESS_TOKEN" '{topic|s#/([^/]*)/([^/]*)/([^/]*)/*.*#\1-\2-\3#}'
+  '{topic|s#/([^/]*)/([^/]*)/([^/]*)/*.*#\1-\2-\3#}'
 
 # Validate a PID value selector (JQ only):
-uv run .../parse_rule.py "$ACCESS_TOKEN" --jq-only '.temperature'
+uv run .../parse_rule.py --jq-only '.temperature'
 
 # Validate a whole column at once, one expression per line:
-uv run .../parse_rule.py "$ACCESS_TOKEN" --file location-rules.txt
+uv run .../parse_rule.py --file location-rules.txt
 
 # Machine-readable:
-uv run .../parse_rule.py "$ACCESS_TOKEN" --json '.timestamp'
+uv run .../parse_rule.py --json '.timestamp'
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Quote every expression in single quotes.** Rules contain `{`, `}`, `#`, `|` and
 backslash escapes; unquoted, the shell mangles them and you validate something

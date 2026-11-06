@@ -34,14 +34,14 @@ Fetch the Inferno script payload for a control parameter script ID.
 Requires a valid access token and a base64-encoded script ID:
 
 ```bash
-uv run ~/.claude/skills/cp-script-fetch/scripts/fetch_control_script.py "$ACCESS_TOKEN" "SCRIPT_ID"
+uv run ~/.claude/skills/cp-script-fetch/scripts/fetch_control_script.py "SCRIPT_ID"
 ```
 
 Run login and fetch in a single pipeline:
 
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
-  uv run ~/.claude/skills/cp-script-fetch/scripts/fetch_control_script.py "$ACCESS_TOKEN" "SCRIPT_ID"
+  uv run ~/.claude/skills/cp-script-fetch/scripts/fetch_control_script.py "SCRIPT_ID"
 ```
 
 ## Output

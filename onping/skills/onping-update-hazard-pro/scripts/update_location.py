@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from _driver_update_routes.routes import ROUTES
 from _driver_update_routes.update import update_location
+from _token_input import shapes, token_source
 
 DRIVER = "hazard-pro"
 
@@ -28,8 +29,7 @@ def main() -> None:
         description=f"Update the OnPing {DRIVER} driver location config "
         f"(read-modify-write; lumberjack/identity fields are never changed).",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("ref_id", type=int, help="location refId (LocationIdRef)")
+    p.add_argument("ref_id", type=shapes.int_arg, help="location refId (LocationIdRef)")
     if polls:
         p.add_argument("--poll-time", type=int, help="new poll time in SECONDS")
     p.add_argument(
@@ -39,7 +39,7 @@ def main() -> None:
     )
     p.add_argument("--dry-run", action="store_true", help="fetch + show diff, do not POST")
     p.add_argument("--yes", action="store_true", help="apply the update (POST)")
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_int)
 
     poll_time = getattr(args, "poll_time", None) if polls else None
 

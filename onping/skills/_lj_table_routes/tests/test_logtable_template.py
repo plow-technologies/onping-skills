@@ -259,7 +259,8 @@ def create(monkeypatch):
     monkeypatch.setattr(mod, "post_json", post_json)
 
     def run(*argv):
-        monkeypatch.setattr(sys, "argv", ["create_logtable.py", "TOKEN", "9999", *argv])
+        monkeypatch.setenv("ONPING_ACCESS_TOKEN", "TOKEN")
+        monkeypatch.setattr(sys, "argv", ["create_logtable.py", "9999", *argv])
         try:
             mod.main()
         except SystemExit as e:

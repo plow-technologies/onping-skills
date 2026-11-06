@@ -32,6 +32,7 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     export_inference_params,
     is_uuid,
 )
+from _token_input import shapes, token_source
 
 
 def _collect_ids(args: argparse.Namespace) -> list[str]:
@@ -97,12 +98,12 @@ def main() -> None:
             "POST /inferno/ml/inference/export. Read-only."
         ),
     )
-    p.add_argument("access_token", help="OnPing bearer token (see onping-login)")
     p.add_argument(
         "param_ids",
         nargs="*",
         metavar="UUID",
         help="One or more inference parameter UUIDs",
+        type=shapes.uuid_arg,
     )
     p.add_argument(
         "--stdin-ids",
@@ -135,7 +136,7 @@ def main() -> None:
         action="store_false",
         help="Warn instead of failing when ids are omitted",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_uuid, stdin_busy=lambda a: a.stdin_ids, stdin_hint='--stdin-ids reads the ids from stdin; pass the token in $ONPING_ACCESS_TOKEN instead of --token-stdin.')
 
     requested = _collect_ids(args)
 

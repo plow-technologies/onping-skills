@@ -89,26 +89,28 @@ as the logtable and singlewell-manual imports.
 ## Usage
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
 SKILL=~/.claude/skills/onping-mqtt-integrator-rules-import/scripts/import_rules.py
 
 # 1. Back up (mandatory in practice):
 uv run ~/.claude/skills/onping-mqtt-integrator-rules-export/scripts/export_rules.py \
-  "$ACCESS_TOKEN" 1001 --out before-import.xlsx
+  1001 --out before-import.xlsx
 
 # 2. Edit before-import.xlsx, then preview — shows what would be dropped:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 edited.xlsx
+uv run "$SKILL" 1001 edited.xlsx
 
 # 3. Apply:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 edited.xlsx --yes
+uv run "$SKILL" 1001 edited.xlsx --yes
 
 # Apply and immediately run the new rules:
-uv run "$SKILL" "$ACCESS_TOKEN" 1001 edited.xlsx --yes --execute
+uv run "$SKILL" 1001 edited.xlsx --yes --execute
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 ### Inputs
 
-- `access_token` — OnPing bearer token (from `onping-login`)
+- the token — `$ONPING_ACCESS_TOKEN` or `--token-stdin` (from `onping-login`); never an argument
 - `serial` — `LJSerial` of the Lumberjack running the integrator
 - `spreadsheet` — path to the rules XLSX
 - `--execute` — after a successful import, run the new rules against stored

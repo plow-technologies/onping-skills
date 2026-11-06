@@ -34,6 +34,7 @@ from _ctable_routes.routes import (
     ROUTES,
     normalize_ctable_id,
 )
+from _token_input import shapes, token_source
 
 
 def main() -> None:
@@ -41,15 +42,14 @@ def main() -> None:
         description="Export an OnPing custom-table widget as JSON via "
         "GET /content/ctable/json. Read-only.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
-    p.add_argument("ctable_id", help="custom table id (o-prefixed, or bare 24-hex)")
+    p.add_argument("ctable_id", help="custom table id (o-prefixed, or bare 24-hex)", type=shapes.oid_arg)
     p.add_argument("--output", help="write the JSON here (otherwise stdout)")
     p.add_argument(
         "--indent", type=int, default=None,
         help="pretty-print with this indent; default is the compact form that "
              "round-trips byte-identically",
     )
-    args = p.parse_args()
+    args = token_source.parse(p, None, is_id=shapes.is_oid)
 
     try:
         table_id = normalize_ctable_id(args.ctable_id)

@@ -22,7 +22,7 @@ If the route changes, re-verify against the recorded handler location and update
 ```bash
 ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py) && \
   uv run ~/.claude/skills/onping-export-sparkplug-bridge/scripts/export_tags.py \
-    "$ACCESS_TOKEN" LUMBERJACK_SERIAL [FILENAME]
+    LUMBERJACK_SERIAL [FILENAME]
 ```
 
 ### Inputs

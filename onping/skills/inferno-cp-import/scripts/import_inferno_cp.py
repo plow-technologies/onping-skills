@@ -32,6 +32,9 @@ import re
 import sys
 
 import requests
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the skills root
+from _token_input import token_source  # noqa: E402
 
 BASE_URL = "https://onping.plowtech.net"
 TIMEOUT_SECONDS = 30
@@ -336,7 +339,6 @@ def main() -> None:
         description="Import Inferno OnPing control parameters from a JSON file via "
         "POST /cpInferno/import. Mutating (addOrUpdate by cpId); requires --yes.",
     )
-    p.add_argument("access_token", help="OnPing OAuth bearer token")
     p.add_argument("--input", help="JSON CP-array file to import (default: stdin)")
     p.add_argument(
         "--dry-run",
@@ -349,7 +351,7 @@ def main() -> None:
         help="actually import (required for any network call)",
     )
     p.add_argument("--json", action="store_true", help="emit JSON instead of text")
-    args = p.parse_args()
+    args = token_source.parse(p, None, stdin_busy=lambda a: not a.input)
 
     raw = _read_input(args.input)
     cps = _parse_and_validate(raw)

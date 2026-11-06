@@ -20,13 +20,13 @@ from _inferno_ml_routes.inferno_ml_models import (  # noqa: E402
     parse_categories,
     update_version_docs,
 )
+from _token_input import token_source
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Show or update documentation fields for an OnPing model version."
     )
-    parser.add_argument("access_token", help="OnPing OAuth2 access token")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     show = subparsers.add_parser("show", help="Show the current model-version metadata")
@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    args = token_source.parse(parser, argv)
 
     try:
         if args.command == "show":

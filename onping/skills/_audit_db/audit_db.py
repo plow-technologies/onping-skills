@@ -18,7 +18,8 @@ CREDENTIALS ARE RESOLVED AT RUN TIME, NEVER STORED
 `resolve_pg()` reads the postgres block from the deployed `onping-audit-server`
 config over SSH and connects with what it finds. No password, username, or
 database name is stored in this repository, and a password rotation needs no
-change here.
+change here. The password travels on ssh's standard input and is read into
+`PGPASSWORD` on the remote side, so it is on no command line anywhere.
 
 TWO TOPOLOGY FACTS, BOTH LEARNED THE HARD WAY
 
@@ -72,12 +73,18 @@ def fail(msg: str) -> None:
     sys.exit(1)
 
 
-def _ssh(host: str, command: str, *, timeout: int = DEFAULT_TIMEOUT) -> str:
-    """Run one command over SSH and return stdout, or exit non-zero."""
+def _ssh(host: str, command: str, *, timeout: int = DEFAULT_TIMEOUT,
+         stdin_text: str | None = None) -> str:
+    """Run one command over SSH and return stdout, or exit non-zero.
+
+    `stdin_text` is sent on the remote command's standard input. Secrets go
+    here, never into `command`, which is visible in `ps` on both machines.
+    """
     argv = ["ssh", *SSH_OPTS, f"{SSH_USER}@{host}", command]
     try:
         proc = subprocess.run(
-            argv, capture_output=True, text=True, timeout=timeout, check=False
+            argv, capture_output=True, text=True, timeout=timeout, check=False,
+            input=stdin_text,
         )
     except subprocess.TimeoutExpired:
         fail(f"SSH to {host} timed out after {timeout}s.")
@@ -193,13 +200,19 @@ def resolve_pg(audit_host: str, *, verbose: bool = True) -> PgTarget:
 
 def _psql(target: PgTarget, sql: str, *, timeout: int = DEFAULT_TIMEOUT) -> str:
     """Run one SQL statement on the database host via SSH. SELECT only."""
+    if "\n" in target.password or "\r" in target.password:
+        fail("The postgres password in the deployed config contains a newline; "
+             "it cannot be handed to psql over stdin.")
+    # The password rides on ssh's stdin and is read into the environment on the
+    # remote side, so it is on neither machine's command line.
     inner = (
-        f"PGPASSWORD={shlex.quote(target.password)} psql "
+        "IFS= read -r PGPASSWORD && export PGPASSWORD && psql "
         f"-h {shlex.quote(target.host)} -p {shlex.quote(target.port)} "
         f"-U {shlex.quote(target.user)} -d {shlex.quote(target.dbname)} "
         f"-q -X -A -t -c {shlex.quote(sql)}"
     )
-    out = _ssh(target.exec_host, inner, timeout=timeout)
+    out = _ssh(target.exec_host, inner, timeout=timeout,
+               stdin_text=target.password + "\n")
     if "psql: error" in out or "ERROR:" in out:
         fail(f"postgres error:\n{out.strip()[:800]}")
     return out

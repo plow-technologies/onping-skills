@@ -40,20 +40,22 @@ Requires a valid access token and one or more numeric classic CPIDs.
 **Preview (default — makes no network call):**
 
 ```bash
-ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
-uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py "$ACCESS_TOKEN" 10001
+export ONPING_ACCESS_TOKEN=$(uv run ~/.claude/skills/onping-login/scripts/login.py)
+uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py 10001
 ```
+
+The access token comes from `$ONPING_ACCESS_TOKEN`, or from stdin with `--token-stdin` (`uv run ~/.claude/skills/onping-login/scripts/login.py | uv run … --token-stdin …`). It is never a command-line argument: `ps` shows every argument to other local users. A token as the first argument still works but is deprecated and warns.
 
 **Apply (actually deletes — irreversible):**
 
 ```bash
-uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py "$ACCESS_TOKEN" 10001 --yes
+uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py 10001 --yes
 ```
 
 **Batch** (one `POST /cp/delete` per CPID; a failure on one does not stop the rest):
 
 ```bash
-uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py "$ACCESS_TOKEN" 10001 10002 10003 --yes
+uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py 10001 10002 10003 --yes
 ```
 
 **Recommended migration flow — back up, then delete:**
@@ -61,10 +63,10 @@ uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py "$ACCESS_
 ```bash
 # 1. Back up the classic CPs first
 uv run ~/.claude/skills/classic-cp-dhall/scripts/classic_cp_dhall.py \
-  export "$ACCESS_TOKEN" --cpids 10001 10002 10003 --output classic-cps-backup.dhall
+  export --cpids 10001 10002 10003 --output classic-cps-backup.dhall
 # 2. Delete them
 uv run ~/.claude/skills/classic-cp-delete/scripts/delete_classic_cp.py \
-  "$ACCESS_TOKEN" 10001 10002 10003 --yes
+  10001 10002 10003 --yes
 ```
 
 ## Flags
