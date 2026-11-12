@@ -3,9 +3,10 @@
 # dependencies = ["requests"]
 # ///
 """
-Generate an OnPing CSV report via the /tachdb/report endpoint (Bearer auth).
+Generate an OnPing report (csv or xlsx) via the /tachdb/report endpoint (Bearer auth).
 
-Prints the download URL to stdout on success.
+Prints the report URL to stdout on success. The server builds the file after it answers,
+so a URL is not proof that the file exists yet.
 """
 
 import argparse
@@ -22,14 +23,15 @@ REPORT_URL = "https://onping.plowtech.net/tachdb/report"
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate an OnPing CSV report and print the download URL."
+        description="Generate an OnPing report (csv or xlsx) and print the report URL."
     )
     parser.add_argument("start_date", help="ISO 8601 start date (e.g. 2026-02-22T06:00:00Z)", type=shapes.iso_date_arg)
     parser.add_argument("end_date", help="ISO 8601 end date (e.g. 2026-02-25T06:00:00Z)", type=shapes.iso_date_arg)
     parser.add_argument("pids", nargs="+", help="Parameter IDs (integers)", type=shapes.int_arg)
     parser.add_argument("--step", type=int, default=60, help="Step size in seconds (default: 60)")
     parser.add_argument("--resolution", type=int, default=8, help="Resolution exponent (default: 8)")
-    parser.add_argument("--title", default="CSV Report", help="Report title (default: 'CSV Report')")
+    parser.add_argument("--title", default=None, help="Report title (default: 'CSV Report' for csv, 'Report' for xlsx)")
+    parser.add_argument("--format", choices=["csv", "xlsx"], default="csv", help="Report format (default: csv)")
     parser.add_argument("--vpid", action="store_true", help="Treat PIDs as virtual parameter IDs")
 
     args = token_source.parse(parser, None, is_id=shapes.is_iso_date)
@@ -39,14 +41,17 @@ def main():
     else:
         pid_list = list(args.pids)
 
+    title = args.title if args.title is not None else ("Report" if args.format == "xlsx" else "CSV Report")
     body = {
-        "title": args.title,
+        "title": title,
         "step": args.step,
         "resolution": args.resolution,
         "startDate": args.start_date,
         "endDate": args.end_date,
         "pidList": pid_list,
     }
+    if args.format == "xlsx":  # csv is the server default: leave the field out so the csv body stays as it was
+        body["format"] = "xlsx"
 
     headers = {
         "Authorization": f"Bearer {args.access_token}",

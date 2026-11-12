@@ -1,4 +1,4 @@
-{ agentSkillsModule, agentLib, checksumSync, patchChecksum ? true }:
+{ agentSkillsModule, agentLib, checksumSync, patchChecksum ? true, wacliFor ? null, gogFor ? null }:
 
 { config, lib, pkgs, ... }:
 
@@ -22,7 +22,12 @@ let
   };
 in
 {
-  imports = [ agentSkillsModule ];
+  # The WhatsApp background sync rides along when the flake supplies wacli
+  # (homeManagerModules.default does). It stays off until enabled.
+  imports = [ agentSkillsModule ]
+    ++ (if wacliFor == null then [ ] else [ (import ./whatsapp.nix { inherit wacliFor; }) ])
+    # The Gmail tool and poll, likewise off until enabled (add-gmail-skills).
+    ++ (if gogFor == null then [ ] else [ (import ./gmail.nix { inherit gogFor; }) ]);
 
   options.programs.agent-skills.codexLegacyHomeRoot = lib.mkOption {
     type = lib.types.bool;

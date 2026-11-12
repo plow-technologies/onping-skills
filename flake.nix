@@ -163,10 +163,33 @@
         else builtins.head ids;
     in
     {
-      packages = forAllSystems (system: {
-        default = bundleFor system;
-        agent-skills-bundle = bundleFor system;
-      });
+      packages = forAllSystems (system:
+        let pkgs = nixpkgs.legacyPackages.${system}; in
+        {
+          default = bundleFor system;
+          agent-skills-bundle = bundleFor system;
+        }
+        # wacli and gog belong to the whatsapp-* and gmail-* skills. The onping
+        # and public exports ship neither those skills nor their nix/*.nix, so
+        # each package exists only where its file does (the same shape as the
+        # conditional checks below; export-common.sh treats a path tested with
+        # builtins.pathExists as optional).
+        #
+        # The WhatsApp client the whatsapp-* skills drive (add-whatsapp-skills). wacli needs
+        # Go 1.27. A consumer that makes this flake follow its own nixpkgs can carry an older
+        # default Go with Go 1.27 beside it, so use buildGo127Module wherever it exists.
+        // nixpkgs.lib.optionalAttrs (builtins.pathExists ./nix/wacli.nix) {
+          wacli = pkgs.callPackage ./nix/wacli.nix {
+            buildGoModule = pkgs.buildGo127Module or pkgs.buildGoModule;
+          };
+        }
+        # The Google CLI the gmail-* skills drive (add-gmail-skills), pinned at the
+        # tag the skills were written against, because nixpkgs lags it.
+        // nixpkgs.lib.optionalAttrs (builtins.pathExists ./nix/gog.nix) {
+          gog = pkgs.callPackage ./nix/gog.nix {
+            buildGoModule = pkgs.buildGo127Module or pkgs.buildGoModule;
+          };
+        });
 
       apps = forAllSystems (system:
         let
@@ -220,6 +243,18 @@
             (map (d: "${self}/${d}")
               (builtins.filter (d: builtins.pathExists (self + "/${d}"))
                 [ "onping" "onping-charts" ]));
+          # skill-bootstrap needs a <provider>/skills directory holding a
+          # `_helper` directory, and fails without one (so it cannot pass on
+          # nothing). The public export carries only providers without helpers.
+          hasSkillHelpers = builtins.any
+            (d: builtins.pathExists (self + "/${d}/skills")
+              && builtins.any (n: nixpkgs.lib.hasPrefix "_" n)
+                (builtins.attrNames
+                  (nixpkgs.lib.filterAttrs (_: t: t == "directory")
+                    (builtins.readDir (self + "/${d}/skills")))))
+            (builtins.attrNames
+              (nixpkgs.lib.filterAttrs (n: t: t == "directory" && !(nixpkgs.lib.hasPrefix "." n))
+                (builtins.readDir self)));
         in
         {
           skill-sync-smoke = pkgs.runCommand "skill-sync-smoke" { } ''
@@ -298,13 +333,16 @@
               mkdir -p "$out"
               touch "$out/ok"
             '';
+        } // pkgs.lib.optionalAttrs (tokenArgvRoots != "") {
           # No OnPing skill may take the access token as an argument. The
           # roots are the OnPing trees that exist: the standalone export has
-          # no onping-charts.
+          # no onping-charts, and the public export has no OnPing tree at all,
+          # where the check would pass on nothing.
           token-argv = pkgs.runCommand "token-argv" { nativeBuildInputs = [ pkgs.python3 ]; } ''
             python3 ${self}/scripts/check-token-argv.py ${tokenArgvRoots}
             touch "$out"
           '';
+        } // pkgs.lib.optionalAttrs hasSkillHelpers {
           # Every script that imports a shared _helper carries the one canonical sys.path line (every provider with helpers).
           skill-bootstrap = pkgs.runCommand "skill-bootstrap" { nativeBuildInputs = [ pkgs.python3 ]; } ''
             python3 ${self}/scripts/check-skill-bootstrap.py
@@ -321,6 +359,14 @@
       homeManagerModules.default = import ./nix/home.nix {
         agentSkillsModule = agent-skills-nix.homeManagerModules.default;
         inherit agentLib checksumSync;
+        # null drops the module that imports nix/whatsapp.nix or nix/gmail.nix;
+        # a tree without the package ships neither file (see packages above).
+        wacliFor =
+          if builtins.pathExists ./nix/wacli.nix
+          then (system: self.packages.${system}.wacli) else null;
+        gogFor =
+          if builtins.pathExists ./nix/gog.nix
+          then (system: self.packages.${system}.gog) else null;
       };
 
       lib = {
