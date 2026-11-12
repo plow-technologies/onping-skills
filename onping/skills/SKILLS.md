@@ -1210,16 +1210,17 @@ Prepare a Dhall event table config file from a template, by hand, for a reward d
 
 #### onping-report
 
-Generate a CSV report from OnPing historical data via the `/tachdb/report` endpoint. Posts a report request with Bearer auth and returns a pre-signed S3 download URL.
+Generate a csv or xlsx report from OnPing historical data via the `/tachdb/report` endpoint. Posts a report request with Bearer auth and returns the report URL, an OnPing route (`/s3/availableFile/<user>/<date>/<file>`, not a pre-signed URL) served to the logged-in user who owns the file. The server builds the file after it answers, so a URL does not show that the file exists yet. Row times are America/Chicago local time with no offset.
 
 - **Script:** `onping-report/scripts/generate_report.py`
-- **Input:** `START_DATE END_DATE PID [PID ...]` (token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
+- **Input:** `START_DATE END_DATE PID [PID ...]` (UTC bounds; token from `$ONPING_ACCESS_TOKEN` or `--token-stdin`)
 - **Options:**
+  - `--format csv|xlsx` — Report format (default: csv; csv requests are unchanged)
   - `--step N` — Step size in seconds (default: 60)
   - `--resolution N` — Resolution exponent (default: 8)
-  - `--title TEXT` — Report title (default: "CSV Report")
+  - `--title TEXT` — Report title (default: "CSV Report" for csv, "Report" for xlsx)
   - `--vpid` — Treat PIDs as virtual parameter IDs
-- **Output:** Pre-signed CSV download URL (printed to stdout)
+- **Output:** The report URL (printed to stdout)
 
 ### Audit
 
